@@ -17,7 +17,6 @@ class Interface:
 
         self.setup_initial_data()
 
-
     def setup_initial_data(self):
         checking_account = BankAccount(
             account_id = self.next_account_id,
@@ -27,7 +26,6 @@ class Interface:
         )
         self.all_bank_accounts[self.next_account_id] = checking_account
         self.next_account_id += 1
-
 
     def display_main_menu(self):
         print('\n' + '='*50)
@@ -40,7 +38,6 @@ class Interface:
         print('-'*50)
         print('0. Exit Application')
         print('='*50)
-
 
     def handle_menu_selection(self):
         while True:
@@ -105,7 +102,8 @@ class Interface:
             expense = User('sdaad', 'asdas')
             expense.add_expense(amount, cat, desc)
 
-
+    def view_financial_overview_interface(self):
+        pass
 
 
 
