@@ -1,6 +1,6 @@
-from expenses import Expense
-from bank_accounts import BankAccount
-from users import User
+from .expenses import Expense
+from .bank_accounts import BankAccount
+from .users import User
 
 class Interface:
     def __init__(self):
@@ -22,14 +22,15 @@ class Interface:
         checking_account = BankAccount(
             account_id = self.next_account_id,
             user_id = self.current_user_id,
-            accout_type = 'Checking',
-            initial_balance = 1500.00
+            account_type = 'Checking',
+            initial_balance = 1500.00,
         )
         self.all_bank_accounts[self.next_account_id] = checking_account
         self.next_account_id += 1
 
 
-    def display_main_menu(self):
+    @staticmethod
+    def display_main_menu():
         print('\n' + '='*50)
         print('               HOME BUDGET MANAGER MENU')
         print('='*50)
