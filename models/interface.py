@@ -4,8 +4,7 @@ from .users import User
 
 class Interface:
     def __init__(self):
-        self.all_users = {}
-        self.all_bank_accounts = {}
+        self.all_bank_accounts = []
         self.all_expenses = {}
 
         self.next_expense_id = 1
@@ -24,8 +23,8 @@ class Interface:
             account_type = 'Checking',
             initial_balance = 1500.00,
         )
-        self.all_bank_accounts[self.next_account_id] = checking_account
-        self.next_account_id += 1
+        self.all_bank_accounts.append(checking_account)
+        self.next_account_id += 0
 
     @staticmethod
     def display_main_menu():
@@ -55,40 +54,7 @@ class Interface:
             elif choice == 3:
                 pass
             elif choice == 4:
-                while True:
-                    print('\n' + '=' * 50)
-                    print('               CATEGORIES')
-                    print('=' * 50)
-                    print('1. Food')
-                    print('2. Home')
-                    print('3. Transport')
-                    print('4. Entertainment')
-                    print('5. Life')
-                    print('6. Shopping')
-                    print('7. Bills')
-                    print('8. Investments')
-                    print('-' * 50)
-                    print('0. Return')
-                    print('=' * 50)
-                    new_choice = input('Enter your choice: ')
-                    if new_choice == 1:
-                        pass
-                    if new_choice == 2:
-                        pass
-                    if new_choice == 3:
-                        pass
-                    if new_choice == 4:
-                        pass
-                    if new_choice == 5:
-                        pass
-                    if new_choice == 6:
-                        pass
-                    if new_choice == 7:
-                        pass
-                    if new_choice == 8:
-                        pass
-                    else:
-                        break
+                self.category_choice()
 
     def add_new_expenses_interface(self):
         print(self.categories)
@@ -104,7 +70,42 @@ class Interface:
             expense.add_expense(amount, cat, desc)
 
     def view_financial_overview_interface(self):
-        pass
+        print(f'balans {self.all_bank_accounts[0].balance}')
 
-
+    @staticmethod
+    def category_choice():
+        while True:
+            print('\n' + '=' * 50)
+            print('               CATEGORIES')
+            print('=' * 50)
+            print('1. Food')
+            print('2. Home')
+            print('3. Transport')
+            print('4. Entertainment')
+            print('5. Life')
+            print('6. Shopping')
+            print('7. Bills')
+            print('8. Investments')
+            print('-' * 50)
+            print('0. Return')
+            print('=' * 50)
+            new_choice = input('Enter your choice: ')
+            if new_choice == 1:
+                pass
+            if new_choice == 2:
+                pass
+            if new_choice == 3:
+                pass
+            if new_choice == 4:
+                pass
+            if new_choice == 5:
+                pass
+            if new_choice == 6:
+                pass
+            if new_choice == 7:
+                pass
+            if new_choice == 8:
+                pass
+            else:
+                break
 
