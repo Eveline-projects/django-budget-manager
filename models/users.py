@@ -1,4 +1,5 @@
 from datetime import date
+from .bank_accounts import BankAccount
 
 class User:
 
@@ -8,7 +9,7 @@ class User:
   
         self.user_type = user_type
         self.username = username
-        self.accounts = []       # list of assigned accounts
+        self.accounts = [BankAccount(1,1,'jghvda')]       # list of assigned accounts
         self.expenses = []       # list of expenses made by the user
 
 
