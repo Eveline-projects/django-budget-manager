@@ -2,5 +2,7 @@
 <project version="4">
   <component name="VcsDirectoryMappings">
     <mapping directory="" vcs="Git" />
+    <mapping directory="$PROJECT_DIR$/../../jpydzr9-oop-w-pythonie" vcs="Git" />
+    <mapping directory="$PROJECT_DIR$/../../jpydzr9-podstawy-programowania" vcs="Git" />
   </component>
 </project>
