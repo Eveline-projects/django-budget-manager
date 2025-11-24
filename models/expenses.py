@@ -63,13 +63,3 @@ class Expense:
     @property
     def expense_id(self):
         return self._expense_id
-
-
-    def get_expense_id(self):
-        return self.expense_id
-
-    #TODO zmien expense id na prywanty i automatyczne przyznawanie
-
-wydatek =Expense(100, Category.FOOD, 1)
-print(wydatek.get_expense_id())
-print(wydatek)

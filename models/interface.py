@@ -243,7 +243,7 @@ class Interface:
 
     @staticmethod
     def add_new_expense_interface():
-        """TODO: Metoda dodawania nowego wydatku. Wymaga implementacji logiki płatności."""
+        """TODO: Metoda dodawania nowego wydatku"""
         print("\nTODO: zaimplementować add_new_expense_interface.")
         expense = input('Enter expense: ')
         User.add_expense = expense
@@ -264,7 +264,6 @@ class Interface:
         print(f"\n--- EXPENSES FOR {current_user.username.upper()} ---")
 
         for expense_id in expense_ids:
-            #TODO co to znaczy
             expense = self.all_expenses.get(expense_id)
 
             if expense:
@@ -280,7 +279,7 @@ class Interface:
 
     def display_main_menu(self):
         print("\n" + "=" * 30)
-        print("HOME BUDGET (v1.0)")
+        print("         HOME BUDGET")
         print("=" * 30)
 
         if self.current_user_id is None:
@@ -313,7 +312,7 @@ class Interface:
                 elif choice == '2':
                     self.create_new_user_interface()
                 else:
-                    print("Incorrect choice.")
+                    print("\nIncorrect choice.")
 
             else:
                 if choice == '3':
@@ -327,7 +326,7 @@ class Interface:
                 elif choice == '7':
                     self.current_user_id = None; print("Logged Out.")
                 else:
-                    print("Incorrect choice.")
+                    print("\nIncorrect choice.")
 
 if __name__ == "__main__":
     app = Interface()
