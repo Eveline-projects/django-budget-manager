@@ -1,10 +1,11 @@
 from datetime import date
 from typing import List
+from decimal import Decimal
 
 
 class BankAccount:
     def __init__(self, account_id: int, user_id: int, account_type: str,
-                 initial_balance: float = 100.0, is_active: bool = True ):
+                 initial_balance: Decimal, is_active: bool = True ):
         self.account_id = account_id
         self.user_id = user_id
         self.account_type = account_type
@@ -52,6 +53,6 @@ class BankAccount:
                 f' Expenses Count: {len(self.assigned_expense_ids)}')
 
 
-basia = BankAccount(1,2,'3')
+basia = BankAccount(1,2,'3', Decimal("1000"))
 print(basia.withdraw(100))
 

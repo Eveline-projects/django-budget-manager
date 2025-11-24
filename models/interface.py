@@ -3,7 +3,7 @@ import json
 import os
 from typing import Dict, Optional
 from decimal import Decimal
-from users import User, UserType
+from .users import User, UserType
 from bank_accounts import BankAccount
 from expenses import Expense, Category
 

@@ -1,78 +1,69 @@
-from datetime import date
-from .bank_accounts import BankAccount
+from enum import auto, StrEnum
+from bank_accounts import BankAccount
+from typing import List, Tuple
+
+
+class UserType(StrEnum):
+    ADMIN = auto()
+    ADULT = auto()
+    CHILD = auto()
+
 
 class User:
-
-
-
-    def __init__(self, user_type: str, username: str):
-  
-        self.user_type = user_type
+    def __init__(self, username: str, user_type: UserType, user_id: int):
+        self._username = ""
         self.username = username
-        self.accounts = [BankAccount(1,1,'jghvda')]       # list of assigned accounts
-        self.expenses = []       # list of expenses made by the user
+        self.user_type = user_type
+        self.user_id = user_id
 
+        self.assigned_account: List[int] = []
+        self.assigned_expense: List[int] = []
 
-    def add_account(self, account_name: str):
+        self._password_hash = ""
 
-        if account_name not in self.accounts:
-            self.accounts.append(account_name)
-            print(f"Account '{account_name}' has been added to user {self.username}.")
-        else:
-            print(f"Account '{account_name}' already exists.")
+    @property
+    def username(self):
+        return self._username
 
+    @username.setter
+    def username(self, username: str):
+        if not isinstance(username, str) or not username.strip():
+            raise ValueError("Username cannot be empty")
+        self._username = username.strip()
 
-    def add_expense(self, amount: float, category: str, description: str = ""):
-    
-        if amount <= 0:
-            print("The amount must be greater than zero.")
-            return
+    def set_password_hash(self, password_hash):
+        self._password_hash = password_hash
 
-        expense = {
-            "amount": amount,
-            "category": category,
-            "description": description
-        }
+    def verify_password(self, password_hash):
+        return self._password_hash == password_hash
 
-        self.expenses.append(expense)
-        print(f"Expense {amount:.2f} PLN in category '{category}' added for user {self.username}.")
+    def add_account(self, account: BankAccount) -> Tuple[bool, str]:
+        if account.user_id != self.user_id:
+            return (False,
+                f"Error: Account ID: {account.account_id} is for User ID {account.user_id}, not {self.username}.")
 
+        account_id = account.account_id
 
-    def show_accounts(self):
-        
-        if not self.accounts:
-            print(f"User {self.username} has no accounts.")
-            return
+        if account_id in self.assigned_account:
+            return (False, f"Account ID {account_id} is already assigned to this user.")
 
-        print(f"\nAccounts for {self.username}:")
-        for account in self.accounts:
-            print(f"- {account}")
+        self.assigned_account.append(account_id)
+        return (True, f"Account '{account.account_type}' (ID: {account.account_id}) added successfully.")
 
+    def add_expense(self, expense: int):
+        if expense in self.assigned_expense:
+            return False
+        self.assigned_expense.append(expense)
+        return True
 
-    def show_expenses(self):
-          
-        if not self.expenses:
-            print(f"User {self.username} has no expenses.")
-            return
+    def assigned_account(self) -> List[int]:
+        return self.assigned_account
 
-        print(f"\nExpenses for {self.username}:")
-        for i, expense in enumerate(self.expenses, start=1):
-            print(f"{i}. {expense['amount']} PLN - {expense['category']} ({expense['description']})")
+    def assigned_expense(self) -> List[int]:
+        return self.assigned_expense
 
+    def __str__(self):
+        return (f"User ID: {self.user_id}, Username: {self.username}, Type: {self.user_type.value.capitalize()}\n"
+                f"  Accounts IDs: {self.assigned_account}\n"
+                f"  Expenses IDs Count: {len(self.assigned_expense)}")
 
-# Example usage 
-if __name__ == "__main__":
-   
-    user1 = User("adult", "Agnieszka")
-
-  
-    user1.add_account("Joint Account")
-    user1.add_account("Savings Account")
-
-    # Add expenses
-    user1.add_expense(120.50, "Groceries", "Lidl")
-    user1.add_expense(300.00, "Transport", "Monthly pass")
-
-    # Show results
-    user1.show_accounts()
-    user1.show_expenses()
