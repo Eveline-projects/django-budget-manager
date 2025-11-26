@@ -3,15 +3,17 @@ import json
 import os
 from typing import Dict, Optional
 from decimal import Decimal
-from .users import User, UserType
+from users import User, UserType
 from bank_accounts import BankAccount
 from expenses import Expense, Category
-
+import datetime
 
 DATA_FILE = 'budget_data.json'
 
 
 def default_serializer(obj):
+    if isinstance(obj, (datetime.date, datetime.datetime)):
+        return obj.isoformat()
     if isinstance(obj, (User, BankAccount, Expense)):
         return {k: v for k, v in obj.__dict__.items() if not k.startswith('__')}
     elif isinstance(obj, Decimal):
@@ -58,8 +60,8 @@ class Interface:
 
                 user.set_password_hash(user_data['_password_hash'])
 
-                user.assigned_account = user_data['assigned_account']
-                user.assigned_expense = user_data['assigned_expense']
+                user.assigned_account = [int(aid) for aid in user_data['assigned_account']]  # KLUCZOWE
+                user.assigned_expense = [int(eid) for eid in user_data['assigned_expense']]
 
                 self.all_users[user.user_id] = user
                 self.next_user_id = max(self.next_user_id, user.user_id + 1)
@@ -75,11 +77,14 @@ class Interface:
                 self.next_account_id = max(self.next_account_id, account.account_id + 1)
 
             for expense_data in data.get('expenses', []):
+                expense_id = expense_data['_expense_id']
+
                 expense = Expense(
-                    amount=Decimal(expense_data['_Expense__amount']),
-                    category=Category(expense_data['_Expense__category']),
-                    account_id=expense_data['_Expense__account_id'],
-                    description=expense_data['_Expense__description']
+                    amount=Decimal(expense_data['amount']),
+                    category=Category(expense_data['category']),
+                    account_id=expense_data['account_id'],
+                    expense_id=expense_id,
+                    description=expense_data['description']
                 )
                 self.all_expenses[expense.expense_id] = expense
                 self.next_expense_id = max(self.next_expense_id, expense.expense_id + 1)
@@ -91,14 +96,43 @@ class Interface:
         except Exception as e:
             print(f"Can't load JSON data: {e}")
 
+        if 'all_expenses' in data:
+            max_expense_id = 0
+
+            # Iteruj przez wczytane wydatki
+            for exp_id_str, exp_data in data['all_expenses'].items():
+
+                # 1. KONWERSJA KLUCZA: Zawsze konwertuj klucz na int!
+                exp_id = int(exp_id_str)
+
+                # 2. DESERIALIZACJA I REKONSTRUKCJA OBIEKTU
+                new_expense = Expense(
+                    expense_id=exp_id,
+                    user_id=int(exp_data['user_id']), # Upewnij się, że to jest int
+                    amount=Decimal(exp_data['_amount']),
+                    category=Category(exp_data['category']), # Użyj Category(wartość)
+                    account_id=int(exp_data['account_id']),
+                    description=exp_data.get('description')
+                )
+
+                # 3. ZAPIS DO CENTRALNEGO SŁOWNIKA
+                self.all_expenses[exp_id] = new_expense
+
+                # 4. AKTUALIZACJA LICZNIKA
+                if exp_id > max_expense_id:
+                    max_expense_id = exp_id
+
+            self.next_expense_id = max_expense_id + 1
 
     def save_data(self):
-        #TODO data sie aktualizuje przy uruchomieniu
         data_to_save = {
             'users': list(self.all_users.values()),
             'bank_accounts': list(self.all_bank_accounts.values()),
-            'expenses': list(self.all_expenses.values()),
-            'current_user_id': self.current_user_id
+            'all_expenses': self.all_expenses,
+            'current_user_id': self.current_user_id,
+            'next_user_id': self.next_user_id,
+            'next_account_id': self.next_account_id,
+            'next_expense_id': self.next_expense_id,
         }
         try:
             with open(DATA_FILE, 'w') as f:
@@ -188,8 +222,15 @@ class Interface:
             return
 
         print("\n--- CREATING NEW ACCOUNT (Test) ---")
-        account_type = input("Enter account type: ")
-        #TODO dodac wybor typu konta(ADMIN, CHILD, ADULT)
+        while True:
+            account_type = input("Enter account type (ADMIN, CHILD, ADULT): ")
+            if account_type.lower() in ('admin', 'child', 'adult'):
+                account_type = account_type.upper()
+                print(f'Assigned type {account_type.upper()}')
+                break
+            else:
+                print('invalid input')
+
         try:
             initial_balance = Decimal(input("Enter starting amount (e.g. 100.00): "))
         except ValueError:
@@ -241,15 +282,92 @@ class Interface:
         print("=" * 50)
 
 
-    @staticmethod
-    def add_new_expense_interface():
+    def add_new_expense_interface(self):
         """TODO: Metoda dodawania nowego wydatku"""
-        print("\nTODO: zaimplementować add_new_expense_interface.")
-        expense = input('Enter expense: ')
-        User.add_expense = expense
+        curr_user = self.get_current_user()
+        if curr_user is None:
+            print("Not logged in.")
+            return
 
+        available_accs = {
+            acc_id: self.all_bank_accounts[acc_id]
+            for acc_id in curr_user.assigned_account
+            if acc_id in self.all_bank_accounts
+        }
+
+        if not available_accs:
+            print("No available accounts. Add an account (6)")
+            return
+
+        print('Available accounts: ')
+        for acc in available_accs.values():
+            print(f"- {acc.account_id}: {acc.account_type} --- Balance: {acc.balance:.2f}")
+
+        selected_acc = None
+        while selected_acc is None:
+            try:
+                acc_id_input = int(input("Select an account ID: "))
+                if acc_id_input in available_accs:
+                    selected_acc = available_accs[acc_id_input]
+                    break
+                else:
+                    print("Invalid ID")
+            except ValueError:
+                print("Invalid ID")
+
+        try:
+            amount = Decimal(input("Enter new expense amount: "))
+            if amount <= 0:
+                print("Invalid amount.")
+                return
+        except ValueError:
+            print("Incorrect format. (e.g. 123.45)")
+            return
+
+        cat_list = [c.value.upper() for c in Category]
+        print(f'Categories: {", ".join(cat_list)}')
+
+        category = None
+        while category is None:
+            cat_input = input("Enter a category (e.g. FOOD): ")
+            try:
+                category = Category(cat_input)
+            except ValueError:
+                print("Invalid category.")
+
+        desc = input("Enter a description of your expense: ").strip()
+
+
+        #WYKONYWANIE WYPLATY
+        if selected_acc.withdraw(amount): #true jesli wystarczajace saldo
+            new_id = self.next_expense_id
+            self.next_expense_id += 1
+
+            new_expense = Expense(
+                amount=amount,
+                category=category,
+                account_id=selected_acc.account_id,
+                expense_id=new_id,
+                description=desc,
+            )
+
+            expense_id_str = int(new_expense.expense_id) # pobieranie uuid jako str
+            self.all_expenses[new_id] = new_expense
+            curr_user.add_expense(new_id)
+
+            selected_acc.add_expense_id(new_id)
+
+            print(f"EXPENSE {new_expense.category.value.capitalize()}: {new_expense.amount:.2f}")
+        else:
+            print("Transaction cancelled.")
+        # expense = Decimal(input('Enter expense: '))
+        # User.add_expense = expense
+        # new_expense = Expense(
+        #     transaction_date=datetime.date.today(),
+        # )
 
     def show_user_expenses_interface(self):
+
         current_user = self.get_current_user()
         if current_user is None:
             print("You have to be signed in.")
@@ -277,6 +395,8 @@ class Interface:
         print("---------------------------------------")
 
 
+
+
     def display_main_menu(self):
         print("\n" + "=" * 30)
         print("         HOME BUDGET")
@@ -289,9 +409,9 @@ class Interface:
         else:
             print(f"Logged as: {self.get_current_user().username}")
             print("3. Finance Review (Amount)")
-            print("4. Add New Expense (TODO)")
+            print("4. Add New Expense")
             print("5. Expense History")
-            print("6. New Bank Account (Test)")
+            print("6. New Bank Account")
             print("7. Log Out")
             print("0. Save and Quit")
 
@@ -331,3 +451,4 @@ class Interface:
 if __name__ == "__main__":
     app = Interface()
     app.run()
+

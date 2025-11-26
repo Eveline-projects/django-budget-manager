@@ -50,10 +50,10 @@ class User:
         self.assigned_account.append(account_id)
         return (True, f"Account '{account.account_type}' (ID: {account.account_id}) added successfully.")
 
-    def add_expense(self, expense: int):
-        if expense in self.assigned_expense:
+    def add_expense(self, expense_id: int):
+        if expense_id in self.assigned_expense:
             return False
-        self.assigned_expense.append(expense)
+        self.assigned_expense.append(expense_id)
         return True
 
     def assigned_account(self) -> List[int]:

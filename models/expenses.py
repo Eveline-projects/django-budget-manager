@@ -1,7 +1,6 @@
-from datetime import date
+from datetime import datetime, date
 from decimal import Decimal
 from enum import StrEnum, auto
-from uuid import uuid4
 from typing import Optional
 
 class Category(StrEnum):
@@ -16,18 +15,13 @@ class Category(StrEnum):
 
 
 class Expense:
-    def __init__(self, amount, category, account_id, description: Optional[str] = ''):
+    def __init__(self, amount, category, account_id, expense_id, description: Optional[str] = ''):
         self.category: Category = category
         self.account_id = account_id
-        self.date = date.today()
-        self._expense_id = uuid4()
-        self.amount: Decimal = amount
-        self._save_to_database()
+        self.date: datetime = datetime.today()
+        self._expense_id: int = expense_id
+        self.amount: Decimal = Decimal(str(amount))
         self.description: Optional[str] = description
-
-
-    def _save_to_database(self):
-        pass
 
 
     def modify_expense(self):
@@ -42,7 +36,7 @@ class Expense:
             choice = input('which to modify: ')
             try:
                 if choice == '1':
-                    self.amount = float(input('amount to modify: '))
+                    self.amount = Decimal(input('amount to modify: '))
                 if choice == '2':
                     cat_choice = input('category to modify: ').lower()
                     self.category = Category(cat_choice)
