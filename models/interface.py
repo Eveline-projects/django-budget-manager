@@ -96,39 +96,12 @@ class Interface:
         except Exception as e:
             print(f"Can't load JSON data: {e}")
 
-        if 'all_expenses' in data:
-            max_expense_id = 0
-
-            # Iteruj przez wczytane wydatki
-            for exp_id_str, exp_data in data['all_expenses'].items():
-
-                # 1. KONWERSJA KLUCZA: Zawsze konwertuj klucz na int!
-                exp_id = int(exp_id_str)
-
-                # 2. DESERIALIZACJA I REKONSTRUKCJA OBIEKTU
-                new_expense = Expense(
-                    expense_id=exp_id,
-                    user_id=int(exp_data['user_id']), # Upewnij się, że to jest int
-                    amount=Decimal(exp_data['_amount']),
-                    category=Category(exp_data['category']), # Użyj Category(wartość)
-                    account_id=int(exp_data['account_id']),
-                    description=exp_data.get('description')
-                )
-
-                # 3. ZAPIS DO CENTRALNEGO SŁOWNIKA
-                self.all_expenses[exp_id] = new_expense
-
-                # 4. AKTUALIZACJA LICZNIKA
-                if exp_id > max_expense_id:
-                    max_expense_id = exp_id
-
-            self.next_expense_id = max_expense_id + 1
 
     def save_data(self):
         data_to_save = {
             'users': list(self.all_users.values()),
             'bank_accounts': list(self.all_bank_accounts.values()),
-            'all_expenses': self.all_expenses,
+            'expenses': list(self.all_expenses.values()),
             'current_user_id': self.current_user_id,
             'next_user_id': self.next_user_id,
             'next_account_id': self.next_account_id,
@@ -283,7 +256,6 @@ class Interface:
 
 
     def add_new_expense_interface(self):
-        """TODO: Metoda dodawania nowego wydatku"""
         curr_user = self.get_current_user()
         if curr_user is None:
             print("Not logged in.")
@@ -338,7 +310,6 @@ class Interface:
         desc = input("Enter a description of your expense: ").strip()
 
 
-        #WYKONYWANIE WYPLATY
         if selected_acc.withdraw(amount): #true jesli wystarczajace saldo
             new_id = self.next_expense_id
             self.next_expense_id += 1
@@ -360,14 +331,9 @@ class Interface:
             print(f"EXPENSE {new_expense.category.value.capitalize()}: {new_expense.amount:.2f}")
         else:
             print("Transaction cancelled.")
-        # expense = Decimal(input('Enter expense: '))
-        # User.add_expense = expense
-        # new_expense = Expense(
-        #     transaction_date=datetime.date.today(),
-        # )
+
 
     def show_user_expenses_interface(self):
-
         current_user = self.get_current_user()
         if current_user is None:
             print("You have to be signed in.")
@@ -387,7 +353,6 @@ class Interface:
             if expense:
                 account = self.all_bank_accounts.get(expense.account_id)
                 account_type = account.account_type if account else "Unknown Account"
-
                 print(
                     f"ID: {expense.expense_id} | Amount: ${expense.amount:.2f} | Category: {expense.category.value} | Paid with: {account_type}")
                 if expense.description:
@@ -395,20 +360,17 @@ class Interface:
         print("---------------------------------------")
 
 
-
-
     def display_main_menu(self):
         print("\n" + "=" * 30)
         print("         HOME BUDGET")
         print("=" * 30)
-
         if self.current_user_id is None:
             print("1. Sign in")
             print("2. Register (New account)")
             print("0. Quit")
         else:
             print(f"Logged as: {self.get_current_user().username}")
-            print("3. Finance Review (Amount)")
+            print("3. Finance Overview")
             print("4. Add New Expense")
             print("5. Expense History")
             print("6. New Bank Account")
@@ -433,7 +395,6 @@ class Interface:
                     self.create_new_user_interface()
                 else:
                     print("\nIncorrect choice.")
-
             else:
                 if choice == '3':
                     self.view_financial_overview_interface()
