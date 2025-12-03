@@ -1,4 +1,4 @@
-from datetime import date
+from datetime import datetime
 from typing import List
 from decimal import Decimal
 
@@ -14,7 +14,7 @@ class BankAccount:
 
         self.assigned_expense_ids: List[int] = []
 
-        self._creation_date: date = date.today()
+        self._creation_date: datetime = datetime.today()
 
 
     def deposit(self, amount: Decimal) -> bool:
@@ -45,7 +45,7 @@ class BankAccount:
         return False
 
 
-    def get_creation_date(self) -> date:
+    def get_creation_date(self) -> datetime:
         return self._creation_date
 
 
@@ -55,8 +55,5 @@ class BankAccount:
                 f" Balance: {self.balance:.2f}, "
                 f" Created: {self._creation_date}\n"
                 f' Expenses Count: {len(self.assigned_expense_ids)}')
-
-
-basia = BankAccount(1,2,'3', Decimal("1000"))
 
 

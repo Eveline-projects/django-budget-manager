@@ -1,0 +1,74 @@
+{
+    "users": [
+        {
+            "_username": "konto",
+            "user_type": "adult",
+            "user_id": 1,
+            "assigned_account": [
+                1
+            ],
+            "assigned_expense": [
+                1,
+                2
+            ],
+            "_password_hash": "e03b1db5d86415908ff16472b0524bb86142e403f4b6d5e1e972131f39351fc8"
+        },
+        {
+            "_username": "konto2",
+            "user_type": "adult",
+            "user_id": 2,
+            "assigned_account": [
+                2,
+                3
+            ],
+            "assigned_expense": [
+                1,
+                2
+            ],
+            "_password_hash": "e03b1db5d86415908ff16472b0524bb86142e403f4b6d5e1e972131f39351fc8"
+        }
+    ],
+    "bank_accounts": [
+        {
+            "account_id": 1,
+            "user_id": 1,
+            "account_type": "ADMIN",
+            "balance": "1",
+            "is_active": true,
+            "assigned_expense_ids": [
+                2,
+                1
+            ],
+            "_creation_date": "2025-11-26T20:18:41.182940"
+        },
+        {
+            "account_id": 2,
+            "user_id": 2,
+            "account_type": "CHILD",
+            "balance": "200",
+            "is_active": true,
+            "assigned_expense_ids": [],
+            "_creation_date": "2025-11-26T20:18:41.182950"
+        },
+        {
+            "account_id": 3,
+            "user_id": 2,
+            "account_type": "ADULT",
+            "balance": "500",
+            "is_active": true,
+            "assigned_expense_ids": [],
+            "_creation_date": "2025-11-26T20:18:41.182954"
+        }
+    ],
+    "expenses": [
+        {
+            "category": "food",
+            "account_id": 1,
+            "date": "2025-11-26T20:19:17.677274",
+            "_expense_id": 1,
+            "amount": "1",
+            "description": "food"
+        }
+    ],
+    "current_user_id": 1
+}
