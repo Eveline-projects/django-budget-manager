@@ -9,7 +9,7 @@ class BankAccount:
         self.account_id = account_id
         self.user_id = user_id
         self.account_type = account_type
-        self.balance = initial_balance
+        self.balance: Decimal = initial_balance
         self.is_active = is_active
 
         self.assigned_expense_ids: List[int] = []
@@ -18,22 +18,26 @@ class BankAccount:
 
 
     def deposit(self, amount: Decimal) -> bool:
-        if self.is_active and amount > 0:
+        if not isinstance(amount, Decimal):
+            amount = Decimal(str(amount))
+
+        if self.is_active and amount > Decimal('0.00'):
             self.balance += amount
             print(f"Deposit of ${amount:.2f} successful. New balance: $ {self.balance:.2f}.")
             return True
         return False
 
-
     def withdraw(self, amount: Decimal) -> bool:
-        if self.is_active and 0 < amount <= self.balance:
+        if not isinstance(amount, Decimal):
+            raise TypeError("Withdrawal amount must be Decimal.")
+
+        if self.balance >= amount:
             self.balance -= amount
-            print(f"Withdraw of {amount:.2f} PLN successful. New balance: {self.balance:.2f} PLN.")
             return True
         return False
 
 
-    def add_expense_id(self, expense_id: int):
+    def add_expense_id(self, expense_id: int) -> bool:
         if expense_id not in self.assigned_expense_ids:
             self.assigned_expense_ids.append(expense_id)
             print(f"Expense added to account")

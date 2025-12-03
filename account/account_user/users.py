@@ -1,6 +1,6 @@
 from enum import auto, StrEnum
 from bank_accounts import BankAccount
-from typing import List, Tuple
+from typing import List, Tuple, Dict
 
 
 class UserType(StrEnum):
@@ -17,7 +17,7 @@ class User:
         self.user_id = user_id
 
         self.assigned_account: List[int] = []
-        self.assigned_expense: List[int] = []
+        self.assigned_expense: Dict[int,bool] = {}
 
         self._password_hash = ""
 
@@ -45,22 +45,22 @@ class User:
         account_id = account.account_id
 
         if account_id in self.assigned_account:
-            return (False, f"Account ID {account_id} is already assigned to this user.")
+            return False, f"Account ID {account_id} is already assigned to this user."
 
         self.assigned_account.append(account_id)
-        return (True, f"Account '{account.account_type}' (ID: {account.account_id}) added successfully.")
+        return True, f"Account '{account.account_type}' (ID: {account.account_id}) added successfully."
 
-    def add_expense(self, expense_id: int):
-        if expense_id in self.assigned_expense:
+    def add_expense(self, expense: int) -> bool:
+        if expense in self.assigned_expense:
             return False
-        self.assigned_expense.append(expense_id)
+        self.assigned_expense[expense] = True
         return True
 
-    def assigned_account(self) -> List[int]:
+    def get_assigned_account(self) -> List[int]:
         return self.assigned_account
 
-    def assigned_expense(self) -> List[int]:
-        return self.assigned_expense
+    def get_assigned_expense(self) -> List[int]:
+        return list(self.assigned_expense.keys())
 
     def __str__(self):
         return (f"User ID: {self.user_id}, Username: {self.username}, Type: {self.user_type.value.capitalize()}\n"
