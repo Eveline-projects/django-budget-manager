@@ -3,12 +3,12 @@ import json
 import os
 from typing import Dict, Optional
 from decimal import Decimal
-from users import User, UserType
+from account.account_user.users import User, UserType
 from bank_accounts import BankAccount
 from expenses import Expense, Category
 import datetime
 
-DATA_FILE = 'budget_data.json'
+DATA_FILE = 'account/account_data/data/budget_data.json'
 
 
 def default_serializer(obj):

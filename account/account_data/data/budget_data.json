@@ -5,7 +5,8 @@
             "user_type": "adult",
             "user_id": 1,
             "assigned_account": [
-                1
+                1,
+                4
             ],
             "assigned_expense": [
                 1,
@@ -33,13 +34,12 @@
             "account_id": 1,
             "user_id": 1,
             "account_type": "ADMIN",
-            "balance": "1",
+            "balance": "0",
             "is_active": true,
             "assigned_expense_ids": [
-                2,
-                1
+                2
             ],
-            "_creation_date": "2025-11-26T20:18:41.182940"
+            "_creation_date": "2025-12-03T18:12:46.846650"
         },
         {
             "account_id": 2,
@@ -48,7 +48,7 @@
             "balance": "200",
             "is_active": true,
             "assigned_expense_ids": [],
-            "_creation_date": "2025-11-26T20:18:41.182950"
+            "_creation_date": "2025-12-03T18:12:46.846664"
         },
         {
             "account_id": 3,
@@ -57,18 +57,38 @@
             "balance": "500",
             "is_active": true,
             "assigned_expense_ids": [],
-            "_creation_date": "2025-11-26T20:18:41.182954"
+            "_creation_date": "2025-12-03T18:12:46.846667"
+        },
+        {
+            "account_id": 4,
+            "user_id": 1,
+            "account_type": "CHILD",
+            "balance": "10",
+            "is_active": true,
+            "assigned_expense_ids": [],
+            "_creation_date": "2025-12-03T18:23:04.057093"
         }
     ],
     "expenses": [
         {
             "category": "food",
             "account_id": 1,
-            "date": "2025-11-26T20:19:17.677274",
+            "date": "2025-12-03T18:12:46.846678",
             "_expense_id": 1,
             "amount": "1",
             "description": "food"
+        },
+        {
+            "category": "food",
+            "account_id": 1,
+            "date": "2025-12-03T18:21:58.662440",
+            "_expense_id": 2,
+            "amount": "1",
+            "description": "jedzenie"
         }
     ],
-    "current_user_id": 1
+    "current_user_id": 1,
+    "next_user_id": 3,
+    "next_account_id": 5,
+    "next_expense_id": 3
 }
