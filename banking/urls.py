@@ -20,6 +20,6 @@ from budget.views import register, homepage
 
 urlpatterns = [
     path('admin/', admin.site.urls),
-    path('budget/', register),
+    path('register/', register, name='register'),
     path('homepage/', homepage, name='homepage'),
 ]
