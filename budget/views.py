@@ -17,7 +17,7 @@ def register(request):
             # Tworzenie nowego uzytkownika w bazie
             login_db = Login(username=username, password=password, email=email)
             login_db.save()
-            return redirect('login')
+            return redirect('homepage')
     else:
         form = UserForm()#user = User.objects.create_user(username='admin', password='', email='')
     return render(request, 'budget/log_user.html', {'form': form})
@@ -28,7 +28,7 @@ def log_in(request):
         if form.is_valid():
             username = form.cleaned_data['username']
             password = form.cleaned_data['password']
-        try:    #pobieranie uzytkownika z bazy danych login/haslo
+        try:    #pobieranie uzytkownika z bazy danych login/haslo objects - to pozwala na dostanie się do bazy, get - ma zwracac jeden objekt.
             login_user = Login.objects.get(username=username, password=password)
             # Zapis danych z sesji - zapamietuje że użytkownik jest zalogowany
             request.session['username'] = login_user.username
