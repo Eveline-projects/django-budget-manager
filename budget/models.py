@@ -12,13 +12,9 @@ class Category(models.Model):
 
 class Expense(models.Model):
     amount = models.DecimalField(max_digits=10, decimal_places=2)
-    # Zmieniamy CharField na ForeignKey (powiązanie z modelem Category)
     category = models.ForeignKey(Category, on_delete=models.CASCADE)
     date = models.DateTimeField(default=timezone.now)
     description = models.TextField(blank=True, null=True)
-
-    # account_id - jeśli masz model konta, to będzie ForeignKey.
-    # Na razie zróbmy proste pole Integer:
     account_id = models.IntegerField()
 
     def __str__(self):
