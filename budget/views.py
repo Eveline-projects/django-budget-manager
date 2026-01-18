@@ -18,15 +18,17 @@ from django.views.generic import (
 class RegisterView(CreateView):
     form_class = UserCreationForm
     template_name = 'budget/register.html'
-    success_url = reverse_lazy('budget:register')
+    success_url = reverse_lazy('budget:expense')
+
 
     def form_valid(self, form):
         response = super().form_valid(form)
         login(self.request, self.object)
         return response
 
+
 class ExpenseListView(ListView):
-    template_name = 'budget/expense_list.html'
+    template_name = 'budget/expense.html'
     context_object_name = 'expenses'
     queryset = Expense.objects.all()
     paginate_by = 10
@@ -34,29 +36,14 @@ class ExpenseListView(ListView):
         context = super().get_context_data(**kwargs)
         return context
 
-# def expense(request):
-#     last_expenses = Expense.objects.order_by('-date')[:5]
-#     total_expenses = sum(e.amount for e in Expense.objects.all())
-#     categories = Category.objects.all()
-#
-#     context = {
-#         'last_expenses': last_expenses,
-#         'total_expenses': total_expenses,
-#         'balance': 1500,
-#         'transaction_count': Expense.objects.count(),
-#         'categories': categories,
-#     }
-#     return render(request, 'budget/expense.html', context)
 
 class LoginView(FormView):
     form_class = AuthenticationForm
     template_name = 'budget/login.html'
-    success_url = reverse_lazy('budget:login')
+    success_url = reverse_lazy('budget:expense')
 
     def form_valid(self, form):
         user = form.get_user()
         login(self.request, user)
         return super().form_valid(form)
 
-def homepage(request):
-    return render(request, 'budget/expense.html')
