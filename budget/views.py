@@ -11,7 +11,7 @@ def register(request):
         if form.is_valid():
             user = form.save()
             messages.success(request, f'Account created for {user.username}')
-            return redirect('login')
+            return redirect('expense')
     else:
         form = RegisterForm()
     return render(request, 'budget/register.html', {'form': form})
@@ -39,7 +39,7 @@ def login_user(request):
         user = authenticate(request, username=username, password=password)
         if user is not None:
             login(request, user)
-            return redirect('home')
+            return redirect('expense')
         else:
             return redirect('login')
     else:
