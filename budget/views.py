@@ -2,48 +2,48 @@ from django.shortcuts import render, redirect
 from .forms import RegisterForm
 from django.contrib.auth import authenticate, login, logout
 from django.contrib import messages
-from .account.expenses import Expense, Category
+from .models import Expense, Category
+from django.contrib.auth.forms import AuthenticationForm, UserCreationForm
+from django.urls import reverse, reverse_lazy
+from django.views.generic import (
+    CreateView,
+    ListView,
+    DetailView,
+    UpdateView,
+    FormView,
+    View
+)
 
 
-def register(request):
-    if request.method == 'POST':
-        form = RegisterForm(request.POST)
-        if form.is_valid():
-            user = form.save()
-            messages.success(request, f'Account created for {user.username}')
-            return redirect('expense')
-    else:
-        form = RegisterForm()
-    return render(request, 'budget/register.html', {'form': form})
+class RegisterView(CreateView):
+    form_class = UserCreationForm
+    template_name = 'budget/register.html'
+    success_url = reverse_lazy('budget:expense')
 
 
-def expense(request):
-    # Przykładowe zapytania do bazy:
-    last_expenses = Expense.objects.order_by('-date')[:5]  # 5 ostatnich
-    total_expenses = sum(e.amount for e in Expense.objects.all())
-    categories = Category.objects.all()  # musiałabyś dodać logikę zliczania
+    def form_valid(self, form):
+        response = super().form_valid(form)
+        login(self.request, self.object)
+        return response
 
-    context = {
-        'last_expenses': last_expenses,
-        'total_expenses': total_expenses,
-        'balance': 1500,  # przykładowo
-        'transaction_count': Expense.objects.count(),
-        'categories': categories,
-    }
-    return render(request, 'budget/expense.html', context)
 
-def login_user(request):
-    if request.method == 'POST':
-        username = request.POST['username']
-        password = request.POST['password']
-        user = authenticate(request, username=username, password=password)
-        if user is not None:
-            login(request, user)
-            return redirect('expense')
-        else:
-            return redirect('login')
-    else:
-        return render(request, 'budget/login.html', {})
+class ExpenseListView(ListView):
+    template_name = 'budget/expense.html'
+    context_object_name = 'expenses'
+    queryset = Expense.objects.all()
+    paginate_by = 10
+    def get_context_data(self, *, object_list=None, **kwargs):
+        context = super().get_context_data(**kwargs)
+        return context
 
-def homepage(request):
-    return render(request, 'budget/homepage.html')
+
+class LoginView(FormView):
+    form_class = AuthenticationForm
+    template_name = 'budget/login.html'
+    success_url = reverse_lazy('budget:expense')
+
+    def form_valid(self, form):
+        user = form.get_user()
+        login(self.request, user)
+        return super().form_valid(form)
+
