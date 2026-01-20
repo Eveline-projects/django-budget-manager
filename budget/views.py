@@ -16,7 +16,7 @@ from django.views.generic import (
 
 
 class RegisterView(CreateView):
-    form_class = UserCreationForm
+    form_class = RegisterForm
     template_name = 'budget/register.html'
     success_url = reverse_lazy('budget:expense')
 
@@ -35,6 +35,13 @@ class ExpenseListView(ListView):
     def get_context_data(self, *, object_list=None, **kwargs):
         context = super().get_context_data(**kwargs)
         return context
+
+
+class CategoryListView(ListView):
+    template_name = 'budget/category.html'
+    context_object_name = 'categories'
+    queryset = Category.objects.all()
+    paginate_by = 10
 
 
 class LoginView(FormView):
