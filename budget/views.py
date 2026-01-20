@@ -36,6 +36,27 @@ class ExpenseListView(ListView):
         context = super().get_context_data(**kwargs)
         return context
 
+# class CategoryListView(ListView):
+#     template_name = 'budget/category.html'
+#     context_object_name = 'categories'
+#     queryset = Category.objects.all()
+#     paginate_by = 10
+
+class BankAccountListView(ListView):
+    template_name = 'budget/account.html'
+    context_object_name = 'accounts'
+    queryset = BankAccount.objects.all()
+    paginate_by = 10
+    def get_context_data(self, *, object_list=None, **kwargs):
+        context = super().get_context_data(**kwargs)
+        return context
+    def get_queryset(self):
+      if user == self.request.user:
+        return BankAccount.objects.filter(user=self.request.user)
+      else:
+           return print('Error')
+
+
 
 class LoginView(FormView):
     form_class = AuthenticationForm
