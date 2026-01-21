@@ -17,7 +17,7 @@ from django.contrib.auth.mixins import LoginRequiredMixin
 
 
 class RegisterView(CreateView):
-    form_class = UserCreationForm
+    form_class = RegisterForm
     template_name = 'budget/register.html'
     success_url = reverse_lazy('budget:expense')
 
@@ -88,6 +88,13 @@ class BankAccountCreateView(LoginRequiredMixin, CreateView):
         context = super().get_context_data(**kwargs)
         context['accounts'] = BankAccount.objects.filter(user=self.request.user)
         return context
+
+
+class CategoryListView(ListView):
+    template_name = 'budget/category.html'
+    context_object_name = 'categories'
+    queryset = Category.objects.all()
+    paginate_by = 10
 
 
 class LoginView(FormView):
