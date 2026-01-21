@@ -1,5 +1,5 @@
 from django.shortcuts import render, redirect
-from .forms import RegisterForm, BankAccountForm
+from .forms import RegisterForm, BankAccountForm, BankAccountCreateForm, BankAccountUpdateForm
 from django.contrib.auth import authenticate, login, logout
 from django.contrib import messages
 from .models import Expense, Category, BankAccount
@@ -10,6 +10,7 @@ from django.views.generic import (
     ListView,
     DetailView,
     UpdateView,
+    DeleteView,
     FormView,
     View
 )
@@ -59,9 +60,9 @@ class BankAccountListView(LoginRequiredMixin, ListView):
 
 class BankAccountCreateView(LoginRequiredMixin, CreateView):
     model = BankAccount
-    form_class = BankAccountForm
+    form_class = BankAccountCreateForm
     template_name = 'budget/account.html'
-    success_url = reverse_lazy('budget:expense')
+    success_url = reverse_lazy('budget:account')
 
     def form_valid(self, form):
         form.instance.user = self.request.user
@@ -69,15 +70,16 @@ class BankAccountCreateView(LoginRequiredMixin, CreateView):
         amount = form.cleaned_data.get('initial_balance')
         category = form.cleaned_data.get('category')
 
-        if amount and amount > 0 and category:
+        if amount and amount > 0: #and category:
             Expense.objects.create(
+                user=self.request.user,
                 amount=amount,
                 type='IN',
-                category=category,
+                # category=category,
                 account=account,
-                description="Saldo początkowe"
+                description="Starting balance"
             )
-        return super().form_valid(form)
+        return redirect(self.success_url)
 
     def get_form_kwargs(self):
         kwargs = super().get_form_kwargs()
@@ -89,6 +91,23 @@ class BankAccountCreateView(LoginRequiredMixin, CreateView):
         context['accounts'] = BankAccount.objects.filter(user=self.request.user)
         return context
 
+class BankAccountUpdateView(LoginRequiredMixin, UpdateView):
+    model = BankAccount
+    form_class = BankAccountUpdateForm
+    template_name = 'budget/account_update.html'
+    success_url = reverse_lazy('budget:account')
+
+    def get_form_kwargs(self):
+        kwargs = super().get_form_kwargs()
+        kwargs['user'] = self.request.user
+        return kwargs
+
+class BankAccountDeleteView(LoginRequiredMixin, DeleteView):
+    model = BankAccount
+    success_url = reverse_lazy('budget:account')
+
+    def get(self, request, *args, **kwargs):
+        return self.post(request, *args, **kwargs)
 
 class CategoryListView(ListView):
     template_name = 'budget/category.html'
