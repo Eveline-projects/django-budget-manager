@@ -49,12 +49,12 @@ class BankAccountCreateForm(BankAccountUpdateForm):
         required=False,
          label="Starting balance",
     )
-    # category = forms.ModelChoiceField(
-    #     queryset=Category.objects.all(),
-    #     required=False,
-    #     label="First deposit category",
-    # )
+    category = forms.ModelChoiceField(
+        queryset=Category.objects.all(),
+        required=False,
+        label="First deposit category",
+    )
 
     class Meta(BankAccountUpdateForm.Meta):
-        fields = BankAccountUpdateForm.Meta.fields + ['initial_balance'] #'category']
+        fields = BankAccountUpdateForm.Meta.fields + ['initial_balance', 'category']
 

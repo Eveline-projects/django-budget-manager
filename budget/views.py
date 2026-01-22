@@ -4,7 +4,7 @@ from django.contrib.auth.mixins import LoginRequiredMixin
 from .forms import RegisterForm, BankAccountForm, BankAccountCreateForm, BankAccountUpdateForm
 from django.contrib.auth import authenticate, login, logout
 from django.contrib import messages
-from .models import Expense, Category, BankAccount
+from .models import Transaction, Category, BankAccount
 from django.contrib.auth.forms import AuthenticationForm, UserCreationForm
 from django.urls import reverse, reverse_lazy
 from django.views.generic import (
@@ -16,7 +16,6 @@ from django.views.generic import (
     FormView,
     View
 )
-from django.contrib.auth.mixins import LoginRequiredMixin
 
 
 class RegisterView(CreateView):
@@ -33,8 +32,8 @@ class RegisterView(CreateView):
 
 class ExpenseListView(LoginRequiredMixin, ListView):
     template_name = 'budget/expense.html'
-    context_object_name = 'expenses'
-    queryset = Expense.objects.all()
+    context_object_name = 'transactions'
+    queryset = Transaction.objects.all()
     paginate_by = 10
 
 
@@ -43,7 +42,7 @@ class ExpenseListView(LoginRequiredMixin, ListView):
         return context
 
     def get_queryset(self):
-        return Expense.objects.filter(account__user=self.request.user)
+        return Transaction.objects.filter(account__user=self.request.user)
 
 
 class BankAccountListView(LoginRequiredMixin, ListView):
@@ -75,11 +74,11 @@ class BankAccountCreateView(LoginRequiredMixin, CreateView):
         category = form.cleaned_data.get('category')
 
         if amount and amount > 0: #and category:
-            Expense.objects.create(
+            Transaction.objects.create(
                 user=self.request.user,
                 amount=amount,
                 type='IN',
-                # category=category,
+                category=category,
                 account=account,
                 description="Starting balance"
             )
@@ -113,13 +112,13 @@ class BankAccountDeleteView(LoginRequiredMixin, DeleteView):
     def get(self, request, *args, **kwargs):
         return self.post(request, *args, **kwargs)
     def get_queryset(self):
-        return Expense.objects.filter(user=self.request.user).order_by('-date')
+        return Transaction.objects.filter(account__user=self.request.user).order_by('-date')
 
 
 class CategoryListView(ListView):
+    model = Category
     template_name = 'budget/expense.html'
     context_object_name = 'categories'
-    queryset = Expense.get_category_display
     paginate_by = 10
 
 
@@ -134,7 +133,7 @@ class LoginView(FormView):
         return super().form_valid(form)
 
 class ExpenseCreateView(LoginRequiredMixin, CreateView):
-    model = Expense
+    model = Transaction
     fields = ['amount', 'category', 'description']
     template_name = 'budget/expense_create.html'
     success_url = reverse_lazy('budget:expense')
@@ -149,9 +148,9 @@ class LogoutView(View):
         return redirect('budget:expense')
 
 class ExpenseDetailView(DetailView):
-    model = Expense
+    model = Transaction
     template_name = 'budget/expense_detail.html'
     context_object_name = 'expense'
 
     def get_queryset(self):
-        return Expense.objects.filter(user=self.request.user).order_by('-date')
+        return Transaction.objects.filter(user=self.request.user).order_by('-date')

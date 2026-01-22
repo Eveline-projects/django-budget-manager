@@ -1,31 +1,30 @@
 from django.db import models
 from django.utils import timezone
-from decimal import Decimal
 from django.apps import AppConfig
 from django.core.signals import request_finished
 from django.conf import settings
 
-# class MyAppConfig(AppConfig):
-#     def ready(self):
-#         from . import signals
-#         request_finished.connect(signals.my_callback)
-#
-#     @receiver(pre_save, sender=MyModel)
-#     def my_handler(sender, **kwargs):
-#
-from django.utils.translation import gettext_lazy as _
 
+class Category(models.Model):
+    CATEGORIES = [
+        ('FOOD', 'Food'),
+        ('HOME', 'Home'),
+        ('TRANSPORT', 'Transport'),
+        ('ENTERTAINMENT', 'Entertainment'),
+        ('LIFE', 'Life'),
+        ('SHOPPING', 'Shopping'),
+        ('BILLS', 'Bills'),
+        ('INVESTMENTS', 'Investments'),
+        ('OTHER', 'Other'),
+    ]
+    name = models.CharField(max_length=50)
+    user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE)
 
-class Category(models.TextChoices):
-    FOOD = "FD", _("Food")
-    HOME = 'HM', _("Home")
-    TRANSPORT = 'TP', _("Transport")
-    ENTERTAINMENT = 'ET', _("Entertainment")
-    LIFE = 'LI', _("Life")
-    SHOPPING = 'SH', _("Shopping")
-    BILLS = 'BL', _("Bills")
-    INVESTMENTS = 'IM', _("Investments")
-    OTHER = 'OT', _("Other")
+    class Meta:
+        unique_together = ('name', 'user')
+
+    def __str__(self):
+        return self.name
 
 
 class BankAccount(models.Model):
@@ -37,16 +36,16 @@ class BankAccount(models.Model):
     name_account = models.CharField(max_length=50)
     account_type = models.CharField(max_length=10, choices=TYPE_ACCOUNT, default='ADULT')
     account_creation_date = models.DateTimeField(default=timezone.now)
-
+    balance = models.DecimalField(max_digits=10, decimal_places=2, default=0)
 
     @property
     def total_balance(self):
-        incomes = sum(e.amount for e in self.expenses.filter(type='IN'))
-        outcomes = sum(e.amount for e in self.expenses.filter(type='OUT'))
+        incomes = sum(e.amount for e in self.transactions.filter(type='IN'))
+        outcomes = sum(e.amount for e in self.transactions.filter(type='OUT'))
         return incomes - outcomes
 
     def get_balance(self):
-        all_entries = self.expenses.all()
+        all_entries = self.transactions.all()
 
         total = 0
         for entry in all_entries:
@@ -62,13 +61,18 @@ class BankAccount(models.Model):
 
 
 
-class Expense(models.Model):
+class Transaction(models.Model):
+    TYPE_CHOICES = [
+        ('IN', 'Income'),
+        ('OUT', 'Outcome'),
+    ]
     amount = models.DecimalField(max_digits=10, decimal_places=2)
     type = models.CharField(max_length=3, choices=TYPE_CHOICES, default='OUT')
     date = models.DateTimeField(default=timezone.now)
     description = models.TextField(blank=True, null=True)
-    user = models.ForeignKey('auth.User', on_delete=models.CASCADE)
-    account = models.ForeignKey(BankAccount, on_delete=models.CASCADE, related_name='expenses')
+    account = models.ForeignKey(BankAccount, on_delete=models.CASCADE, related_name='transactions')
+    category = models.ForeignKey(Category, on_delete=models.CASCADE)
+    user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE)
 
     def save(self, *args, **kwargs):
         super().save(*args, **kwargs)
@@ -78,24 +82,11 @@ class Expense(models.Model):
             self.account.balance -= self.amount
         self.account.save()
 
-    user = models.ForeignKey(
-        settings.AUTH_USER_MODEL,
-        on_delete=models.CASCADE,
-        related_name='expenses',
-    )
-
-    category = models.CharField(
-        max_length=2,
-        choices=Category.choices,
-        default=Category.OTHER,
-    )
-
     def __str__(self):
         return f"{self.get_type_display()}: {self.amount} PLN ({self.category})"
 
-
-
-
-
-
-
+    # user = models.ForeignKey(
+    #     settings.AUTH_USER_MODEL,
+    #     on_delete=models.CASCADE,
+    #     related_name='expenses',
+    # )
