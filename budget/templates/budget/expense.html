@@ -155,27 +155,10 @@
                 <h5 class="card-title mb-4">Kategorie</h5>
                 <div class="list-group list-group-flush">
                     {% for category in categories %}
-                        <div class="list-group-item d-flex justify-content-between align-items-center border-0 px-0">
-                            <span><i class="bi bi-tag-fill me-2 text-primary"></i> {{ category.name }}</span>
-                            <span class="badge bg-light text-dark rounded-pill">{{ category.expense_count }} transakcji</span>
-                        </div>
+                     {{ category.name }}
                     {% endfor %}
                 </div>
-                <button class="btn btn-outline-primary mt-4 w-100">+ Dodaj kategorię</button>
-                <div class="mt-3">
-                    <select class="form-select" aria-label="Default select example">
-                        <option value="1">Food</option>
-                        <option value="2">Home</option>
-                        <option value="3">Transport</option>
-                        <option value="4">Entertainment</option>
-                        <option value="5">Life</option>
-                        <option value="6">Shopping</option>
-                        <option value="7">Bills</option>
-                        <option value="8">Investments</option>
-
-                    </select>
-                </div>
-
+                <a href="{% url 'budget:category_add' %}" class="expbtn">Dodaj kategorie</a>
 
             </div>
 

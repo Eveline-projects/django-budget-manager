@@ -39,6 +39,7 @@ class ExpenseListView(LoginRequiredMixin, ListView):
 
     def get_context_data(self, *, object_list=None, **kwargs):
         context = super().get_context_data(**kwargs)
+        context['categories'] = Category.objects.all()
         return context
 
     def get_queryset(self):
@@ -115,12 +116,15 @@ class BankAccountDeleteView(LoginRequiredMixin, DeleteView):
         return Transaction.objects.filter(account__user=self.request.user).order_by('-date')
 
 
-class CategoryListView(ListView):
-    model = Category
-    template_name = 'budget/expense.html'
-    context_object_name = 'categories'
-    paginate_by = 10
-
+# class CategoryListView(LoginRequiredMixin, ListView):
+#     model = Category
+#     template_name = 'budget/expense.html'
+#     context_object_name = 'categories'
+#     def get_context_data(self, *, object_list=None, **kwargs):
+#         context = super().get_context_data(**kwargs)
+#         return context
+#     def get_queryset(self):
+#         return Category.objects.filter(account__user=self.request.user)
 
 class LoginView(FormView):
     form_class = AuthenticationForm
@@ -154,3 +158,13 @@ class ExpenseDetailView(DetailView):
 
     def get_queryset(self):
         return Transaction.objects.filter(user=self.request.user).order_by('-date')
+
+class CategoryCreateView(LoginRequiredMixin, CreateView):
+    model = Category
+    fields = ['name']
+    template_name = 'budget/category_create.html'
+    success_url = reverse_lazy('budget:expense')
+
+    def form_valid(self, form):
+        form.instance.user = self.request.user
+        return super().form_valid(form)

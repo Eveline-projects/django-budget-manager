@@ -1,6 +1,7 @@
 from django.contrib import admin
 
-from .models import Transaction
+from .models import Transaction, Category
+
 
 @admin.register(Transaction)
 class ExpenseAdmin(admin.ModelAdmin):
@@ -22,3 +23,6 @@ class ExpenseAdmin(admin.ModelAdmin):
     # search_fields = ('user', 'expense')
     # list_editable = ('user', 'expense')
 
+@admin.register(Category)
+class CategoryAdmin(admin.ModelAdmin):
+    pass

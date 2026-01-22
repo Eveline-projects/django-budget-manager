@@ -6,17 +6,6 @@ from django.conf import settings
 
 
 class Category(models.Model):
-    CATEGORIES = [
-        ('FOOD', 'Food'),
-        ('HOME', 'Home'),
-        ('TRANSPORT', 'Transport'),
-        ('ENTERTAINMENT', 'Entertainment'),
-        ('LIFE', 'Life'),
-        ('SHOPPING', 'Shopping'),
-        ('BILLS', 'Bills'),
-        ('INVESTMENTS', 'Investments'),
-        ('OTHER', 'Other'),
-    ]
     name = models.CharField(max_length=50)
     user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE)
 
@@ -85,8 +74,4 @@ class Transaction(models.Model):
     def __str__(self):
         return f"{self.get_type_display()}: {self.amount} PLN ({self.category})"
 
-    # user = models.ForeignKey(
-    #     settings.AUTH_USER_MODEL,
-    #     on_delete=models.CASCADE,
-    #     related_name='expenses',
-    # )
+

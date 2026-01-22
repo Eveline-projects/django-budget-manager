@@ -58,3 +58,6 @@ class BankAccountCreateForm(BankAccountUpdateForm):
     class Meta(BankAccountUpdateForm.Meta):
         fields = BankAccountUpdateForm.Meta.fields + ['initial_balance', 'category']
 
+class CategoryForm(forms.ModelForm):
+    category_name = forms.CharField()
+
