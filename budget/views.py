@@ -1,7 +1,10 @@
 from django.shortcuts import render, redirect
+from .forms import RegisterForm
+from django.contrib.auth.mixins import LoginRequiredMixin
+from .forms import RegisterForm, BankAccountForm, BankAccountCreateForm, BankAccountUpdateForm
 from django.contrib.auth import authenticate, login, logout
 from django.contrib import messages
-from django.contrib.auth.mixins import LoginRequiredMixin 
+from .models import Transaction, Category, BankAccount
 from django.contrib.auth.forms import AuthenticationForm, UserCreationForm
 from django.urls import reverse, reverse_lazy
 from django.views.generic import (
@@ -14,21 +17,12 @@ from django.views.generic import (
     View
 )
 
-from .forms import (  
-  RegisterForm,  
-  BankAccountForm,  
-  BankAccountCreateForm,  
-  BankAccountUpdateForm 
-)
-from .models import Expense, Category, BankAccount
-
-
-
 
 class RegisterView(CreateView):
     form_class = RegisterForm
     template_name = 'budget/register.html'
     success_url = reverse_lazy('budget:expense')
+
 
     def form_valid(self, form):
         response = super().form_valid(form)
@@ -38,20 +32,17 @@ class RegisterView(CreateView):
 
 class ExpenseListView(LoginRequiredMixin, ListView):
     template_name = 'budget/expense.html'
-    context_object_name = 'expenses'
-    queryset = Expense.objects.all()
+    context_object_name = 'transactions'
+    queryset = Transaction.objects.all()
     paginate_by = 10
+
 
     def get_context_data(self, *, object_list=None, **kwargs):
         context = super().get_context_data(**kwargs)
         return context
 
     def get_queryset(self):
-
-        return Expense.objects.filter(user=self.request.user).order_by('-date')
-
-
-       # return Expense.objects.filter(account__user=self.request.user).order_by('-date')
+        return Transaction.objects.filter(account__user=self.request.user)
 
 
 class BankAccountListView(LoginRequiredMixin, ListView):
@@ -61,6 +52,10 @@ class BankAccountListView(LoginRequiredMixin, ListView):
     context_object_name = 'accounts'
     queryset = BankAccount.objects.all()
     paginate_by = 10
+
+    def get_context_data(self, *, object_list=None, **kwargs):
+        context = super().get_context_data(**kwargs)
+        return context
 
     def get_queryset(self):
         return BankAccount.objects.filter(user=self.request.user)
@@ -79,11 +74,11 @@ class BankAccountCreateView(LoginRequiredMixin, CreateView):
         category = form.cleaned_data.get('category')
 
         if amount and amount > 0: #and category:
-            Expense.objects.create(
+            Transaction.objects.create(
                 user=self.request.user,
                 amount=amount,
                 type='IN',
-                # category=category,
+                category=category,
                 account=account,
                 description="Starting balance"
             )
@@ -116,12 +111,14 @@ class BankAccountDeleteView(LoginRequiredMixin, DeleteView):
 
     def get(self, request, *args, **kwargs):
         return self.post(request, *args, **kwargs)
+    def get_queryset(self):
+        return Transaction.objects.filter(account__user=self.request.user).order_by('-date')
 
 
 class CategoryListView(ListView):
+    model = Category
     template_name = 'budget/expense.html'
     context_object_name = 'categories'
-    queryset = Expense.get_category_display
     paginate_by = 10
 
 
@@ -136,7 +133,7 @@ class LoginView(FormView):
         return super().form_valid(form)
 
 class ExpenseCreateView(LoginRequiredMixin, CreateView):
-    model = Expense
+    model = Transaction
     fields = ['amount', 'category', 'description']
     template_name = 'budget/expense_create.html'
     success_url = reverse_lazy('budget:expense')
@@ -151,9 +148,9 @@ class LogoutView(View):
         return redirect('budget:expense')
 
 class ExpenseDetailView(DetailView):
-    model = Expense
+    model = Transaction
     template_name = 'budget/expense_detail.html'
     context_object_name = 'expense'
 
     def get_queryset(self):
-        return Expense.objects.filter(user=self.request.user).order_by('-date')
+        return Transaction.objects.filter(user=self.request.user).order_by('-date')
