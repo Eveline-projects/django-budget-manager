@@ -1,9 +1,11 @@
 from django.db import models
 from django.utils import timezone
+from django.utils.translation import gettext_lazy as _
+from django.conf import settings
 from decimal import Decimal
 from django.apps import AppConfig
 from django.core.signals import request_finished
-from django.conf import settings
+
 
 # class MyAppConfig(AppConfig):
 #     def ready(self):
@@ -13,14 +15,24 @@ from django.conf import settings
 #     @receiver(pre_save, sender=MyModel)
 #     def my_handler(sender, **kwargs):
 #
+# class Category(models.TextChoices):
+#     FOOD = "FD", _("Food")
+#     HOME = 'HM', _("Home")
+#     TRANSPORT = 'TP', _("Transport")
+#     ENTERTAINMENT = 'ET', _("Entertainment")
+#     LIFE = 'LI', _("Life")
+#     SHOPPING = 'SH', _("Shopping")
+#     BILLS = 'BL', _("Bills")
+#     INVESTMENTS = 'IM', _("Investments")
+#     OTHER = 'OT', _("Other")
 
+# class Category(models.Model):
+#     name = models.CharField(max_length=100)
+#     user = models.ForeignKey('auth.User', on_delete=models.CASCADE)
 
-class Category(models.Model):
-    name = models.CharField(max_length=100)
-    user = models.ForeignKey('auth.User', on_delete=models.CASCADE)
+#     def __str__(self):
+#         return self.name
 
-    def __str__(self):
-        return self.name
 
 
 class BankAccount(models.Model):
@@ -63,20 +75,36 @@ class Expense(models.Model):
         ('IN', 'Deposit'),
     ]
     amount = models.DecimalField(max_digits=10, decimal_places=2)
-    type = models.CharField(max_length=3, choices=TYPE_CHOICES, default='OUT')
-    category = models.ForeignKey(Category, on_delete=models.CASCADE, null=True, blank=True)
-    date = models.DateTimeField(default=timezone.now)
-    description = models.TextField(blank=True, null=True)
-    user = models.ForeignKey('auth.User', on_delete=models.CASCADE)
-    account = models.ForeignKey(BankAccount, on_delete=models.CASCADE, related_name='expenses')
+#     date = models.DateTimeField(default=timezone.now)
+#     description = models.TextField(blank=True, null=True)
 
-    def save(self, *args, **kwargs):
-        super().save(*args, **kwargs)
-        if self.type == 'IN':
-            self.account.balance += self.amount
-        else:
-            self.account.balance -= self.amount
-        self.account.save()
+#     user = models.ForeignKey(
+#         settings.AUTH_USER_MODEL,
+#         on_delete=models.CASCADE,
+#         related_name='expenses',
+#     )
+
+#     category = models.CharField(
+#         max_length=2,
+#         choices=Category.choices,
+#         default=Category.OTHER,
+#     )
+
+#     type = models.CharField(max_length=3, choices=TYPE_CHOICES, default='OUT')
+#     category = models.ForeignKey(Category, on_delete=models.CASCADE, null=True, blank=True)
+#     date = models.DateTimeField(default=timezone.now)
+#     description = models.TextField(blank=True, null=True)
+#     user = models.ForeignKey('auth.User', on_delete=models.CASCADE)
+#     account = models.ForeignKey(BankAccount, on_delete=models.CASCADE, related_name='expenses')
+
+#     def save(self, *args, **kwargs):
+#         super().save(*args, **kwargs)
+#         if self.type == 'IN':
+#             self.account.balance += self.amount
+#         else:
+#             self.account.balance -= self.amount
+#         self.account.save()
+
 
     def __str__(self):
         return f"{self.get_type_display()}: {self.amount} PLN ({self.category})"

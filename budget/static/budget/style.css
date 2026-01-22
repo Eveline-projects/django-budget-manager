@@ -77,6 +77,20 @@ body {
   background-color: #45a049;
 }
 
+.expbtn {
+    display: inline-block;
+    padding: 10px 16px;
+    background-color: #4CAF50;
+    color: white;
+    text-decoration: none;
+    border-radius: 4px;
+    font-weight: bold;
+}
+
+.expbtn:hover {
+    background-color: #45a049;
+}
+
 /*
 komentarz
 */
