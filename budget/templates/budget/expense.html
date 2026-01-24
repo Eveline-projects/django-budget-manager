@@ -148,38 +148,52 @@
             </div>
         </div>
     </div>
-
     <div class="row">
-        <div class="col-lg-4 mb-4">
-            <div class="card p-4 mb-4">
+
+        <!-- KATEGORIE -->
+        <div class="col-lg-3 mb-4">
+            <div class="card p-4 h-100">
                 <h5 class="card-title mb-4">Kategorie</h5>
-                <div class="list-group list-group-flush">
+                <a href="{% url 'budget:category_add' %}"
+                     class="expbtn position-relative"
+                    style="top: 6px;">
+
+                    Dodaj kategorię
+                </a>
+
+                <div class="list-group list-group-flush mt-3">
                     {% for category in categories %}
-                     {{ category.name }}
+                        <div class="list-group-item mb-1">
+                            {{ category.name }}
+                        </div>
+                    {% empty %}
+                        <div class="list-group-item text-muted">
+                            Brak kategorii
+                        </div>
                     {% endfor %}
                 </div>
-                <a href="{% url 'budget:category_add' %}" class="expbtn">Dodaj kategorie</a>
+
 
             </div>
-
-
-            <div class="card p-4 ">
-                <h5 class="card-title mb-4">Statystyki</h5>
-            </div>
-
         </div>
 
-        <div class="col-lg-8 mb-4">
+        <!-- OSTATNIE WYDATKI -->
+        <div class="col-lg-9 mb-4">
             <div class="card p-4 h-100">
+
                 <div class="d-flex justify-content-between align-items-center mb-4">
                     <h5 class="card-title mb-0">Ostatnie wydatki</h5>
                     <a href="#" class="btn btn-sm btn-primary">Zobacz wszystkie</a>
                 </div>
-                <a href="{% url 'budget:expense_add' %}" class="expbtn">Dodaj wydatek</a>
+
+                <a href="{% url 'budget:expense_add' %}" class="expbtn mb-3">
+                    Dodaj wydatek
+                </a>
+
                 <div class="table-responsive">
                     {% if transactions %}
-                        <table>
-                            <thead>
+                        <table class="table table-hover align-middle">
+                            <thead class="table-light">
                             <tr>
                                 <th>Data</th>
                                 <th>Kwota</th>
@@ -199,10 +213,11 @@
                             </tbody>
                         </table>
                     {% else %}
-                        <p>Nie masz jeszcze żadnych wydatków.</p>
+                        <p class="text-muted">Nie masz jeszcze żadnych wydatków.</p>
                     {% endif %}
                 </div>
+
             </div>
         </div>
+
     </div>
-</div>
