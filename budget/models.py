@@ -75,3 +75,16 @@ class Transaction(models.Model):
         return f"{self.get_type_display()}: {self.amount} PLN ({self.category})"
 
 
+class SavingsAccount(models.Model):
+    TYPE_SAVE = [
+        ('LOKATY', 'LOKATY'),
+        ('FUNDUSZE', 'FUNDUSZE'),
+        ('EMERYTURA', 'EMERYTURA'),
+        ('INNE', 'INNE'),
+    ]
+    saving_name = models.CharField(max_length=50)
+    saving_type = models.CharField(max_length=10, choices=TYPE_SAVE, default='LOKATY')
+
+
+    def __str__(self):
+        return f"{self.name} - {self.amount} PLN"

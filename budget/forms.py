@@ -1,7 +1,8 @@
 from django.contrib.auth.forms import UserCreationForm
 from django.contrib.auth.models import User
 from django import forms
-from .models import BankAccount, Category
+from .models import BankAccount, Category, SavingsAccount
+
 
 class RegisterForm(UserCreationForm):
     email = forms.EmailField(required=True)
@@ -60,4 +61,10 @@ class BankAccountCreateForm(BankAccountUpdateForm):
 
 class CategoryForm(forms.ModelForm):
     category_name = forms.CharField()
+
+class SavingAccountForm(forms.ModelForm):
+
+    class Meta:
+        model = SavingsAccount
+        fields = ('saving_name', 'saving_type')
 

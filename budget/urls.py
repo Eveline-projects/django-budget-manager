@@ -1,5 +1,6 @@
 from django.urls import path
 from . import views
+from .views import SavingCreateView
 
 app_name = 'budget'
 
@@ -14,4 +15,5 @@ urlpatterns = [
     path('expense/add/', views.ExpenseCreateView.as_view(), name='expense_add'),
     path('expense/<int:pk>/', views.ExpenseDetailView.as_view(), name='expense_detail'),
     path('category/add/', views.CategoryCreateView.as_view(), name='category_add'),
+    path('expense/saving', SavingCreateView.as_view(), name='saving'),
 ]

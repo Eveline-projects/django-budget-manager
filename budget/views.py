@@ -1,10 +1,10 @@
 from django.shortcuts import render, redirect
-from .forms import RegisterForm
+from .forms import RegisterForm, SavingAccountForm
 from django.contrib.auth.mixins import LoginRequiredMixin
 from .forms import RegisterForm, BankAccountForm, BankAccountCreateForm, BankAccountUpdateForm
 from django.contrib.auth import authenticate, login, logout
 from django.contrib import messages
-from .models import Transaction, Category, BankAccount
+from .models import Transaction, Category, BankAccount, SavingsAccount
 from django.contrib.auth.forms import AuthenticationForm, UserCreationForm
 from django.urls import reverse, reverse_lazy
 from django.views.generic import (
@@ -159,6 +159,7 @@ class ExpenseDetailView(DetailView):
     def get_queryset(self):
         return Transaction.objects.filter(user=self.request.user).order_by('-date')
 
+# Dodawanie kategorii
 class CategoryCreateView(LoginRequiredMixin, CreateView):
     model = Category
     fields = ['name']
@@ -168,3 +169,12 @@ class CategoryCreateView(LoginRequiredMixin, CreateView):
     def form_valid(self, form):
         form.instance.user = self.request.user
         return super().form_valid(form)
+
+# Dodawanie oszczedności
+class SavingCreateView(LoginRequiredMixin, CreateView):
+    model = SavingsAccount
+    form_class = SavingAccountForm
+    template_name = 'budget/saving.html'
+    success_url = reverse_lazy('budget:expense')
+
+
