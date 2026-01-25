@@ -62,9 +62,42 @@ class BankAccountCreateForm(BankAccountUpdateForm):
 class CategoryForm(forms.ModelForm):
     category_name = forms.CharField()
 
-class SavingAccountForm(forms.ModelForm):
 
+class SavingAccountForm(forms.ModelForm):
     class Meta:
         model = SavingsAccount
-        fields = ('saving_name', 'saving_type')
+        fields = [
+            'saving_name',
+            'saving_type',
+            'saving_balance',
+            'interest_rate',
+        ]
+        labels = {
+            'saving_name': 'Nazwa konta',
+            'saving_type': 'Typ konta',
+            'saving_balance': 'Saldo początkowe',
+            'interest_rate': 'Oprocentowanie',
+        }
+        widgets = {
+            'saving_name': forms.TextInput(attrs={
+                'class': 'form-control',
+                'placeholder': 'Np. Lokata PKO'
+            }),
+            'saving_type': forms.Select(attrs={
+                'class': 'form-control',
+            }),
+            'saving_balance': forms.NumberInput(attrs={
+                'class': 'form-control',
+                'step': '0.01',
+            }),
+            'interest_rate': forms.NumberInput(attrs={
+                'class': 'form-control',
+                'step': '0.01',
+            }),
+        }
 
+    def clean_saving_balance(self):
+        balance = self.cleaned_data['saving_balance']
+        if balance < 0:
+            raise forms.ValidationError("Saldo nie może być ujemne.")
+        return balance
