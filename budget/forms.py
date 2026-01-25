@@ -1,16 +1,14 @@
 from django.contrib.auth.forms import UserCreationForm
 from django.contrib.auth.models import User
 from django import forms
-from .models import BankAccount, Category
+from .models import BankAccount, Category, SavingsAccount
 
 
 class RegisterForm(UserCreationForm):
     email = forms.EmailField(required=True)
-
-    class Meta(UserCreationForm.Meta):
+    class Meta:
         model = User
-        fields = ('username', 'email')
-
+        fields = ('username', 'email', 'password1', 'password2')
 
 class BankAccountForm(forms.ModelForm):
     initial_balance = forms.DecimalField(
@@ -24,7 +22,6 @@ class BankAccountForm(forms.ModelForm):
         label="First deposit category",
         required=False
     )
-
     class Meta:
         model = BankAccount
         fields = ('name_account', 'account_type')
@@ -51,7 +48,7 @@ class BankAccountCreateForm(BankAccountUpdateForm):
         max_digits=10,
         decimal_places=2,
         required=False,
-        label="Starting balance",
+         label="Starting balance",
     )
     category = forms.ModelChoiceField(
         queryset=Category.objects.all(),
@@ -62,10 +59,12 @@ class BankAccountCreateForm(BankAccountUpdateForm):
     class Meta(BankAccountUpdateForm.Meta):
         fields = BankAccountUpdateForm.Meta.fields + ['initial_balance', 'category']
 
-    def __init__(self, *args, **kwargs):
-        user = kwargs.pop('user', None)
-        super().__init__(*args, **kwargs)
-        if user:
-          self.fields['category'].queryset = Category.objects.filter(user=user)
+class CategoryForm(forms.ModelForm):
+    category_name = forms.CharField()
 
+class SavingAccountForm(forms.ModelForm):
+
+    class Meta:
+        model = SavingsAccount
+        fields = ('saving_name', 'saving_type')
 

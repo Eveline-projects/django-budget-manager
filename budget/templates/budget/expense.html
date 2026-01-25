@@ -112,15 +112,22 @@
             </div>
         </div>
         <div class="col-md-4">
+            <div class="card stat-card bg-info text-dark mb-3" style="cursor: pointer;">
+                <a href="{% url 'budget:saving' %}" class="text-decoration-none text-dark d-block p-3">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <!-- Tekst po lewej -->
+                        <div>
+                            <h6 class="text-uppercase small">Oszczędności</h6>
 
-            <div class="card stat-card bg-info text-dark p-3 mb-3">
-                <div class="d-flex justify-content-between align-items-center">
-                    <div>
-                        <h6 class="text-uppercase small">Oszczędności</h6>
-                        <h3></h3>
+                            <div class="mt-2 d-flex align-items-center gap-1">
+                                <i class="bi bi-currency-dollar fs-4"></i>
+                                <span class="small fw-bold">Zarządzaj</span>
                     </div>
-                    <i class="bi bi-wallet fs-1 opacity-50"></i>
-                </div>
+                        </div>
+                        <!-- Ikona po prawej -->
+                        <i class="bi bi-wallet fs-1 opacity-50"></i>
+                    </div>
+                </a>
             </div>
         </div>
         <div class="col-md-4">
@@ -148,55 +155,52 @@
             </div>
         </div>
     </div>
-
     <div class="row">
-        <div class="col-lg-4 mb-4">
-            <div class="card p-4 mb-4">
+
+        <!-- KATEGORIE -->
+        <div class="col-lg-3 mb-4">
+            <div class="card p-4 h-100">
                 <h5 class="card-title mb-4">Kategorie</h5>
-                <div class="list-group list-group-flush">
+                <a href="{% url 'budget:category_add' %}"
+                     class="expbtn position-relative"
+                    style="top: 6px;">
+
+                    Dodaj kategorię
+                </a>
+
+                <div class="list-group list-group-flush mt-3">
                     {% for category in categories %}
-                        <div class="list-group-item d-flex justify-content-between align-items-center border-0 px-0">
-                            <span><i class="bi bi-tag-fill me-2 text-primary"></i> {{ category.name }}</span>
-                            <span class="badge bg-light text-dark rounded-pill">{{ category.expense_count }} transakcji</span>
+                        <div class="list-group-item mb-1">
+                            {{ category.name }}
+                        </div>
+                    {% empty %}
+                        <div class="list-group-item text-muted">
+                            Brak kategorii
                         </div>
                     {% endfor %}
                 </div>
-                <button class="btn btn-outline-primary mt-4 w-100">+ Dodaj kategorię</button>
-                <div class="mt-3">
-                    <select class="form-select" aria-label="Default select example">
-                        <option value="1">Food</option>
-                        <option value="2">Home</option>
-                        <option value="3">Transport</option>
-                        <option value="4">Entertainment</option>
-                        <option value="5">Life</option>
-                        <option value="6">Shopping</option>
-                        <option value="7">Bills</option>
-                        <option value="8">Investments</option>
-
-                    </select>
-                </div>
 
 
             </div>
-
-
-            <div class="card p-4 ">
-                <h5 class="card-title mb-4">Statystyki</h5>
-            </div>
-
         </div>
 
-        <div class="col-lg-8 mb-4">
+        <!-- OSTATNIE WYDATKI -->
+        <div class="col-lg-9 mb-4">
             <div class="card p-4 h-100">
+
                 <div class="d-flex justify-content-between align-items-center mb-4">
                     <h5 class="card-title mb-0">Ostatnie wydatki</h5>
                     <a href="#" class="btn btn-sm btn-primary">Zobacz wszystkie</a>
                 </div>
-                <a href="{% url 'budget:expense_add' %}" class="expbtn">Dodaj wydatek</a>
+
+                <a href="{% url 'budget:expense_add' %}" class="expbtn mb-3">
+                    Dodaj wydatek
+                </a>
+
                 <div class="table-responsive">
                     {% if transactions %}
-                        <table>
-                            <thead>
+                        <table class="table table-hover align-middle">
+                            <thead class="table-light">
                             <tr>
                                 <th>Data</th>
                                 <th>Kwota</th>
@@ -216,10 +220,11 @@
                             </tbody>
                         </table>
                     {% else %}
-                        <p>Nie masz jeszcze żadnych wydatków.</p>
+                        <p class="text-muted">Nie masz jeszcze żadnych wydatków.</p>
                     {% endif %}
                 </div>
+
             </div>
         </div>
+
     </div>
-</div>

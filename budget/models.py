@@ -1,21 +1,11 @@
 from django.db import models
 from django.utils import timezone
-from django.db.models import Sum, Q
+from django.apps import AppConfig
+from django.core.signals import request_finished
 from django.conf import settings
 
 
 class Category(models.Model):
-    CATEGORIES = [
-        ('FOOD', 'Food'),
-        ('HOME', 'Home'),
-        ('TRANSPORT', 'Transport'),
-        ('ENTERTAINMENT', 'Entertainment'),
-        ('LIFE', 'Life'),
-        ('SHOPPING', 'Shopping'),
-        ('BILLS', 'Bills'),
-        ('INVESTMENTS', 'Investments'),
-        ('OTHER', 'Other'),
-    ]
     name = models.CharField(max_length=50)
     user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE)
 
@@ -31,46 +21,33 @@ class BankAccount(models.Model):
         ('ADULT', 'Adult'),
         ('CHILD', 'Child'),
     ]
-    user = models.ForeignKey(
-        settings.AUTH_USER_MODEL,
-        on_delete=models.CASCADE
-    )
+    user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE)
     name_account = models.CharField(max_length=50)
-    account_type = models.CharField(
-        max_length=10,
-        choices=TYPE_ACCOUNT,
-        default='ADULT'
-    )
+    account_type = models.CharField(max_length=10, choices=TYPE_ACCOUNT, default='ADULT')
     account_creation_date = models.DateTimeField(default=timezone.now)
-
-    # def get_queryset(self):
-    #     return (
-    #         BankAccount.objects
-    #         .filter(user=self.request.user)
-    #         .annotate(
-    #             total_balance=Sum('transaction__amount',
-    #                               filter=Q(transactions__type='IN')) -
-    #                          Sum('transaction__amount',
-    #                              filter=Q(transactions__type='OUT'))
-    #         )
-    #         .prefetch_related('transactions')
-    #     )
+    balance = models.DecimalField(max_digits=10, decimal_places=2, default=0)
 
     @property
     def total_balance(self):
-        agg = self.transactions.aggregate(
-            incomes=Sum('amount', filter=Q(type='IN')),
-            outcomes=Sum('amount',filter=Q(type='OUT')),
-        )
-        incomes = agg['incomes'] or 0
-        outcomes = agg['outcomes'] or 0
+        incomes = sum(e.amount for e in self.transactions.filter(type='IN'))
+        outcomes = sum(e.amount for e in self.transactions.filter(type='OUT'))
         return incomes - outcomes
 
     def get_balance(self):
-        return self.total_balance
+        all_entries = self.transactions.all()
+
+        total = 0
+        for entry in all_entries:
+            if entry.type == 'IN':
+                total += entry.amount
+            else:
+                total -= entry.amount
+        return total
 
     def __str__(self):
         return f"{self.name_account} - Balance: {self.total_balance}"
+
+
 
 
 class Transaction(models.Model):
@@ -88,9 +65,26 @@ class Transaction(models.Model):
 
     def save(self, *args, **kwargs):
         super().save(*args, **kwargs)
-
+        if self.type == 'IN':
+            self.account.balance += self.amount
+        else:
+            self.account.balance -= self.amount
+        self.account.save()
 
     def __str__(self):
         return f"{self.get_type_display()}: {self.amount} PLN ({self.category})"
 
 
+class SavingsAccount(models.Model):
+    TYPE_SAVE = [
+        ('LOKATY', 'LOKATY'),
+        ('FUNDUSZE', 'FUNDUSZE'),
+        ('EMERYTURA', 'EMERYTURA'),
+        ('INNE', 'INNE'),
+    ]
+    saving_name = models.CharField(max_length=50)
+    saving_type = models.CharField(max_length=10, choices=TYPE_SAVE, default='LOKATY')
+
+
+    def __str__(self):
+        return f"{self.name} - {self.amount} PLN"
