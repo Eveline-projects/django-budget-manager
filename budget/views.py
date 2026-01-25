@@ -1,12 +1,9 @@
-from django.shortcuts import render, redirect
-from .forms import RegisterForm, SavingAccountForm
+from django.shortcuts import redirect
+from django.contrib.auth import login, logout
+from django.contrib.auth.forms import AuthenticationForm
 from django.contrib.auth.mixins import LoginRequiredMixin
-from .forms import RegisterForm, BankAccountForm, BankAccountCreateForm, BankAccountUpdateForm
-from django.contrib.auth import authenticate, login, logout
-from django.contrib import messages
-from .models import Transaction, Category, BankAccount, SavingsAccount
-from django.contrib.auth.forms import AuthenticationForm, UserCreationForm
-from django.urls import reverse, reverse_lazy
+from django.shortcuts import redirect
+from django.urls import reverse_lazy
 from django.views.generic import (
     CreateView,
     ListView,
@@ -16,6 +13,10 @@ from django.views.generic import (
     FormView,
     View
 )
+
+from .forms import RegisterForm, BankAccountCreateForm, BankAccountUpdateForm
+from .forms import SavingAccountForm
+from .models import Transaction, Category, BankAccount, SavingsAccount
 
 
 class RegisterView(CreateView):
@@ -115,17 +116,6 @@ class BankAccountDeleteView(LoginRequiredMixin, DeleteView):
     def get_queryset(self):
         return Transaction.objects.filter(account__user=self.request.user).order_by('-date')
 
-
-# class CategoryListView(LoginRequiredMixin, ListView):
-#     model = Category
-#     template_name = 'budget/expense.html'
-#     context_object_name = 'categories'
-#     def get_context_data(self, *, object_list=None, **kwargs):
-#         context = super().get_context_data(**kwargs)
-#         return context
-#     def get_queryset(self):
-#         return Category.objects.filter(account__user=self.request.user)
-
 class LoginView(FormView):
     form_class = AuthenticationForm
     template_name = 'budget/login.html'
@@ -174,7 +164,26 @@ class CategoryCreateView(LoginRequiredMixin, CreateView):
 class SavingCreateView(LoginRequiredMixin, CreateView):
     model = SavingsAccount
     form_class = SavingAccountForm
-    template_name = 'budget/saving.html'
-    success_url = reverse_lazy('budget:expense')
+    template_name = 'budget/saving_add.html'
+    success_url = reverse_lazy('budget:saving')
 
 
+    def form_valid(self, form):
+        form.instance.user = self.request.user
+        return super().form_valid(form)
+
+
+    # def get_context_data(self, **kwargs):
+    #     context = super().get_context_data(**kwargs)
+    #     context['saving_detail'] = SavingsAccount.objects.filter(user=self.request.user)
+    #     return context
+
+
+class SavingDetailView(LoginRequiredMixin, DetailView):
+    model = SavingsAccount
+    template_name = 'budget/saving_detail.html'
+    context_object_name = 'saving'
+
+
+    def get_queryset(self):
+        return SavingsAccount.objects.filter(user=self.request.user)

@@ -75,6 +75,7 @@ class Transaction(models.Model):
         return f"{self.get_type_display()}: {self.amount} PLN ({self.category})"
 
 
+
 class SavingsAccount(models.Model):
     TYPE_SAVE = [
         ('LOKATY', 'LOKATY'),
@@ -82,9 +83,12 @@ class SavingsAccount(models.Model):
         ('EMERYTURA', 'EMERYTURA'),
         ('INNE', 'INNE'),
     ]
+
+    user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE)
     saving_name = models.CharField(max_length=50)
     saving_type = models.CharField(max_length=10, choices=TYPE_SAVE, default='LOKATY')
-
+    saving_balance = models.DecimalField(max_digits=10, decimal_places=2, default=0)
+    interest_rate = models.FloatField(default=0.01)
 
     def __str__(self):
-        return f"{self.name} - {self.amount} PLN"
+        return self.saving_name
