@@ -1,12 +1,10 @@
 from django.shortcuts import render, redirect
-from .forms import RegisterForm
 from django.contrib.auth.mixins import LoginRequiredMixin
-from .forms import RegisterForm, BankAccountForm, BankAccountCreateForm, BankAccountUpdateForm
 from django.contrib.auth import authenticate, login, logout
 from django.contrib import messages
-from .models import Transaction, Category, BankAccount
 from django.contrib.auth.forms import AuthenticationForm, UserCreationForm
 from django.urls import reverse, reverse_lazy
+from django.db.models import Sum, Count, Q
 from django.views.generic import (
     CreateView,
     ListView,
@@ -16,6 +14,14 @@ from django.views.generic import (
     FormView,
     View
 )
+
+from .forms import (
+    RegisterForm,
+    BankAccountForm,
+    BankAccountCreateForm,
+    BankAccountUpdateForm
+)
+from .models import Transaction, Category, BankAccount
 
 
 class RegisterView(CreateView):
@@ -47,18 +53,23 @@ class ExpenseListView(LoginRequiredMixin, ListView):
 
 class BankAccountListView(LoginRequiredMixin, ListView):
     model = BankAccount
-
     template_name = 'budget/expense.html'
     context_object_name = 'accounts'
-    queryset = BankAccount.objects.all()
     paginate_by = 10
 
-    def get_context_data(self, *, object_list=None, **kwargs):
+    def get_queryset(self):
+        return (
+           BankAccount.objects
+           .filter(user=self.request.user)
+           .prefetch_related('transactions')
+        )
+
+    def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
+        if 'form' not in context:
+            context['form'] = BankAccountForm(user=self.request.user)
         return context
 
-    def get_queryset(self):
-        return BankAccount.objects.filter(user=self.request.user)
 
 
 class BankAccountCreateView(LoginRequiredMixin, CreateView):
@@ -73,8 +84,8 @@ class BankAccountCreateView(LoginRequiredMixin, CreateView):
         amount = form.cleaned_data.get('initial_balance')
         category = form.cleaned_data.get('category')
 
-        if amount and amount > 0: #and category:
-            Transaction.objects.create(
+        if amount and amount > 0 and category:
+             Transaction.objects.create(
                 user=self.request.user,
                 amount=amount,
                 type='IN',
@@ -91,7 +102,11 @@ class BankAccountCreateView(LoginRequiredMixin, CreateView):
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-        context['accounts'] = BankAccount.objects.filter(user=self.request.user)
+        context['accounts'] = (
+            BankAccount.objects
+            .filter(user=self.request.user)
+            .prefetch_related('transactions')
+        )
         return context
 
 class BankAccountUpdateView(LoginRequiredMixin, UpdateView):
@@ -112,7 +127,7 @@ class BankAccountDeleteView(LoginRequiredMixin, DeleteView):
     def get(self, request, *args, **kwargs):
         return self.post(request, *args, **kwargs)
     def get_queryset(self):
-        return Transaction.objects.filter(account__user=self.request.user).order_by('-date')
+        return BankAccount.objects.filter(user=self.request.user)
 
 
 class CategoryListView(ListView):
