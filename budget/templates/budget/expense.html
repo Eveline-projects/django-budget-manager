@@ -7,17 +7,20 @@
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.0/font/bootstrap-icons.css">
     <style>
-          table {
+        table {
             border-collapse: collapse;
             width: 100%;
         }
+
         th, td {
             border: 1px solid #ddd;
             padding: 8px;
         }
+
         th {
             background-color: #f2f2f2;
         }
+
         .expbtn {
             display: inline-block;
             padding: 10px 16px;
@@ -89,7 +92,7 @@
                 <div class="d-flex justify-content-between align-items-center">
                     <div>
                         <h6 class="text-uppercase small">Pozostało</h6>
-                        <h3>{{ balance }} PLN</h3>
+                        <h3>{{ total_balance }} PLN</h3>
                     </div>
                     <i class="bi bi-piggy-bank fs-1 opacity-50"></i>
                 </div>
@@ -100,10 +103,10 @@
                 <a href="{% url 'budget:account' %}" class="text-decoration-none text-dark d-block p-3">
                     <div class="d-flex justify-content-between align-items-center">
                         <div>
-                            <h6 class="text-uppercase small">Konta bankowe</h6>
-                            <h3>{{ transaction_count }}</h3>
-                            <div class="mt-2">
-                                <i class="bi bi-bank fs-4 me-1"></i> <span class="small fw-bold">Zarządzaj</span>
+                            <h6 class="text-uppercase small mb-2">Konta bankowe</h6>
+                            <div class="d-flex align-items-center">
+                                <i class="bi bi-bank fs-5 me-2"></i>
+                                <span class="fw-bold">Zarządzaj: {{ transaction_count }}</span>
                             </div>
                         </div>
                         <i class="bi bi-arrow-left-right fs-1 opacity-50"></i>
@@ -122,7 +125,7 @@
                             <div class="mt-2 d-flex align-items-center gap-1">
                                 <i class="bi bi-currency-dollar fs-4"></i>
                                 <span class="small fw-bold">Zarządzaj</span>
-                    </div>
+                            </div>
                         </div>
                         <!-- Ikona po prawej -->
                         <i class="bi bi-wallet fs-1 opacity-50"></i>
@@ -162,21 +165,21 @@
             <div class="card p-4 h-100">
                 <h5 class="card-title mb-4">Kategorie</h5>
                 <a href="{% url 'budget:category_add' %}"
-                     class="expbtn position-relative"
-                    style="top: 6px;">
+                   class="expbtn position-relative"
+                   style="top: 6px;">
 
                     Dodaj kategorię
                 </a>
 
                 <div class="list-group list-group-flush mt-3">
                     {% for category in categories %}
-                        <div class="list-group-item mb-1">
-                            {{ category.name }}
-                        </div>
+                    <div class="list-group-item mb-1">
+                        {{ category.name }}
+                    </div>
                     {% empty %}
-                        <div class="list-group-item text-muted">
-                            Brak kategorii
-                        </div>
+                    <div class="list-group-item text-muted">
+                        Brak kategorii
+                    </div>
                     {% endfor %}
                 </div>
 
@@ -199,28 +202,30 @@
 
                 <div class="table-responsive">
                     {% if transactions %}
-                        <table class="table table-hover align-middle">
-                            <thead class="table-light">
-                            <tr>
-                                <th>Data</th>
-                                <th>Kwota</th>
-                                <th>Kategoria</th>
-                                <th>Opis</th>
-                            </tr>
-                            </thead>
-                            <tbody>
-                            {% for expense in transactions %}
-                                <tr>
-                                    <td>{{ expense.date|date:"Y-m-d H:i" }}</td>
-                                    <td>{{ expense.amount }} PLN</td>
-                                    <td>{{ expense.get_category_display }}</td>
-                                    <td>{{ expense.description }}</td>
-                                </tr>
-                            {% endfor %}
-                            </tbody>
-                        </table>
+                    <table class="table table-hover align-middle">
+                        <thead class="table-light">
+                        <tr>
+                            <th>Data</th>
+                            <th>Kwota</th>
+                            <th>Kategoria</th>
+                            <th>Opis</th>
+                        </tr>
+                        </thead>
+                        <tbody>
+                        {% for expense in transactions %}
+                        <tr>
+                            <td>{{ expense.date|date:"Y-m-d H:i" }}</td>
+                            <td class="fw-bold {% if expense.type == 'OUT' %}text-danger{% else %}text-success{% endif %}">
+                                {% if expense.type == 'OUT' %}-{% else %}+{% endif %}{{ expense.amount }} PLN
+                            </td>
+                            <td>{{ expense.category.name }}</td>
+                            <td>{{ expense.description|default:"No description" }}</td>
+                        </tr>
+                        {% endfor %}
+                        </tbody>
+                    </table>
                     {% else %}
-                        <p class="text-muted">Nie masz jeszcze żadnych wydatków.</p>
+                    <p class="text-muted">Nie masz jeszcze żadnych wydatków.</p>
                     {% endif %}
                 </div>
 
