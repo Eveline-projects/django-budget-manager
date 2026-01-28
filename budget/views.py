@@ -216,5 +216,26 @@ class CategoryCreateView(LoginRequiredMixin, CreateView):
 class SavingCreateView(LoginRequiredMixin, CreateView):
     model = SavingsAccount
     form_class = SavingAccountForm
-    template_name = 'budget/saving.html'
-    success_url = reverse_lazy('budget:expense')
+    template_name = 'budget/saving_add.html'
+    success_url = reverse_lazy('budget:saving')
+
+
+    def form_valid(self, form):
+        form.instance.user = self.request.user
+        return super().form_valid(form)
+
+
+    # def get_context_data(self, **kwargs):
+    #     context = super().get_context_data(**kwargs)
+    #     context['saving_detail'] = SavingsAccount.objects.filter(user=self.request.user)
+    #     return context
+
+
+class SavingDetailView(LoginRequiredMixin, DetailView):
+    model = SavingsAccount
+    template_name = 'budget/saving_detail.html'
+    context_object_name = 'saving'
+
+
+    def get_queryset(self):
+        return SavingsAccount.objects.filter(user=self.request.user)
