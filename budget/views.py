@@ -78,6 +78,11 @@ class ExpenseListView(LoginRequiredMixin, ListView):
         context['total_balance'] = total_balance
         context['transaction_count'] = BankAccount.objects.filter(user=self.request.user).count()
 
+        context['savings_count'] = SavingsAccount.objects.filter(user=self.request.user).count()
+        context['total_savings'] = SavingsAccount.objects.filter(user=self.request.user).aggregate(
+            total_sum=Sum('saving_balance')
+        )['total_sum'] or 0
+
         return context
 
 
@@ -200,7 +205,7 @@ class ExpenseDetailView(DetailView):
         return Transaction.objects.filter(user=self.request.user).order_by('-date')
 
 
-# Dodawanie kategorii
+
 class CategoryCreateView(LoginRequiredMixin, CreateView):
     model = Category
     fields = ['name']
@@ -212,30 +217,40 @@ class CategoryCreateView(LoginRequiredMixin, CreateView):
         return super().form_valid(form)
 
 
-# Dodawanie oszczedności
+
 class SavingCreateView(LoginRequiredMixin, CreateView):
     model = SavingsAccount
     form_class = SavingAccountForm
     template_name = 'budget/saving_add.html'
-    success_url = reverse_lazy('budget:saving')
 
 
     def form_valid(self, form):
         form.instance.user = self.request.user
         return super().form_valid(form)
 
-
-    # def get_context_data(self, **kwargs):
-    #     context = super().get_context_data(**kwargs)
-    #     context['saving_detail'] = SavingsAccount.objects.filter(user=self.request.user)
-    #     return context
-
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context['savings'] = SavingsAccount.objects.filter(user=self.request.user).order_by('-id')
+        return context
 
 class SavingDetailView(LoginRequiredMixin, DetailView):
     model = SavingsAccount
     template_name = 'budget/saving_detail.html'
-    context_object_name = 'saving'
+    context_object_name = 'saving_detail'
 
+
+class SavingListView(LoginRequiredMixin, ListView):
+    model = SavingsAccount
+    template_name = 'budget/saving_list.html'
+    context_object_name = 'savings'
 
     def get_queryset(self):
-        return SavingsAccount.objects.filter(user=self.request.user)
+        # Wszystkie oszczędności użytkownika, najnowsze najpierw
+        return SavingsAccount.objects.filter(user=self.request.user).order_by('-id')
+
+
+
+
+
+
+

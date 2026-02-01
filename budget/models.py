@@ -1,4 +1,5 @@
 from django.db import models
+from django.urls import reverse
 from django.utils import timezone
 from django.conf import settings
 from django.db.models import Sum, Q
@@ -112,5 +113,16 @@ class SavingsAccount(models.Model):
     saving_balance = models.DecimalField(max_digits=10, decimal_places=2, default=0)
     interest_rate = models.FloatField(default=0.01)
 
+    # def save(self, *args, **kwargs):
+    #     super().save(*args, **kwargs)
+
+    def delete(self, *args, **kwargs):
+        super().delete(*args, **kwargs)
+
     def __str__(self):
-        return self.saving_name
+        return f"{self.user}: {self.saving_name} ({self.saving_type})"
+
+    def get_absolute_url(self):
+        if not self.pk:
+            raise ValueError("Cannot reverse saving_detail because object has no PK yet")
+        return reverse("budget:saving_detail", kwargs={"pk": self.pk})
