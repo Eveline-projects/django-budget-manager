@@ -28,6 +28,7 @@ from .forms import (
     SavingAccountForm,
     TransactionForm
 )
+import json
 
 
 class RegisterView(CreateView):
@@ -64,24 +65,35 @@ class ExpenseListView(LoginRequiredMixin, ListView):
     paginate_by = 10
 
     def get_queryset(self):
-        return Transaction.objects.filter(account__user=self.request.user).order_by('-date')
+        return Transaction.objects.filter(user=self.request.user).order_by('-date')
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-        user_transactions = Transaction.objects.filter(user=self.request.user)
+        user = self.request.user
+        user_transactions = Transaction.objects.filter(user=user)
+
         total_in = user_transactions.filter(type='IN').aggregate(Sum('amount'))['amount__sum'] or 0
         total_out = user_transactions.filter(type='OUT').aggregate(Sum('amount'))['amount__sum'] or 0
 
-        total_balance = total_in - total_out
-        context['categories'] = Category.objects.filter(user=self.request.user)
+        context['categories'] = Category.objects.filter(user=user)
         context['total_expenses'] = total_out
-        context['total_balance'] = total_balance
-        context['transaction_count'] = BankAccount.objects.filter(user=self.request.user).count()
-
-        context['savings_count'] = SavingsAccount.objects.filter(user=self.request.user).count()
-        context['total_savings'] = SavingsAccount.objects.filter(user=self.request.user).aggregate(
+        context['total_balance'] = total_in - total_out
+        context['transaction_count'] = BankAccount.objects.filter(user=user).count()
+        context['savings_count'] = SavingsAccount.objects.filter(user=user).count()
+        context['total_savings'] = SavingsAccount.objects.filter(user=user).aggregate(
             total_sum=Sum('saving_balance')
         )['total_sum'] or 0
+
+        stats_query = user_transactions.filter(type='OUT') \
+            .values('category__name') \
+            .annotate(total=Sum('amount')) \
+            .order_by('-total')
+
+        labels = [item['category__name'] for item in stats_query if item['category__name']]
+        values = [float(item['total']) for item in stats_query]
+
+        context['labels'] = json.dumps(labels)
+        context['values'] = json.dumps(values)
 
         return context
 
@@ -191,9 +203,9 @@ class ExpenseCreateView(LoginRequiredMixin, CreateView):
 
 
 class LogoutView(View):
-    def get(self, request, *args, **kwargs):
+    def post(self, request):
         logout(request)
-        return redirect('budget:expense')
+        return redirect('budget:login')
 
 
 class ExpenseDetailView(DetailView):
@@ -203,7 +215,6 @@ class ExpenseDetailView(DetailView):
 
     def get_queryset(self):
         return Transaction.objects.filter(user=self.request.user).order_by('-date')
-
 
 
 class CategoryCreateView(LoginRequiredMixin, CreateView):
@@ -217,12 +228,10 @@ class CategoryCreateView(LoginRequiredMixin, CreateView):
         return super().form_valid(form)
 
 
-
 class SavingCreateView(LoginRequiredMixin, CreateView):
     model = SavingsAccount
     form_class = SavingAccountForm
     template_name = 'budget/saving_add.html'
-
 
     def form_valid(self, form):
         form.instance.user = self.request.user
@@ -232,6 +241,7 @@ class SavingCreateView(LoginRequiredMixin, CreateView):
         context = super().get_context_data(**kwargs)
         context['savings'] = SavingsAccount.objects.filter(user=self.request.user).order_by('-id')
         return context
+
 
 class SavingDetailView(LoginRequiredMixin, DetailView):
     model = SavingsAccount
@@ -247,10 +257,3 @@ class SavingListView(LoginRequiredMixin, ListView):
     def get_queryset(self):
         # Wszystkie oszczędności użytkownika, najnowsze najpierw
         return SavingsAccount.objects.filter(user=self.request.user).order_by('-id')
-
-
-
-
-
-
-

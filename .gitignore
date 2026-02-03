@@ -17,6 +17,7 @@ venv/
 .venv/
 # C extensions
 *.so
+.env
 
 # Distribution / packaging
 .Python

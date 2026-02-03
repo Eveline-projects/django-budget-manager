@@ -1,4 +1,5 @@
 {% load static %}
+{% load crispy_forms_tags %}
 <!DOCTYPE html>
 <html lang="en">
 
@@ -34,10 +35,9 @@
 
 <!-- 3. Pudełko środkowe: formularz rejestracji -->
 <div class="container d-flex justify-content-center">
-    <form action="" method="POST" class="bg-white p-4 rounded shadow" style="max-width: 400px; width:100%;">
-        {% csrf_token %}
-        {{ form.as_p }}
-        <button type="submit" class="btn btn-primary w-100">Sign Up</button>
+    <form method="POST">
+    {% csrf_token %}
+    {{ form|crispy }}  <button type="submit" class="btn btn-primary w-100">Sign Up</button>
     </form>
 </div>
 

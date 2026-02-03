@@ -10,6 +10,9 @@ class RegisterForm(UserCreationForm):
     class Meta(UserCreationForm.Meta):
         model = User
         fields = ['username', 'email']
+        help_texts = {
+            'username': 'Nazwa użytkownika (min. 5 znaki)',
+        }
 
 
 class BankAccountForm(forms.ModelForm):
