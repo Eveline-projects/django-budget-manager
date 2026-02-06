@@ -80,9 +80,9 @@ class ExpenseListView(LoginRequiredMixin, ListView):
         context['total_balance'] = total_in - total_out
         context['transaction_count'] = BankAccount.objects.filter(user=user).count()
         context['savings_count'] = SavingsAccount.objects.filter(user=user).count()
-        context['total_savings'] = SavingsAccount.objects.filter(user=user).aggregate(
-            total_sum=Sum('saving_balance')
-        )['total_sum'] or 0
+        context['total_savings'] = SavingsAccount.objects.filter(user=user).count()
+
+        context['target'] = Target.objects.filter(user=user).count()
 
         stats_query = user_transactions.filter(type='OUT') \
             .values('category__name') \
@@ -281,4 +281,9 @@ class TargetListView(LoginRequiredMixin, ListView):
     def get_queryset(self):
         return Target.objects.filter(user=self.request.user).order_by('-id')
 
+class DetailView(ListView):
+    template_name = 'budget/detail.html'
+
+    def get_queryset(self):
+        pass
 
