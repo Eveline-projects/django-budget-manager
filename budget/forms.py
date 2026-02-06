@@ -1,7 +1,7 @@
 from django.contrib.auth.forms import UserCreationForm
 from django.contrib.auth.models import User
 from django import forms
-from .models import BankAccount, Category, SavingsAccount, Transaction
+from .models import BankAccount, Category, SavingsAccount, Transaction, Target
 
 
 class RegisterForm(UserCreationForm):
@@ -128,3 +128,8 @@ class SavingAccountForm(forms.ModelForm):
         if balance < 0:
             raise forms.ValidationError("Saldo nie może być ujemne.")
         return balance
+
+class TargetForm(forms.ModelForm):
+    class Meta:
+        model = Target
+        fields = ['target_type', 'target_balance']

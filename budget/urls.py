@@ -1,6 +1,6 @@
 from django.urls import path
 from . import views
-from .views import SavingCreateView, SavingDetailView, SavingListView
+from .views import SavingCreateView, SavingDetailView, SavingListView, TargetCreateView, TargetListView
 
 app_name = 'budget'
 
@@ -19,5 +19,7 @@ urlpatterns = [
     path('saving/add/', SavingCreateView.as_view(), name='saving_add'),
     path('saving/<int:pk>/', SavingDetailView.as_view(), name='saving_detail'),
     path('saving/', SavingListView.as_view(), name='saving_list'),
+    path('target/', TargetCreateView.as_view(), name='target'),
+    path('target/list/', TargetListView.as_view(), name='target_list'),
 
 ]

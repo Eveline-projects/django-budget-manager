@@ -19,7 +19,7 @@ from .models import (
     Transaction,
     Category,
     BankAccount,
-    SavingsAccount
+    SavingsAccount, Target
 )
 from .forms import (
     RegisterForm,
@@ -255,5 +255,30 @@ class SavingListView(LoginRequiredMixin, ListView):
     context_object_name = 'savings'
 
     def get_queryset(self):
-        # Wszystkie oszczędności użytkownika, najnowsze najpierw
         return SavingsAccount.objects.filter(user=self.request.user).order_by('-id')
+
+
+class TargetCreateView(LoginRequiredMixin, CreateView):
+    model = Target
+    fields = ['target_type', 'target_balance']
+    template_name = 'budget/target.html'
+    success_url = reverse_lazy('budget:target_list')
+
+    def form_valid(self, form):
+        form.instance.user = self.request.user
+        return super().form_valid(form)
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context['target'] = Target.objects.filter(user=self.request.user).order_by('-id')
+        return context
+
+class TargetListView(LoginRequiredMixin, ListView):
+    model = Target
+    template_name = 'budget/target_list.html'
+    context_object_name = 'targets'
+
+    def get_queryset(self):
+        return Target.objects.filter(user=self.request.user).order_by('-id')
+
+

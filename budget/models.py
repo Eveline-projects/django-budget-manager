@@ -126,3 +126,24 @@ class SavingsAccount(models.Model):
         if not self.pk:
             raise ValueError("Cannot reverse saving_detail because object has no PK yet")
         return reverse("budget:saving_detail", kwargs={"pk": self.pk})
+
+class Target(models.Model):
+    TYPE_CREATE = [
+        ('SAMOCHÓD', 'SAMOCHÓD'),
+        ('MIESZKANIE', 'MIESZKANIE'),
+        ('PODRÓŻ','PODRÓŻ' ),
+        ('ROZRYWKA','ROZRYWKA'),
+        ('EDUKACJA','EDUKACJA'),
+    ]
+    user= models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE)
+    target_type = models.CharField(max_length=50, choices=TYPE_CREATE, default='')
+    target_balance = models.CharField(max_length=50)
+
+    def save(self, *args, **kwargs):
+        super().save(*args, **kwargs)
+
+    def delete(self, *args, **kwargs):
+        super().delete(*args, **kwargs)
+
+    def __str__(self):
+        return f"{self.user}: {self.target_type}"
