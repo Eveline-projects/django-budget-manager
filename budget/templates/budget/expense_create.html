@@ -2,16 +2,16 @@
 <html lang="pl">
 <head>
     <meta charset="UTF-8">
-    <title>Dodaj wydatek</title>
+    <title>Add expense</title>
 </head>
 <body>
 
-<h1>Dodaj wydatek</h1>
+<h1>Add expense</h1>
 
 <form method="post">
     {% csrf_token %}
     {{ form.as_p }}
-    <button type="submit">Zapisz</button>
+    <button type="submit">Save</button>
 </form>
 
 </body>

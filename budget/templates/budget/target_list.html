@@ -9,9 +9,9 @@
 
 <div class="container mt-5">
     <div class="d-flex justify-content-between align-items-center mb-4">
-        <h1>Twoja lista celów</h1>
-        <a href="{% url 'budget:expense' %}" class="btn btn-outline-info me-2">Powrót </a>
-        <a href="{% url 'budget:target' %}" class="btn btn-outline-secondary">Dodaj nowy cel</a>
+        <h1>Your list of goals</h1>
+        <a href="{% url 'budget:expense' %}" class="btn btn-outline-info me-2">Back </a>
+        <a href="{% url 'budget:target' %}" class="btn btn-outline-secondary">Add a new goal</a>
     </div>
 
     {% if targets %}
@@ -19,12 +19,12 @@
             {% for target in targets %}
             <div class="list-group-item list-group-item-action mb-2">
                 <h5>{{ target.target_type }}</h5>
-                <p><strong>Kwota:</strong> {{ target.target_balance }} PLN</p>
+                <p><strong>Amount:</strong> {{ target.target_balance }} PLN</p>
             </div>
             {% endfor %}
         </div>
     {% else %}
-        <p class="text-center">Nie masz jeszcze żadnych celów.</p>
+        <p class="text-center">You don't have any goals yet.</p>
     {% endif %}
 
 </div>

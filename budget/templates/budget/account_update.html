@@ -13,7 +13,8 @@
             <div class="card-header bg-primary text-white text-center">
                 <h4 class="mb-0">Edit wallet</h4>
             </div>
-            <div class="card-body p-4"> <form method="post">
+            <div class="card-body p-4">
+                <form method="post">
                     {% csrf_token %}
 
                     {% if form.non_field_errors %}
@@ -23,38 +24,41 @@
                     {% endif %}
 
                     <div class="mb-3">
-                        <label class="form-label small fw-bold">Nazwa konta</label>
+                        <label class="form-label small fw-bold">Account name</label>
                         {{ form.name_account }}
                         {% if form.name_account.help_text %}
-                            <div class="form-text text-muted small" style="font-size: 0.75rem;">{{ form.name_account.help_text }}</div>
+                        <div class="form-text text-muted small" style="font-size: 0.75rem;">{{
+                            form.name_account.help_text }}
+                        </div>
                         {% endif %}
                     </div>
 
                     <div class="mb-3">
-                        <label class="form-label small fw-bold">Typ konta</label>
+                        <label class="form-label small fw-bold">Account type</label>
                         {{ form.account_type }}
                     </div>
 
                     <div class="mb-3">
-                        <label class="form-label small fw-bold">Saldo początkowe</label>
+                        <label class="form-label small fw-bold">Current balance (PLN)</label>
                         {{ form.initial_balance }}
-                        {% if form.initial_balance.help_text %}
-                            <div class="form-text text-muted small" style="font-size: 0.75rem;">{{ form.initial_balance.help_text }}</div>
-                        {% endif %}
-                        {% if form.initial_balance.errors %}
-                            <div class="text-danger small font-weight-bold" style="font-size: 0.75rem;">
-                                {{ form.initial_balance.errors }}
-                            </div>
-                        {% endif %}
-                    </div>
 
-                    <div class="mb-3">
-                        <label class="form-label small fw-bold">Kategoria</label>
-                        {{ form.category }}
+                        {% if form.initial_balance.help_text %}
+                        <div class="form-text text-muted small" style="font-size: 0.75rem;">
+                            {{ form.initial_balance.help_text }}
+                        </div>
+                        {% endif %}
+
+                        {% if form.initial_balance.errors %}
+                        <div class="text-danger small font-weight-bold" style="font-size: 0.75rem;">
+                            {{ form.initial_balance.errors }}
+                        </div>
+                        {% endif %}
                     </div>
 
                     <div class="d-grid gap-2 mt-4">
-                        <button type="submit" class="btn btn-success">Save changes</button>
+                        <button type="submit" class="btn btn-success">
+                            <i class="bi bi-check-lg"></i> Save changes
+                        </button>
                         <a href="{% url 'budget:account' %}" class="btn btn-outline-secondary btn-sm">Cancel</a>
                     </div>
                 </form>

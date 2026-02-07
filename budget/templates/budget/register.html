@@ -5,7 +5,7 @@
 
 <head>
     <meta charset="UTF-8">
-    <title>Register</title>
+    <title>Sign up</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5/dist/css/bootstrap.min.css" rel="stylesheet">
     <link rel="stylesheet" href="{% static 'budget/style.css' %}">
 </head>
@@ -22,7 +22,7 @@
             </a>
             <h1 class="h4 m-0">F4</h1>
         </div>
-        <a href="/budget/login/" class="btn btn-outline-light">Login</a>
+        <a href="/budget/login/" class="btn btn-outline-light">Log in</a>
     </div>
 </header>
 
@@ -37,7 +37,7 @@
 <div class="container d-flex justify-content-center">
     <form method="POST">
     {% csrf_token %}
-    {{ form|crispy }}  <button type="submit" class="btn btn-primary w-100">Sign Up</button>
+    {{ form|crispy }}  <button type="submit" class="btn btn-primary w-100">Sign up</button>
     </form>
 </div>
 
