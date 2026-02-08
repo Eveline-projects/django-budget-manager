@@ -128,11 +128,13 @@ class BankAccountCreateView(LoginRequiredMixin, CreateView):
 
     def form_valid(self, form):
         form.instance.user = self.request.user
+        amount = form.cleaned_data.get('initial_balance') or 0
+        form.instance.initial_balance = 0
         account = form.save()
-        amount = form.cleaned_data.get('initial_balance')
-        category = form.cleaned_data.get('category')
 
-        if amount and amount > 0:
+
+        if amount > 0:
+            category = form.cleaned_data.get('category')
             if not category:
                 category, _ = Category.objects.get_or_create(
                     name="Other",
