@@ -2,7 +2,7 @@
 <html lang="pl">
 <head>
     <meta charset="UTF-8">
-    <title>Szczegóły wydatku</title>
+    <title>Expense details</title>
     <style>
         .btn {
             display: inline-block;
@@ -36,22 +36,22 @@
 </head>
 <body>
 
-<a href="{% url 'budget:expense' %}" class="btn">Powrót do listy</a>
+<a href="{% url 'budget:expense' %}" class="btn">Back to list</a>
 
 <div class="detail-box">
-    <h2>Szczegóły wydatku</h2>
+    <h2>Expense details</h2>
 
     <div class="detail-row">
-        <span class="detail-label">Data:</span> {{ expense.date|date:"Y-m-d H:i" }}
+        <span class="detail-label">Date:</span> {{ expense.date|date:"Y-m-d H:i" }}
     </div>
     <div class="detail-row">
-        <span class="detail-label">Kwota:</span> {{ expense.amount }} PLN
+        <span class="detail-label">Amount:</span> {{ expense.amount }} PLN
     </div>
     <div class="detail-row">
-        <span class="detail-label">Kategoria:</span> {{ expense.get_category_display }}
+        <span class="detail-label">Category:</span> {{ expense.get_category_display }}
     </div>
     <div class="detail-row">
-        <span class="detail-label">Opis:</span> {{ expense.description|default:"Brak" }}
+        <span class="detail-label">Description:</span> {{ expense.description|default:"Brak" }}
     </div>
 </div>
 

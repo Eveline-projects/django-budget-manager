@@ -2,16 +2,16 @@
 <html lang="pl">
 <head>
     <meta charset="UTF-8">
-    <title>Dodaj kategorie</title>
+    <title>Add categories</title>
 </head>
 <body>
 
-<h1>Dodaj kategorie</h1>
+<h1>Add categories</h1>
 
 <form method="post">
     {% csrf_token %}
     {{ form.as_p }}
-    <button type="submit">Zapisz</button>
+    <button type="submit">Save</button>
 </form>
 
 </body>

@@ -1,15 +1,15 @@
 <!DOCTYPE html>
 <html>
 <head>
-    <title>Account management</title>
+    <title>Manage your account</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.0/font/bootstrap-icons.css">
 </head>
 <body class="container mt-5">
 
 <div class="d-flex justify-content-between align-items-center mb-4">
-    <h1>Your wallets</h1>
-    <a href="{% url 'budget:expense' %}" class="btn btn-outline-secondary">Back to Finanse App</a>
+    <h1>Wallets</h1>
+    <a href="{% url 'budget:expense' %}" class="btn btn-outline-secondary">Back to Finance App</a>
 </div>
 
 <div class="row mt-4">
@@ -38,7 +38,8 @@
                     </button>
                 </div>
 
-                <a href="#" class="btn btn-sm btn-link p-0 mt-2 text-decoration-none">Check history →</a>
+                <a href="#" class="btn btn-sm btn-link p-0 mt-2 text-decoration-none">Check the history →</a>
+<!--                <a href="{% url 'budget:expense' %}?account={{ acc.id }}" ...>-->
             </div>
         </div>
     </div>
@@ -51,14 +52,14 @@
                     <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                 </div>
                 <div class="modal-body">
-                    Are you sure you want to delete the wallet? <strong>{{ acc.name_account }}</strong>?
+                    Are you sure you want to delete your wallet? <strong>{{ acc.name_account }}</strong>?
                     <p class="text-danger small mt-2">Note: All transactions assigned to this account will also be deleted.</p>
                 </div>
                 <div class="modal-footer">
                     <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
                     <form action="{% url 'budget:account_delete' acc.pk %}" method="post">
                         {% csrf_token %}
-                        <button type="submit" class="btn btn-danger">Delete permanently</button>
+                        <button type="submit" class="btn btn-danger">Permanently delete</button>
                     </form>
                 </div>
             </div>
@@ -95,7 +96,7 @@
             {% endfor %}
 
             <div class="d-grid mt-4">
-                <button type="submit" class="btn btn-success">Create account</button>
+                <button type="submit" class="btn btn-success">Create an account</button>
             </div>
         </form>
     </div>

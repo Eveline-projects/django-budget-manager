@@ -47,7 +47,7 @@ class BankAccount(models.Model):
             incomes=Sum('amount', filter=Q(type='IN')),
             outcomes=Sum('amount', filter=Q(type='OUT')),
         )
-        return (agg['incomes'] or 0) - (agg['outcomes'] or 0)
+        return (self.initial_balance + (agg['incomes'] or 0)) - (agg['outcomes'] or 0)
 
     def __str__(self):
         return f"{self.name_account} - Balance: {self.total_balance}"
@@ -101,10 +101,10 @@ class Transaction(models.Model):
 
 class SavingsAccount(models.Model):
     TYPE_SAVE = [
-        ('LOKATY', 'LOKATY'),
-        ('FUNDUSZE', 'FUNDUSZE'),
-        ('EMERYTURA', 'EMERYTURA'),
-        ('INNE', 'INNE'),
+        ('DEPOSITS', 'DEPOSITS'),
+        ('FUNDS', 'FUNDS'),
+        ('RETIREMENT', 'RETIREMENT'),
+        ('OTHER', 'OTHER'),
     ]
 
     user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE)
@@ -129,11 +129,11 @@ class SavingsAccount(models.Model):
 
 class Target(models.Model):
     TYPE_CREATE = [
-        ('SAMOCHÓD', 'SAMOCHÓD'),
-        ('MIESZKANIE', 'MIESZKANIE'),
-        ('PODRÓŻ','PODRÓŻ' ),
-        ('ROZRYWKA','ROZRYWKA'),
-        ('EDUKACJA','EDUKACJA'),
+        ('CAR', 'CAR'),
+        ('APARTMENT', 'APARTMENT'),
+        ('TRAVEL','TRAVEL' ),
+        ('ENTERTAINMENT','ENTERTAINMENT'),
+        ('EDUCATION','EDUCATION'),
     ]
     user= models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE)
     target_type = models.CharField(max_length=50, choices=TYPE_CREATE, default='')

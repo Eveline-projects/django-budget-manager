@@ -11,7 +11,7 @@ class RegisterForm(UserCreationForm):
         model = User
         fields = ['username', 'email']
         help_texts = {
-            'username': 'Nazwa użytkownika (min. 5 znaki)',
+            'username': 'Username (min. 5 characters)',
         }
 
 
@@ -24,15 +24,15 @@ class BankAccountForm(forms.ModelForm):
         help_text='Enter the current balance of this account.',
         widget=forms.NumberInput(attrs={'class': 'form-control', 'placeholder': '0.00'})
     )
-    category = forms.ModelChoiceField(
-        queryset=Category.objects.all(),
-        label="First deposit category",
-        required=False
-    )
+    # category = forms.ModelChoiceField(
+    #     queryset=Category.objects.all(),
+    #     label="First deposit category",
+    #     required=False
+    # )
 
     class Meta:
         model = BankAccount
-        fields = ['name_account', 'account_type', 'initial_balance', 'category']
+        fields = ['name_account', 'account_type', 'initial_balance']
         help_texts = {
             'name_account': 'For example, My savings, Main account.',
         }
@@ -43,8 +43,8 @@ class BankAccountForm(forms.ModelForm):
         self.user = user
         for field in self.fields.values():
             field.widget.attrs.update({'class': 'form-control'})
-        if user:
-            self.fields['category'].queryset = Category.objects.filter(user=self.user)
+        # if user:
+        #     self.fields['category'].queryset = Category.objects.filter(user=self.user)
 
 
 class BankAccountCreateForm(BankAccountForm):
@@ -54,21 +54,35 @@ class BankAccountCreateForm(BankAccountForm):
         required=False,
         label="Starting balance",
     )
-    category = forms.ModelChoiceField(
-        queryset=Category.objects.none(),
-        required=False,
-        label="First deposit category",
-    )
+    # category = forms.ModelChoiceField(
+    #     queryset=Category.objects.none(),
+    #     required=False,
+    #     label="First deposit category",
+    # )
 
     class Meta(BankAccountForm.Meta):
-        fields = BankAccountForm.Meta.fields + ['initial_balance', 'category']
+        fields = BankAccountForm.Meta.fields + ['initial_balance']
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
-        if self.user:
-            self.fields['category'].queryset = Category.objects.filter(user=self.user)
-        else:
-            self.fields['category'].queryset = Category.objects.all()
+        # if self.user:
+        #     self.fields['category'].queryset = Category.objects.filter(user=self.user)
+        # else:
+        #     self.fields['category'].queryset = Category.objects.all()
+
+class BankAccountUpdateForm(forms.ModelForm):
+    class Meta:
+        model = BankAccount
+        fields = ['name_account', 'account_type', 'initial_balance']
+        labels = {
+            'initial_balance': 'Opening balance / Adjustment',
+        }
+
+    def __init__(self, *args, **kwargs):
+        kwargs.pop('user', None)
+        super().__init__(*args, **kwargs)
+        for field in self.fields.values():
+            field.widget.attrs.update({'class': 'form-control'})
 
 
 class TransactionForm(forms.ModelForm):
@@ -100,15 +114,15 @@ class SavingAccountForm(forms.ModelForm):
             'interest_rate',
         ]
         labels = {
-            'saving_name': 'Nazwa konta',
-            'saving_type': 'Typ konta',
-            'saving_balance': 'Saldo początkowe',
-            'interest_rate': 'Oprocentowanie',
+            'saving_name': 'Account name',
+            'saving_type': 'Account type',
+            'saving_balance': 'Opening balance',
+            'interest_rate': 'Interest rate',
         }
         widgets = {
             'saving_name': forms.TextInput(attrs={
                 'class': 'form-control',
-                'placeholder': 'Np. Lokata PKO'
+                'placeholder': 'E.g. PKO deposit'
             }),
             'saving_type': forms.Select(attrs={
                 'class': 'form-control',
@@ -126,7 +140,7 @@ class SavingAccountForm(forms.ModelForm):
     def clean_saving_balance(self):
         balance = self.cleaned_data['saving_balance']
         if balance < 0:
-            raise forms.ValidationError("Saldo nie może być ujemne.")
+            raise forms.ValidationError("The balance cannot be negative.")
         return balance
 
 class TargetForm(forms.ModelForm):
