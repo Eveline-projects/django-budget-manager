@@ -66,17 +66,47 @@
     </style>
 </head>
 <body>
-
-<nav class="navbar navbar-expand-lg navbar-dark bg-dark mb-4">
-    <div class="container">
-        <a class="navbar-brand" href="#"><i class="bi bi-wallet2 me-2"></i>Finanse App</a>
+<header class="bg-primary text-white py-3 mb-3">
+    <div class="container d-flex align-items-center justify-content-between">
+        <div class="d-flex align-items-center">
+            <a href="/">
+                <img src="https://as2.ftcdn.net/jpg/01/22/16/27/1000_F_122162798_q6ZxeeXBlJRjZJbnbyzjQbZ0ZRz4GW7w.jpg"
+                     alt="Logo" style="width:50px; height:50px; margin-right:15px;">
+            </a>
+            <h1 class="h4 m-0">F4</h1>
+        </div>
+        <a href="/budget/"
+           class="btn btn-outline-light {% if request.path == '/budget/' %}active disabled{% endif %}">
+           Home
+        </a>
+        <a href="/budget/target_list"
+           class="btn btn-outline-light {% if '/target_list' in request.path %}active disabled{% endif %}">
+           Goals
+        </a>
+        <a href="/budget/account/"
+           class="btn btn-outline-light {% if '/account/' in request.path %}active disabled{% endif %}">
+           Accounts
+        </a>
+        <a href="/budget/saving_list/"
+           class="btn btn-outline-light {% if '/saving_list/' in request.path %}active disabled{% endif %}">
+           Savings
+        </a>
         <form method="post" action="{% url 'budget:logout' %}" href="{% url 'budget:login' %}">
             {% csrf_token %}
-            <button type="submit">Log out</button>
+            <button type="submit">Wyloguj się</button>
         </form>
-
     </div>
-</nav>
+</header>
+{#<nav class="navbar navbar-expand-lg navbar-dark bg-dark mb-4">#}
+{#    <div class="container">#}
+{#        <a class="navbar-brand" href="#"><i class="bi bi-wallet2 me-2"></i>Finanse App</a>#}
+{#        <form method="post" action="{% url 'budget:logout' %}" href="{% url 'budget:login' %}">#}
+{#            {% csrf_token %}#}
+{#            <button type="submit">Log out</button>#}
+{#        </form>#}
+{##}
+{#    </div>#}
+{#</nav>#}
 
 <body class="container">
 <h2 class="mb-4">Welcome to your budget!</h2>
