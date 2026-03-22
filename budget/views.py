@@ -3,7 +3,8 @@ from django.contrib.auth.mixins import LoginRequiredMixin
 from django.contrib.auth import authenticate, login, logout
 from django.contrib import messages
 from django.contrib.auth.forms import AuthenticationForm, UserCreationForm
-from django.urls import reverse, reverse_lazy
+from django.urls import  reverse_lazy
+from django.urls import  reverse_lazy
 from django.db.models import Sum, Q
 from django.views.generic import (
     CreateView,
@@ -66,7 +67,15 @@ class ExpenseListView(LoginRequiredMixin, ListView):
     paginate_by = 10
 
     def get_queryset(self):
-        return Transaction.objects.filter(user=self.request.user).order_by('-date')
+        sort_by = self.request.GET.get('sort', '-date')
+        columns = [
+            'amount', '-amount',
+            'date', '-date',
+            'category__name', '-category__name'
+        ]
+        if sort_by not in columns:
+            sort_by = '-date'
+        return Transaction.objects.filter(user=self.request.user).order_by(sort_by)
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)

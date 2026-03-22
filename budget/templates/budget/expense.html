@@ -97,16 +97,6 @@
         </form>
     </div>
 </header>
-{#<nav class="navbar navbar-expand-lg navbar-dark bg-dark mb-4">#}
-{#    <div class="container">#}
-{#        <a class="navbar-brand" href="#"><i class="bi bi-wallet2 me-2"></i>Finanse App</a>#}
-{#        <form method="post" action="{% url 'budget:logout' %}" href="{% url 'budget:login' %}">#}
-{#            {% csrf_token %}#}
-{#            <button type="submit">Log out</button>#}
-{#        </form>#}
-{##}
-{#    </div>#}
-{#</nav>#}
 
 <body class="container">
 <h2 class="mb-4">Welcome to your budget!</h2>
@@ -248,9 +238,21 @@
                 <table class="table table-hover align-middle">
                     <thead class="table-light">
                     <tr>
-                        <th>Data</th>
-                        <th>Kwota</th>
-                        <th>Kategoria</th>
+                        <th>
+                            Data
+                            <a href="?sort=date" class="text-decoration-none text-muted"><i class="bi bi-arrow-up-short"></i></a>
+                            <a href="?sort=-date" class="text-decoration-none text-muted"><i class="bi bi-arrow-down-short"></i></a>
+                        </th>
+                        <th>
+                            Kwota
+                            <a href="?sort=amount" class="text-decoration-none text-muted"><i class="bi bi-arrow-up-short"></i></a>
+                            <a href="?sort=-amount" class="text-decoration-none text-muted"><i class="bi bi-arrow-down-short"></i></a>
+                        </th>
+                        <th>
+                            Kategoria
+                            <a href="?sort=category__name" class="text-decoration-none text-muted"><i class="bi bi-arrow-up-short"></i></a>
+                            <a href="?sort=-category__name" class="text-decoration-none text-muted"><i class="bi bi-arrow-down-short"></i></a>
+                        </th>
                         <th>Opis</th>
                     </tr>
                     </thead>
@@ -321,5 +323,5 @@
         });
     </script>
     {% endblock %}
-</div>
+    </div>
 </body>
