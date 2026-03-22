@@ -19,15 +19,15 @@
            class="btn btn-outline-light {% if request.path == '/budget/' %}active disabled{% endif %}">
            Home
         </a>
-        <a href="/budget/target_list"
-           class="btn btn-outline-light {% if '/target_list' in request.path %}active disabled{% endif %}">
+        <a href="/budget/target/list"
+           class="btn btn-outline-light {% if '/target_list/' in request.path %}active disabled{% endif %}">
            Goals
         </a>
         <a href="/budget/account/"
            class="btn btn-outline-light {% if '/account/' in request.path %}active disabled{% endif %}">
            Accounts
         </a>
-        <a href="/budget/saving_list/"
+        <a href="/budget/saving/"
            class="btn btn-outline-light {% if '/saving_list/' in request.path %}active disabled{% endif %}">
            Savings
         </a>
