@@ -1,9 +1,7 @@
-from django.shortcuts import render, redirect
+from django.shortcuts import redirect
 from django.contrib.auth.mixins import LoginRequiredMixin
-from django.contrib.auth import authenticate, login, logout
-from django.contrib import messages
-from django.contrib.auth.forms import AuthenticationForm, UserCreationForm
-from django.urls import  reverse_lazy
+from django.contrib.auth import login, logout
+from django.contrib.auth.forms import AuthenticationForm
 from django.urls import  reverse_lazy
 from django.db.models import Sum, Q
 from django.views.generic import (
@@ -62,7 +60,7 @@ class RegisterView(CreateView):
 
 
 class ExpenseListView(LoginRequiredMixin, ListView):
-    template_name = 'budget/expense.html'
+    template_name = 'budget/expense_list.html'
     context_object_name = 'transactions'
     paginate_by = 10
 
@@ -114,6 +112,12 @@ class ExpenseListView(LoginRequiredMixin, ListView):
 
         return context
 
+
+class HomeExpenseListView(ExpenseListView):
+    template_name = 'budget/expense.html'
+    paginate_by = None
+    def get_queryset(self):
+        return Transaction.objects.filter(user=self.request.user).order_by('-date')[:5]
 
 class BankAccountListView(LoginRequiredMixin, ListView):
     model = BankAccount
@@ -317,9 +321,18 @@ class TargetListView(LoginRequiredMixin, ListView):
     def get_queryset(self):
         return Target.objects.filter(user=self.request.user).order_by('-id')
 
-class DetailView(ListView):
+class DetailView(ExpenseListView):
     template_name = 'budget/detail.html'
 
-    def get_queryset(self):
-        pass
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        stats_query = Transaction.objects.filter(user=self.request.user, type='OUT') \
+            .values('category__name') \
+            .annotate(total=Sum('amount')) \
+            .order_by('-total')
+
+        context['labels'] = json.dumps([item['category__name'] for item in stats_query])
+        context['values'] = json.dumps([float(item['category__name']) for item in stats_query])
+        return context
 
