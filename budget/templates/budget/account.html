@@ -19,7 +19,7 @@
             <div class="card-body">
                 <h5 class="card-title d-flex justify-content-between">
                     {{ acc.name_account }}
-                    <span>{% if acc.account_type == 'CHILD' %} 🧒 {% else %} 👤 {% endif %}</span>
+                    <span>{% if acc.account_type == 'CHILD' %} 👦 {% else %} 🧑 {% endif %}</span>
                 </h5>
                 <h6 class="card-subtitle mb-2 text-muted small">
                     Typ: {{ acc.get_account_type_display }}
