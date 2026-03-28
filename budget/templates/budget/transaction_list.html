@@ -9,7 +9,7 @@
 
     <div class="d-flex justify-content-between align-items-center mb-4">
         <h2>Pełna lista transakcji</h2>
-        <a href="{% url 'budget:expense' %}" class="btn btn-secondary">Powrót do strony głównej</a>
+        <a href="{% url 'budget:transaction' %}" class="btn btn-secondary">Powrót do strony głównej</a>
     </div>
 
     <table class="table table-striped">
@@ -31,14 +31,14 @@
             </tr>
         </thead>
         <tbody>
-            {% for expense in transactions %}
+            {% for transaction in transactions %}
             <tr>
-                <td>{{ expense.date|date:"Y-m-d H:i" }}</td>
-                <td style="color: {% if expense.type == 'OUT' %}red{% else %}green{% endif %}; font-weight: bold;">
-                    {% if expense.type == 'OUT' %}-{% else %}+{% endif %}{{ expense.amount }} PLN
+                <td>{{ transaction.date|date:"Y-m-d H:i" }}</td>
+                <td style="color: {% if transaction.type == 'OUT' %}red{% else %}green{% endif %}; font-weight: bold;">
+                    {% if transaction.type == 'OUT' %}-{% else %}+{% endif %}{{ transaction.amount }} PLN
                 </td>
-                <td>{{ expense.category.name }}</td>
-                <td>{{ expense.description|default:"-" }}</td>
+                <td>{{ transaction.category.name }}</td>
+                <td>{{ transaction.description|default:"-" }}</td>
             </tr>
             {% empty %}
             <tr>
