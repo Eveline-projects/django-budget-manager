@@ -34,7 +34,7 @@ import json
 class RegisterView(CreateView):
     form_class = RegisterForm
     template_name = 'budget/register.html'
-    success_url = reverse_lazy('budget:expense')
+    success_url = reverse_lazy('budget:transaction')
 
     def form_valid(self, form):
         response = super().form_valid(form)
@@ -59,8 +59,8 @@ class RegisterView(CreateView):
         return response
 
 
-class ExpenseListView(LoginRequiredMixin, ListView):
-    template_name = 'budget/expense_list.html'
+class TransactionListView(LoginRequiredMixin, ListView):
+    template_name = 'budget/transaction_list.html'
     context_object_name = 'transactions'
     paginate_by = 10
 
@@ -84,7 +84,7 @@ class ExpenseListView(LoginRequiredMixin, ListView):
         user_accounts = BankAccount.objects.filter(user=user)
 
         total_out = user_transactions.filter(type='OUT').aggregate(Sum('amount'))['amount__sum'] or 0
-        context['total_expenses'] = total_out
+        context['total_transactions'] = total_out
 
 
         context['total_balance'] = sum(acc.total_balance for acc in user_accounts)
@@ -113,8 +113,8 @@ class ExpenseListView(LoginRequiredMixin, ListView):
         return context
 
 
-class HomeExpenseListView(ExpenseListView):
-    template_name = 'budget/expense.html'
+class HomeTransactionListView(TransactionListView):
+    template_name = 'budget/transaction.html'
     paginate_by = None
     def get_queryset(self):
         return Transaction.objects.filter(user=self.request.user).order_by('-date')[:5]
@@ -218,7 +218,7 @@ class BankAccountDeleteView(LoginRequiredMixin, DeleteView):
 class LoginView(FormView):
     form_class = AuthenticationForm
     template_name = 'budget/login.html'
-    success_url = reverse_lazy('budget:expense')
+    success_url = reverse_lazy('budget:transaction')
 
     def form_valid(self, form):
         user = form.get_user()
@@ -226,11 +226,11 @@ class LoginView(FormView):
         return super().form_valid(form)
 
 
-class ExpenseCreateView(LoginRequiredMixin, CreateView):
+class TransactionCreateView(LoginRequiredMixin, CreateView):
     model = Transaction
     form_class = TransactionForm
-    template_name = 'budget/expense_create.html'
-    success_url = reverse_lazy('budget:expense')
+    template_name = 'budget/transaction_create.html'
+    success_url = reverse_lazy('budget:transaction')
 
     def get_form_kwargs(self):
         kwargs = super().get_form_kwargs()
@@ -248,10 +248,10 @@ class LogoutView(View):
         return redirect('budget:login')
 
 
-class ExpenseDetailView(DetailView):
+class TransactionDetailView(DetailView):
     model = Transaction
-    template_name = 'budget/expense_detail.html'
-    context_object_name = 'expense'
+    template_name = 'budget/transaction_detail.html'
+    context_object_name = 'transaction'
 
     def get_queryset(self):
         return Transaction.objects.filter(user=self.request.user).order_by('-date')
@@ -261,7 +261,7 @@ class CategoryCreateView(LoginRequiredMixin, CreateView):
     model = Category
     fields = ['name']
     template_name = 'budget/category_create.html'
-    success_url = reverse_lazy('budget:expense')
+    success_url = reverse_lazy('budget:transaction')
 
     def form_valid(self, form):
         form.instance.user = self.request.user
@@ -287,6 +287,9 @@ class SavingDetailView(LoginRequiredMixin, DetailView):
     model = SavingsAccount
     template_name = 'budget/saving_detail.html'
     context_object_name = 'saving_detail'
+
+    def get_queryset(self):
+        return SavingsAccount.objects.filter(user=self.request.user).order_by('-id')
 
 
 class SavingListView(LoginRequiredMixin, ListView):
@@ -321,7 +324,7 @@ class TargetListView(LoginRequiredMixin, ListView):
     def get_queryset(self):
         return Target.objects.filter(user=self.request.user).order_by('-id')
 
-class DetailView(ExpenseListView):
+class DetailView(TransactionListView):
     template_name = 'budget/detail.html'
 
 
@@ -333,6 +336,6 @@ class DetailView(ExpenseListView):
             .order_by('-total')
 
         context['labels'] = json.dumps([item['category__name'] for item in stats_query])
-        context['values'] = json.dumps([float(item['category__name']) for item in stats_query])
+        context['values'] = json.dumps([float(item['total']) for item in stats_query])
         return context
 
