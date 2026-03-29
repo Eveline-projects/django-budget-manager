@@ -11,7 +11,8 @@ from django.views.generic import (
     UpdateView,
     DeleteView,
     FormView,
-    View
+    View,
+    TemplateView
 )
 
 from .models import (
@@ -30,6 +31,12 @@ from .forms import (
 )
 import json
 
+class IndexView(TemplateView):
+    template_name = 'index.html'
+    def get(self, request, *args, **kwargs):
+        if request.user.is_authenticated:
+            return redirect('budget:expense')
+        return super().get(request, *args, **kwargs)
 
 class RegisterView(CreateView):
     form_class = RegisterForm
