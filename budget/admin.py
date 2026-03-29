@@ -4,7 +4,7 @@ from .models import Transaction, Category
 
 
 @admin.register(Transaction)
-class ExpenseAdmin(admin.ModelAdmin):
+class transactionAdmin(admin.ModelAdmin):
     list_display = (
         # 'user',
          'category',
@@ -13,15 +13,15 @@ class ExpenseAdmin(admin.ModelAdmin):
     )
     # list_filter = (
     #     # 'user',
-    #     'expense',
+    #     'transaction',
     # )
     search_fields = ( 'amount','category')
     # list_editable = ( 'category',)
     ordering = ('-date',)
     date_hierarchy = 'date'
 
-    # search_fields = ('user', 'expense')
-    # list_editable = ('user', 'expense')
+    # search_fields = ('user', 'transaction')
+    # list_editable = ('user', 'transaction')
 
 @admin.register(Category)
 class CategoryAdmin(admin.ModelAdmin):

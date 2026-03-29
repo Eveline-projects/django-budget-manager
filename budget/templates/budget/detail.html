@@ -4,16 +4,16 @@
     <meta charset="UTF-8">
     <title>Target</title>
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.0/font/bootstrap-icons.css">
-    <a href="{% url 'budget:expense' %}" class="btn btn-outline-info me-2">Back</a>
+    <a href="{% url 'budget:transaction' %}" class="btn btn-outline-info me-2">Back</a>
 </head>
 <body>
 {% block content %}
             <div class="container mt-5">
-                <h2 class="text-center mb-4">Your Expense Statistics</h2>
+                <h2 class="text-center mb-4">Your transaction Statistics</h2>
                 <div class="row justify-content-center">
                     <div class="col-md-8">
                         <div class="card shadow p-4">
-                            <canvas id="expensesChart"></canvas>
+                            <canvas id="transactionsChart"></canvas>
                         </div>
                     </div>
                 </div>
@@ -21,7 +21,7 @@
             </div>
             <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
             <script>
-                const ctx = document.getElementById('expensesChart').getContext('2d');
+                const ctx = document.getElementById('transactionsChart').getContext('2d');
 
 
                 const labels = {{ labels | safe }};
@@ -32,7 +32,7 @@
                     data: {
                         labels: labels,
                         datasets: [{
-                            label: 'Total expenses (PLN)',
+                            label: 'Total transactions (PLN)',
                             data: values,
                             backgroundColor: [
                                 'rgba(54, 162, 235, 0.6)',

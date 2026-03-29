@@ -109,9 +109,9 @@ class SavingsAccount(models.Model):
 
     user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE)
     saving_name = models.CharField(max_length=50)
-    saving_type = models.CharField(max_length=10, choices=TYPE_SAVE, default='LOKATY')
+    saving_type = models.CharField(max_length=10, choices=TYPE_SAVE, default='DEPOSITS')
     saving_balance = models.DecimalField(max_digits=10, decimal_places=2, default=0)
-    interest_rate = models.FloatField(default=0.01)
+    interest_rate = models.FloatField(default=0.01, validators=[MinValueValidator(0)])
 
     # def save(self, *args, **kwargs):
     #     super().save(*args, **kwargs)
