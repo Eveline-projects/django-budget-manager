@@ -65,231 +65,257 @@
         }
     </style>
 </head>
-<body>
-
-<nav class="navbar navbar-expand-lg navbar-dark bg-dark mb-4">
-    <div class="container">
-        <a class="navbar-brand" href="#"><i class="bi bi-wallet2 me-2"></i>Finanse App</a>
+<body class="bg-light">
+<header class="bg-primary text-white py-3 mb-3">
+    <div class="container d-flex align-items-center justify-content-between">
+        <div class="d-flex align-items-center">
+            <a href="/">
+                <img src="https://as2.ftcdn.net/jpg/01/22/16/27/1000_F_122162798_q6ZxeeXBlJRjZJbnbyzjQbZ0ZRz4GW7w.jpg"
+                     alt="Logo" style="width:50px; height:50px; margin-right:15px;">
+            </a>
+            <h1 class="h4 m-0">F4</h1>
+        </div>
+        <a href="/budget/"
+           class="btn btn-outline-light {% if request.path == '/budget/' %}active disabled{% endif %}">
+            Home
+        </a>
+        <a href="/budget/target/list"
+           class="btn btn-outline-light {% if '/target_list/' in request.path %}active disabled{% endif %}">
+            Goals
+        </a>
+        <a href="/budget/account/"
+           class="btn btn-outline-light {% if '/account/' in request.path %}active disabled{% endif %}">
+            Accounts
+        </a>
+        <a href="/budget/saving/"
+           class="btn btn-outline-light {% if '/saving_list/' in request.path %}active disabled{% endif %}">
+            Savings
+        </a>
         <form method="post" action="{% url 'budget:logout' %}" href="{% url 'budget:login' %}">
             {% csrf_token %}
-            <button type="submit">Log out</button>
+            <button type="submit">Wyloguj się</button>
         </form>
-
     </div>
-</nav>
+</header>
+<div class="container mt-4">
+    <body class="container">
+    <h2 class="mb-4">Welcome to your budget!</h2>
 
-<body class="container">
-<h2 class="mb-4">Welcome to your budget!</h2>
-
-<div class="row mb-4">
-    <div class="col-md-4">
-        <div class="card stat-card bg-primary text-white p-3 mb-3">
-            <div class="d-flex justify-content-between align-items-center">
-                <div>
-                    <h6 class="text-uppercase small">Total expenses</h6>
-                    <h3>{{ total_expenses }} PLN</h3>
-                </div>
-                <i class="bi bi-cash-stack fs-1 opacity-50"></i>
-            </div>
-        </div>
-    </div>
-    <div class="col-md-4">
-        <div class="card stat-card bg-success text-white p-3 mb-3">
-            <div class="d-flex justify-content-between align-items-center">
-                <div>
-                    <h6 class="text-uppercase small">Remaining</h6>
-                    <h3>{{ total_balance }} PLN</h3>
-                </div>
-                <i class="bi bi-piggy-bank fs-1 opacity-50"></i>
-            </div>
-        </div>
-    </div>
-    <div class="col-md-4">
-        <div class="card stat-card bg-warning text-dark mb-3" style="cursor: pointer;">
-            <a href="{% url 'budget:account' %}" class="text-decoration-none text-dark d-block p-3">
+    <div class="row mb-4">
+        <div class="col-md-4">
+            <div class="card stat-card bg-primary text-white p-3 mb-3">
                 <div class="d-flex justify-content-between align-items-center">
                     <div>
-                        <h6 class="text-uppercase small mb-2">Accounts</h6>
-                        <div class="d-flex align-items-center">
-                            <i class="bi bi-bank fs-5 me-2"></i>
-                            <span class="fw-bold">Manage: {{ transaction_count }}</span>
-                        </div>
+                        <h6 class="text-uppercase small">Total expenses</h6>
+                        <h3>{{ total_expenses }} PLN</h3>
                     </div>
-                    <i class="bi bi-arrow-left-right fs-1 opacity-50"></i>
+                    <i class="bi bi-cash-stack fs-1 opacity-50"></i>
                 </div>
-            </a>
+            </div>
         </div>
-    </div>
-    <div class="col-md-4">
-        <div class="card stat-card bg-info text-dark mb-3" style="cursor: pointer;">
-            <a href="{% url 'budget:saving_list' %}" class="text-decoration-none text-dark d-block p-3">
+        <div class="col-md-4">
+            <div class="card stat-card bg-success text-white p-3 mb-3">
                 <div class="d-flex justify-content-between align-items-center">
                     <div>
-                        <h6 class="text-uppercase small">Savings</h6>
-                        <div class="mt-2 d-flex align-items-center gap-1">
-                            <i class="bi bi-currency-dollar fs-4"></i>
-                            <span class="small fw-bold">Amount of savings: {{ total_savings  }}</span>
+                        <h6 class="text-uppercase small">Remaining</h6>
+                        <h3>{{ total_balance }} PLN</h3>
+                    </div>
+                    <i class="bi bi-piggy-bank fs-1 opacity-50"></i>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-4">
+            <div class="card stat-card bg-warning text-dark mb-3" style="cursor: pointer;">
+                <a href="{% url 'budget:account' %}" class="text-decoration-none text-dark d-block p-3">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <div>
+                            <h6 class="text-uppercase small mb-2">Accounts</h6>
+                            <div class="d-flex align-items-center">
+                                <i class="bi bi-bank fs-5 me-2"></i>
+                                <span class="fw-bold">Manage: {{ transaction_count }}</span>
+                            </div>
                         </div>
+                        <i class="bi bi-arrow-left-right fs-1 opacity-50"></i>
                     </div>
-                    <i class="bi bi-wallet fs-1 opacity-50"></i>
-                </div>
-            </a>
+                </a>
+            </div>
         </div>
-    </div>
-
-    <div class="col-md-4">
-        <div class="card stat-card bg-danger text-dark mb-3" style="cursor: pointer;">
-            <a href="{% url 'budget:target_list' %}" class="text-decoration-none text-dark d-block p-3">
-                <div class="d-flex justify-content-between align-items-center">
-                    <div>
-                        <h6 class="text-uppercase small">Goals</h6>
-                        <div class="mt-2 d-flex align-items-center gap-1">
-                            <i class="bi bi-bullseye fs-4"></i>
-                            <span class="small fw-bold">Number of goals: {{ target }}</span>
+        <div class="col-md-4">
+            <div class="card stat-card bg-info text-dark mb-3" style="cursor: pointer;">
+                <a href="{% url 'budget:saving_list' %}" class="text-decoration-none text-dark d-block p-3">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <div>
+                            <h6 class="text-uppercase small">Savings</h6>
+                            <div class="mt-2 d-flex align-items-center gap-1">
+                                <i class="bi bi-currency-dollar fs-4"></i>
+                                <span class="small fw-bold">Amount of savings: {{ total_savings }}</span>
+                            </div>
                         </div>
+                        <i class="bi bi-wallet fs-1 opacity-50"></i>
                     </div>
-                <i class="bi bi-bookmark-check-fill fs-1 opacity-50"></i>
-                </div>
-            </a>
+                </a>
+            </div>
         </div>
-    </div>
-    <div class="col-md-4">
 
-        <div class="card stat-card bg-secondary text-dark mb-3" style="cursor: pointer;">
-             <a href="{% url 'budget:detail' %}" class="text-decoration-none text-dark d-block p-3">
-            <div class="d-flex justify-content-between align-items-center">
-                <div>
-                    <h6 class="text-uppercase small">Details</h6>
-                    <div class="mt-2 d-flex align-items-center gap-1">
-                            <i class="bi bi-list fs-4"></i>
+        <div class="col-md-4">
+            <div class="card stat-card bg-danger text-dark mb-3" style="cursor: pointer;">
+                <a href="{% url 'budget:target_list' %}" class="text-decoration-none text-dark d-block p-3">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <div>
+                            <h6 class="text-uppercase small">Goals</h6>
+                            <div class="mt-2 d-flex align-items-center gap-1">
+                                <i class="bi bi-bullseye fs-4"></i>
+                                <span class="small fw-bold">Number of goals: {{ target }}</span>
+                            </div>
+                        </div>
+                        <i class="bi bi-bookmark-check-fill fs-1 opacity-50"></i>
                     </div>
-                </div>
-                <i class="bi bi-info-lg fs-1 opacity-50"></i>
+                </a>
             </div>
-             </a>
+        </div>
+        <div class="col-md-4">
+
+            <div class="card stat-card bg-secondary text-dark mb-3" style="cursor: pointer;">
+                <a href="{% url 'budget:detail' %}" class="text-decoration-none text-dark d-block p-3">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <div>
+                            <h6 class="text-uppercase small">Details</h6>
+                            <div class="mt-2 d-flex align-items-center gap-1">
+                                <i class="bi bi-list fs-4"></i>
+                            </div>
+                        </div>
+                        <i class="bi bi-info-lg fs-1 opacity-50"></i>
+                    </div>
+                </a>
+            </div>
         </div>
     </div>
-</div>
-<div class="row">
+    <div class="row">
 
-    <!-- KATEGORIE -->
-    <div class="col-lg-3 mb-4">
-        <div class="card p-4 h-100">
-            <h5 class="card-title mb-4">Categories</h5>
-            <a href="{% url 'budget:category_add' %}"
-               class="expbtn position-relative"
-               style="top: 6px;">
+        <!-- KATEGORIE -->
+        <div class="col-lg-3 mb-4">
+            <div class="card p-4 h-100">
+                <h5 class="card-title mb-4">Categories</h5>
+                <a href="{% url 'budget:category_add' %}"
+                   class="expbtn position-relative"
+                   style="top: 6px;">
 
-                Add category
-            </a>
+                    Add category
+                </a>
 
-            <div class="list-group list-group-flush mt-3">
-                {% for category in categories %}
-                <div class="list-group-item mb-1">
-                    {#                    {{ category.name }}#}
+                <div class="list-group list-group-flush mt-3">
+                    {% for category in categories %}
+                        <div class="list-group-item mb-1">
+                            {#                    {{ category.name }}#}
 
-                </div>
-                {% empty %}
-                <div class="list-group-item text-muted">
-                    No category
-                </div>
-                {% endfor %}
-            </div>
-
-
-        </div>
-    </div>
-
-    <!-- OSTATNIE WYDATKI -->
-    <div class="col-lg-9 mb-4">
-        <div class="card p-4 h-100">
-
-            <div class="d-flex justify-content-between align-items-center mb-4">
-                <h5 class="card-title mb-0">Recent expenses</h5>
-                <a href="#" class="btn btn-sm btn-primary">See all</a>
-            </div>
-
-            <a href="{% url 'budget:expense_add' %}" class="expbtn mb-3">
-                Add expense
-            </a>
-
-            <div class="table-responsive">
-                {% if transactions %}
-                <table class="table table-hover align-middle">
-                    <thead class="table-light">
-                    <tr>
-                        <th>Data</th>
-                        <th>Kwota</th>
-                        <th>Kategoria</th>
-                        <th>Opis</th>
-                    </tr>
-                    </thead>
-                    <tbody>
-                    {% for expense in transactions %}
-                    <tr>
-                        <td>{{ expense.date|date:"Y-m-d H:i" }}</td>
-                        <td class="fw-bold {% if expense.type == 'OUT' %}text-danger{% else %}text-success{% endif %}">
-                            {% if expense.type == 'OUT' %}-{% else %}+{% endif %}{{ expense.amount }} PLN
-                        </td>
-                        <td>{{ expense.category.name }}</td>
-                        <td>{{ expense.description|default:"No description" }}</td>
-                    </tr>
+                        </div>
+                        {% empty %}
+                        <div class="list-group-item text-muted">
+                            No category
+                        </div>
                     {% endfor %}
-                    </tbody>
-                </table>
-                {% else %}
-                <p class="text-muted">You don't have any expenses yet.</p>
-                {% endif %}
+                </div>
+
+
             </div>
-
         </div>
-    </div>
 
-    {% block content %}
-    <div class="container mt-5">
-        <h2 class="text-center mb-4">Your Expense Statistics</h2>
-        <div class="row justify-content-center">
-            <div class="col-md-8">
-                <div class="card shadow p-4">
-                    <canvas id="expensesChart"></canvas>
+        <!-- OSTATNIE WYDATKI -->
+        <div class="col-lg-9 mb-4">
+            <div class="card p-4 h-100">
+
+                <div class="d-flex justify-content-between align-items-center mb-4">
+                    <h5 class="card-title mb-0">Recent expenses</h5>
+                    <a href="/budget/expenses/" class="btn btn-sm btn-primary">See all</a>
+                </div>
+
+                <a href="{% url 'budget:expense_add' %}" class="expbtn mb-3">
+                    Add expense
+                </a>
+
+                <div class="table-responsive">
+                    {% if transactions %}
+                        <table class="table table-hover align-middle">
+                            <thead class="table-light">
+                            <tr>
+                                <th>
+                                    Data
+                                </th>
+                                <th>
+                                    Kwota
+                                </th>
+                                <th>
+                                    Kategoria
+                                </th>
+                                <th>Opis</th>
+                            </tr>
+                            </thead>
+                            <tbody>
+                            {% for expense in transactions %}
+                                <tr>
+                                    <td>{{ expense.date|date:"Y-m-d H:i" }}</td>
+                                    <td class="fw-bold {% if expense.type == 'OUT' %}text-danger{% else %}text-success{% endif %}">
+                                        {% if expense.type == 'OUT' %}-{% else %}+{% endif %}{{ expense.amount }} PLN
+                                    </td>
+                                    <td>{{ expense.category.name }}</td>
+                                    <td>{{ expense.description|default:"No description" }}</td>
+                                </tr>
+                            {% endfor %}
+                            </tbody>
+                        </table>
+                    {% else %}
+                        <p class="text-muted">You don't have any expenses yet.</p>
+                    {% endif %}
+                </div>
+
+            </div>
+        </div>
+
+        {% block content %}
+            <div class="container mt-5">
+                <h2 class="text-center mb-4">Your Expense Statistics</h2>
+                <div class="row justify-content-center">
+                    <div class="col-md-8">
+                        <div class="card shadow p-4">
+                            <canvas id="expensesChart"></canvas>
+                        </div>
+                    </div>
                 </div>
             </div>
-        </div>
-    </div>
-
-    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-    <script>
-        const ctx = document.getElementById('expensesChart').getContext('2d');
+            </div>
+            <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+            <script>
+                const ctx = document.getElementById('expensesChart').getContext('2d');
 
 
-        const labels = {{ labels | safe }};
-        const values = {{ values | safe }};
+                const labels = {{ labels | safe }};
+                const values = {{ values | safe }};
 
-        new Chart(ctx, {
-            type: 'bar',
-            data: {
-                labels: labels,
-                datasets: [{
-                    label: 'Total expenses (PLN)',
-                    data: values,
-                    backgroundColor: [
-                        'rgba(54, 162, 235, 0.6)',
-                        'rgba(255, 99, 132, 0.6)',
-                        'rgba(75, 192, 192, 0.6)',
-                        'rgba(255, 206, 86, 0.6)',
-                        'rgba(153, 102, 255, 0.6)'
-                    ],
-                    borderWidth: 1
-                }]
-            },
-            options: {
-                responsive: true,
-                scales: {
-                    y: {beginAtZero: true}
-                }
-            }
-        });
-    </script>
-    {% endblock %}
+                new Chart(ctx, {
+                    type: 'bar',
+                    data: {
+                        labels: labels,
+                        datasets: [{
+                            label: 'Total expenses (PLN)',
+                            data: values,
+                            backgroundColor: [
+                                'rgba(54, 162, 235, 0.6)',
+                                'rgba(255, 99, 132, 0.6)',
+                                'rgba(75, 192, 192, 0.6)',
+                                'rgba(255, 206, 86, 0.6)',
+                                'rgba(153, 102, 255, 0.6)'
+                            ],
+                            borderWidth: 1
+                        }]
+                    },
+                    options: {
+                        responsive: true,
+                        scales: {
+                            y: {beginAtZero: true}
+                        }
+                    }
+                });
+            </script>
+        {% endblock %}
 </div>
 </body>

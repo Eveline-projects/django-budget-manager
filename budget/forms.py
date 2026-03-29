@@ -88,7 +88,7 @@ class BankAccountUpdateForm(forms.ModelForm):
 class TransactionForm(forms.ModelForm):
     class Meta:
         model = Transaction
-        fields = ['amount', 'type', 'category', 'account', 'description']
+        fields = ['amount', 'type', 'date', 'category', 'account', 'description']
 
     def __init__(self, *args, **kwargs):
         user = kwargs.pop('user', None)

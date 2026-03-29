@@ -1,9 +1,8 @@
-from django.shortcuts import render, redirect
+from django.shortcuts import redirect
 from django.contrib.auth.mixins import LoginRequiredMixin
-from django.contrib.auth import authenticate, login, logout
-from django.contrib import messages
-from django.contrib.auth.forms import AuthenticationForm, UserCreationForm
-from django.urls import reverse, reverse_lazy
+from django.contrib.auth import login, logout
+from django.contrib.auth.forms import AuthenticationForm
+from django.urls import  reverse_lazy
 from django.db.models import Sum, Q
 from django.views.generic import (
     CreateView,
@@ -61,12 +60,20 @@ class RegisterView(CreateView):
 
 
 class ExpenseListView(LoginRequiredMixin, ListView):
-    template_name = 'budget/expense.html'
+    template_name = 'budget/expense_list.html'
     context_object_name = 'transactions'
     paginate_by = 10
 
     def get_queryset(self):
-        return Transaction.objects.filter(user=self.request.user).order_by('-date')
+        sort_by = self.request.GET.get('sort', '-date')
+        columns = [
+            'amount', '-amount',
+            'date', '-date',
+            'category__name', '-category__name'
+        ]
+        if sort_by not in columns:
+            sort_by = '-date'
+        return Transaction.objects.filter(user=self.request.user).order_by(sort_by)
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
@@ -106,6 +113,12 @@ class ExpenseListView(LoginRequiredMixin, ListView):
         return context
 
 
+class HomeExpenseListView(ExpenseListView):
+    template_name = 'budget/expense.html'
+    paginate_by = None
+    def get_queryset(self):
+        return Transaction.objects.filter(user=self.request.user).order_by('-date')[:5]
+
 class BankAccountListView(LoginRequiredMixin, ListView):
     model = BankAccount
     template_name = 'budget/account.html'
@@ -128,11 +141,13 @@ class BankAccountCreateView(LoginRequiredMixin, CreateView):
 
     def form_valid(self, form):
         form.instance.user = self.request.user
+        amount = form.cleaned_data.get('initial_balance') or 0
+        form.instance.initial_balance = 0
         account = form.save()
-        amount = form.cleaned_data.get('initial_balance')
-        category = form.cleaned_data.get('category')
 
-        if amount and amount > 0:
+
+        if amount > 0:
+            category = form.cleaned_data.get('category')
             if not category:
                 category, _ = Category.objects.get_or_create(
                     name="Other",
@@ -306,9 +321,18 @@ class TargetListView(LoginRequiredMixin, ListView):
     def get_queryset(self):
         return Target.objects.filter(user=self.request.user).order_by('-id')
 
-class DetailView(ListView):
+class DetailView(ExpenseListView):
     template_name = 'budget/detail.html'
 
-    def get_queryset(self):
-        pass
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        stats_query = Transaction.objects.filter(user=self.request.user, type='OUT') \
+            .values('category__name') \
+            .annotate(total=Sum('amount')) \
+            .order_by('-total')
+
+        context['labels'] = json.dumps([item['category__name'] for item in stats_query])
+        context['values'] = json.dumps([float(item['category__name']) for item in stats_query])
+        return context
 

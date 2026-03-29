@@ -6,11 +6,40 @@
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
 </head>
 <body class="bg-light">
-
+<header class="bg-primary text-white py-3 mb-3">
+    <div class="container d-flex align-items-center justify-content-between">
+        <div class="d-flex align-items-center">
+            <a href="/">
+                <img src="https://as2.ftcdn.net/jpg/01/22/16/27/1000_F_122162798_q6ZxeeXBlJRjZJbnbyzjQbZ0ZRz4GW7w.jpg"
+                     alt="Logo" style="width:50px; height:50px; margin-right:15px;">
+            </a>
+            <h1 class="h4 m-0">F4</h1>
+        </div>
+        <a href="/budget/"
+           class="btn btn-outline-light {% if request.path == '/budget/' %}active disabled{% endif %}">
+           Home
+        </a>
+        <a href="/budget/target/list"
+           class="btn btn-outline-light {% if '/target_list' in request.path %}active disabled{% endif %}">
+           Goals
+        </a>
+        <a href="/budget/account/"
+           class="btn btn-outline-light {% if '/account/' in request.path %}active disabled{% endif %}">
+           Accounts
+        </a>
+        <a href="/budget/saving/"
+           class="btn btn-outline-light {% if '/saving_list/' in request.path %}active disabled{% endif %}">
+           Savings
+        </a>
+        <form method="post" action="{% url 'budget:logout' %}" href="{% url 'budget:login' %}">
+            {% csrf_token %}
+            <button type="submit">Wyloguj się</button>
+        </form>
+    </div>
+</header>
 <div class="container mt-5">
     <div class="d-flex justify-content-between align-items-center mb-4">
         <h1>Your savings list</h1>
-        <a href="{% url 'budget:expense' %}" class="btn btn-outline-info me-2">Back </a>
         <a href="{% url 'budget:saving_add' %}" class="btn btn-outline-secondary">Add a new saving</a>
     </div>
 
