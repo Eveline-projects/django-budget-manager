@@ -32,14 +32,25 @@ class BankAccount(models.Model):
         choices=TYPE_ACCOUNT,
         default='ADULT'
     )
+    parent = models.ForeignKey(
+        'self',
+        on_delete=models.SET_NULL,
+        null=True,
+        blank=True,
+        related_name='children',
+        verbose_name='Parent Account'
+    )
     account_creation_date = models.DateTimeField(
         default=timezone.now
     )
     initial_balance = models.DecimalField(
         max_digits=10,
         decimal_places=2,
-        validators=[MinValueValidator(0, message='The opening balance cannot be negative.')]
+        default=0
     )
+
+    class Meta:
+        unique_together = ('user', 'name_account')
 
     @property
     def total_balance(self):
@@ -47,7 +58,9 @@ class BankAccount(models.Model):
             incomes=Sum('amount', filter=Q(type='IN')),
             outcomes=Sum('amount', filter=Q(type='OUT')),
         )
-        return (self.initial_balance + (agg['incomes'] or 0)) - (agg['outcomes'] or 0)
+        my_current_balance = (self.initial_balance + (agg['incomes'] or 0)) - (agg['outcomes'] or 0)
+        children_balance = sum(child.total_balance for child in self.children.all())
+        return my_current_balance + children_balance
 
     def __str__(self):
         return f"{self.name_account} - Balance: {self.total_balance}"
@@ -127,15 +140,16 @@ class SavingsAccount(models.Model):
             raise ValueError("Cannot reverse saving_detail because object has no PK yet")
         return reverse("budget:saving_detail", kwargs={"pk": self.pk})
 
+
 class Target(models.Model):
     TYPE_CREATE = [
         ('CAR', 'CAR'),
         ('APARTMENT', 'APARTMENT'),
-        ('TRAVEL','TRAVEL' ),
-        ('ENTERTAINMENT','ENTERTAINMENT'),
-        ('EDUCATION','EDUCATION'),
+        ('TRAVEL', 'TRAVEL'),
+        ('ENTERTAINMENT', 'ENTERTAINMENT'),
+        ('EDUCATION', 'EDUCATION'),
     ]
-    user= models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE)
+    user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE)
     target_type = models.CharField(max_length=50, choices=TYPE_CREATE, default='')
     target_balance = models.CharField(max_length=50)
 
