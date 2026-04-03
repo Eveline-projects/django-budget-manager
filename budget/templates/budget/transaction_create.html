@@ -184,7 +184,6 @@
     function syncDateTime() {
         const date = document.getElementById('input_date').value;
         const time = document.getElementById('input_time').value;
-        // Łączymy datę i czas w format ISO, który Django przyjmie
         document.getElementById('final_date').value = date + 'T' + time;
     }
 </script>
