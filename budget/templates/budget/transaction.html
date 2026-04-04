@@ -193,35 +193,35 @@
     <div class="row">
 
         <!-- KATEGORIE -->
-        <div class="col-lg-3 mb-4">
-            <div class="card p-4 h-100">
-                <h5 class="card-title mb-4">Categories</h5>
-                <a href="{% url 'budget:category_add' %}"
-                   class="expbtn position-relative"
-                   style="top: 6px;">
-
-                    Add category
-                </a>
-
-                <div class="list-group list-group-flush mt-3">
-                    {% for category in categories %}
-                        <div class="list-group-item mb-1">
+{#        <div class="col-lg-3 mb-4">#}
+{#            <div class="card p-4 h-100">#}
+{#                <h5 class="card-title mb-4">Categories</h5>#}
+{#                <a href="{% url 'budget:category_add' %}"#}
+{#                   class="expbtn position-relative"#}
+{#                   style="top: 6px;">#}
+{##}
+{#                    Add category#}
+{#                </a>#}
+{##}
+{#                <div class="list-group list-group-flush mt-3">#}
+{#                    {% for category in categories %}#}
+{#                        <div class="list-group-item mb-1">#}
                             {#                    {{ category.name }}#}
-
-                        </div>
-                        {% empty %}
-                        <div class="list-group-item text-muted">
-                            No category
-                        </div>
-                    {% endfor %}
-                </div>
-
-
-            </div>
-        </div>
+{##}
+{#                        </div>#}
+{#                        {% empty %}#}
+{#                        <div class="list-group-item text-muted">#}
+{#                            No category#}
+{#                        </div>#}
+{#                    {% endfor %}#}
+{#                </div>#}
+{##}
+{##}
+{#            </div>#}
+{#        </div>#}
 
         <!-- OSTATNIE WYDATKI -->
-        <div class="col-lg-9 mb-4">
+        <div class="col-lg-15 mb-4">
             <div class="card p-4 h-100">
 
                 <div class="d-flex justify-content-between align-items-center mb-4">
