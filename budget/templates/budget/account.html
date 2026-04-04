@@ -1,137 +1,325 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
-    <title>Manage your account</title>
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.0/font/bootstrap-icons.css">
+    <meta charset="utf-8"/>
+    <meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+    <title>F4 Wallets - Management</title>
+    <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&display=swap" rel="stylesheet"/>
+    <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap" rel="stylesheet"/>
+    <script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    colors: {
+                        "primary": "#0059b9",
+                        "primary-container": "#0071e7",
+                        "on-surface": "#191c1d",
+                        "surface-container-lowest": "#ffffff",
+                        "surface-container-low": "#f2f4f5",
+                        "error": "#ba1a1a",
+                        "error-container": "#ffdad6"
+                    },
+                    fontFamily: { "body": ["Manrope", "sans-serif"] }
+                }
+            }
+        }
+    </script>
+    <style>
+        .material-symbols-outlined { font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24; }
+        body { font-family: 'Manrope', sans-serif; background-color: #f8fafb; }
+    </style>
 </head>
-<body class="bg-light">
-<header class="bg-primary text-white py-3 mb-3">
-    <div class="container d-flex align-items-center justify-content-between">
-        <div class="d-flex align-items-center">
-            <a href="/">
-                <img src="https://as2.ftcdn.net/jpg/01/22/16/27/1000_F_122162798_q6ZxeeXBlJRjZJbnbyzjQbZ0ZRz4GW7w.jpg"
-                     alt="Logo" style="width:50px; height:50px; margin-right:15px;">
-            </a>
-            <h1 class="h4 m-0">F4</h1>
+<body class="text-on-surface selection:bg-primary/20">
+
+<nav class="fixed top-0 w-full z-50 bg-white/80 backdrop-blur-xl shadow-sm shadow-blue-900/5">
+    <div class="flex justify-between items-center px-6 py-4 max-w-7xl mx-auto">
+        <div class="flex items-center gap-8">
+            <div class="text-2xl font-extrabold tracking-tighter text-blue-600 flex items-center">
+                <span class="mr-1">F</span><span class="relative">4</span>
+                <span class="ml-3 font-bold tracking-tight text-on-surface">Wallets</span>
+            </div>
+            <div class="hidden md:flex items-center gap-6">
+                <a class="text-slate-500 font-medium hover:text-blue-500 transition-colors" href="/budget/">Home</a>
+                <a class="text-slate-500 font-medium hover:text-blue-500 transition-colors" href="/budget/target/list/">Goals</a>
+                <a class="text-blue-600 font-bold border-b-2 border-blue-600" href="/budget/account/">Accounts</a>
+                <a class="text-slate-500 font-medium hover:text-blue-500 transition-colors" href="/budget/saving/">Savings</a>
+            </div>
         </div>
-        <a href="/budget/"
-           class="btn btn-outline-light {% if request.path == '/budget/' %}active disabled{% endif %}">
-           Home
+        <div class="flex items-center gap-4 relative" id="user-menu-container">
+    <button type="button" onclick="toggleUserMenu()" class="flex items-center gap-2 p-1.5 pr-3 hover:bg-slate-50 rounded-full transition-all border border-transparent hover:border-slate-100">
+        <div class="w-9 h-9 bg-blue-600 rounded-full flex items-center justify-center text-white shadow-md shadow-blue-200">
+            <span class="material-symbols-outlined text-[20px] fill-1">person</span>
+        </div>
+        <span class="hidden sm:block text-sm font-bold text-slate-700">{{ user.username }}</span>
+        <span class="material-symbols-outlined text-slate-400 text-[18px]">expand_more</span>
+    </button>
+
+    <div id="user-dropdown" class="hidden absolute right-0 top-full mt-2 w-48 bg-white rounded-2xl shadow-xl border border-slate-100 py-2 z-50">
+        <div class="px-4 py-2 border-b border-slate-50 mb-1">
+            <p class="text-[10px] font-bold text-slate-400 uppercase tracking-widest">Account</p>
+            <p class="text-xs font-bold text-slate-700 truncate">{{ user.email|default:user.username }}</p>
+        </div>
+
+        <a href="#" class="flex items-center gap-3 px-4 py-2.5 text-sm text-slate-600 hover:bg-blue-50 hover:text-blue-600 transition-colors">
+            <span class="material-symbols-outlined text-[20px]">settings</span>
+            <span class="font-medium">Settings</span>
         </a>
-        <a href="/budget/target/list/"
-           class="btn btn-outline-light {% if '/target_list' in request.path %}active disabled{% endif %}">
-           Goals
-        </a>
-        <a href="/budget/account/"
-           class="btn btn-outline-light {% if '/account/' in request.path %}active disabled{% endif %}">
-           Accounts
-        </a>
-        <a href="/budget/saving/"
-           class="btn btn-outline-light {% if '/saving_list/' in request.path %}active disabled{% endif %}">
-           Savings
-        </a>
-        <form method="post" action="{% url 'budget:logout' %}" href="{% url 'budget:login' %}">
+
+        <hr class="my-1 border-slate-50">
+
+        <form method="post" action="{% url 'budget:logout' %}" class="w-full">
             {% csrf_token %}
-            <button type="submit">Wyloguj się</button>
+            <button type="submit" class="flex items-center gap-3 px-4 py-2.5 text-sm text-red-500 hover:bg-red-50 w-full transition-colors">
+                <span class="material-symbols-outlined text-[20px]">logout</span>
+                <span class="font-bold">Sign Out</span>
+            </button>
         </form>
     </div>
-</header>
-<div class="container mt-4">
-<div class="d-flex justify-content-between align-items-center mb-4">
-    <h1>Wallets</h1>
 </div>
+</nav>
 
-<div class="row mt-4">
-    {% for acc in accounts %}
-    <div class="col-md-4 mb-3">
-        <div class="card shadow-sm {% if acc.account_type == 'CHILD' %}border-info bg-light{% endif %} h-100">
-            <div class="card-body">
-                <h5 class="card-title d-flex justify-content-between">
-                    {{ acc.name_account }}
-                    <span>{% if acc.account_type == 'CHILD' %} 👦 {% else %} 🧑 {% endif %}</span>
-                </h5>
-                <h6 class="card-subtitle mb-2 text-muted small">
-                    Typ: {{ acc.get_account_type_display }}
-                </h6>
-                <p class="card-text h4 {% if acc.total_balance < 0 %}text-danger{% else %}text-primary{% endif %}">
-                    Saldo: {{ acc.total_balance }} PLN
-                </p>
+<main class="pt-24 pb-32 px-6 max-w-7xl mx-auto">
+    <header class="mb-12">
+        <h1 class="text-[1.75rem] font-bold text-on-surface tracking-tight mb-2">Wallet Management</h1>
+        <p class="text-slate-500 font-medium">Manage your linked accounts and financial structures.</p>
 
-                <div class="mt-3">
-                    <a href="{% url 'budget:account_update' acc.pk %}" class="btn btn-sm btn-outline-primary">
-                        <i class="bi bi-pencil"></i> Edit
-                    </a>
-
-                    <button type="button" class="btn btn-sm btn-outline-danger" data-bs-toggle="modal" data-bs-target="#deleteModal{{ acc.pk }}">
-                        <i class="bi bi-trash"></i> Delete
-                    </button>
-                </div>
-
-                <a href="#" class="btn btn-sm btn-link p-0 mt-2 text-decoration-none">Check the history →</a>
-<!--                <a href="{% url 'budget:transaction' %}?account={{ acc.id }}" ...>-->
-            </div>
-        </div>
-    </div>
-
-    <div class="modal fade" id="deleteModal{{ acc.pk }}" tabindex="-1" aria-labelledby="deleteModalLabel" aria-hidden="true">
-        <div class="modal-dialog">
-            <div class="modal-content">
-                <div class="modal-header">
-                    <h5 class="modal-title" id="deleteModalLabel">Confirm deletion</h5>
-                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-                </div>
-                <div class="modal-body">
-                    Are you sure you want to delete your wallet? <strong>{{ acc.name_account }}</strong>?
-                    <p class="text-danger small mt-2">Note: All transactions assigned to this account will also be deleted.</p>
-                </div>
-                <div class="modal-footer">
-                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
-                    <form action="{% url 'budget:account_delete' acc.pk %}" method="post">
-                        {% csrf_token %}
-                        <button type="submit" class="btn btn-danger">Permanently delete</button>
-                    </form>
-                </div>
-            </div>
-        </div>
-    </div>
-
-    {% empty %}
-    <div class="col-12">
-        <p class="alert alert-warning">You don't have any accounts yet. Add your first one below!</p>
-    </div>
+        {% if form.errors %}
+<div class="mb-6 p-4 bg-red-50 border-l-4 border-red-500 text-red-700 text-sm">
+    <p class="font-bold">Check the following:</p>
+    {% for field, errors in form.errors.items %}
+        {% for error in errors %}
+            <div>{{ error }}</div>
+        {% endfor %}
     {% endfor %}
 </div>
+{% endif %}
+    </header>
 
-<hr class="my-5">
-
-<div class="row mb-5">
-    <div class="col-md-4"> <h3 class="h4 mb-3">Add a new account</h3>
-        <form method="post" class="shadow-sm p-4 bg-light rounded border">
-            {% csrf_token %}
-
-            {% for field in form %}
-                <div class="mb-3">
-                    <label class="form-label small fw-bold">{{ field.label }}</label>
-                    {{ field }}
-                    {% if field.help_text %}
-                        <div class="form-text text-muted small" style="font-size: 0.75rem;">
-                            {{ field.help_text }}
-                        </div>
-                    {% endif %}
-                    {% if field.errors %}
-                        <div class="text-danger small">{{ field.errors }}</div>
-                    {% endif %}
-                </div>
-            {% endfor %}
-
-            <div class="d-grid mt-4">
-                <button type="submit" class="btn btn-success">Create an account</button>
+    <div class="grid grid-cols-1 lg:grid-cols-12 gap-10 items-start">
+        <div class="lg:col-span-8 space-y-6">
+            {% if not accounts %}
+            <div class="bg-surface-container-lowest p-12 rounded-2xl flex flex-col items-center text-center shadow-sm border border-slate-100">
+                <span class="material-symbols-outlined text-blue-600 text-4xl mb-6">account_balance</span>
+                <h3 class="text-xl font-bold mb-2">No Wallets Found</h3>
+                <p class="text-slate-500">Add your first account to start tracking.</p>
             </div>
-        </form>
+            {% endif %}
+
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                {% for acc in accounts %}
+                <div class="bg-surface-container-lowest p-6 rounded-2xl shadow-sm hover:shadow-md transition-all border border-slate-50">
+                    <div class="flex justify-between items-start mb-6">
+                        <div class="flex items-center gap-3">
+                            <div class="w-12 h-12 bg-slate-50 rounded-xl flex items-center justify-center text-blue-600">
+                                <span class="material-symbols-outlined">{% if acc.account_type == 'CHILD' %}face{% else %}account_circle{% endif %}</span>
+                            </div>
+                            <div>
+                                <h4 class="font-bold text-on-surface leading-tight">{{ acc.name_account }}</h4>
+                                <span class="text-[10px] font-bold uppercase tracking-widest px-2 py-0.5 rounded-full bg-slate-100">
+                                    {{ acc.get_account_type_display }}
+                                </span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="mb-8">
+                        <span class="block text-[0.75rem] font-bold text-slate-400 uppercase tracking-widest mb-1">Available Balance</span>
+                        <div class="text-[2.25rem] font-extrabold text-primary tracking-tighter">
+                            {{ acc.total_balance }} PLN
+                        </div>
+                    </div>
+
+                    <div class="flex items-center justify-between pt-4 border-t border-slate-50">
+                        <div class="flex gap-2">
+    <a href="{% url 'budget:account_update' acc.pk %}" class="p-2 text-slate-400 hover:text-blue-600 transition-colors">
+        <span class="material-symbols-outlined text-[20px]">edit</span>
+    </a>
+
+    <button type="button"
+            onclick="openDeleteModal('{{ acc.pk }}', '{{ acc.name_account }}')"
+            class="p-2 text-slate-400 hover:text-error hover:bg-error-container/20 rounded-lg transition-colors">
+        <span class="material-symbols-outlined text-[20px]">delete</span>
+    </button>
+</div>
+                        <a class="text-[0.75rem] font-bold text-primary flex items-center gap-1" href="{% url 'budget:transaction' %}?account={{ acc.id }}">
+                            History <span class="material-symbols-outlined text-[16px]">arrow_forward</span>
+                        </a>
+                    </div>
+                </div>
+                {% endfor %}
+            </div>
+        </div>
+
+        <aside class="lg:col-span-4">
+            <div class="bg-surface-container-low p-8 rounded-2xl sticky top-28 border border-slate-100">
+                <h3 class="text-xl font-bold mb-6 flex items-center gap-2">
+                    <span class="material-symbols-outlined text-primary">add_circle</span>
+                    New Account
+                </h3>
+                <form action="." method="POST" class="space-y-6">
+                    {% csrf_token %}
+
+                    <div class="space-y-2">
+                        <label class="block text-[0.75rem] font-bold text-slate-500 uppercase tracking-widest ml-1">Account Label</label>
+                        <input class="w-full px-5 py-4 bg-white rounded-xl border-none shadow-sm focus:ring-2 focus:ring-primary/20"
+                               name="name_account" placeholder="e.g. Main Wallet" required type="text">
+                    </div>
+
+                    <div class="space-y-2">
+                        <label class="block text-[0.75rem] font-bold text-slate-500 uppercase tracking-widest ml-1">Initial Balance</label>
+                        <div class="relative">
+                            <span class="absolute left-5 top-1/2 -translate-y-1/2 text-slate-400 font-bold">zł</span>
+                            <input class="w-full pl-10 pr-5 py-4 bg-white rounded-xl border-none shadow-sm focus:ring-2 focus:ring-primary/20"
+                                   name="initial_balance" placeholder="0.00" required step="0.01" type="number">
+                        </div>
+                    </div>
+
+                    <div class="space-y-2">
+                        <label class="block text-[0.75rem] font-bold text-slate-500 uppercase tracking-widest ml-1">Account Type</label>
+                        <div class="grid grid-cols-2 gap-3">
+                            <label class="cursor-pointer">
+                                <input checked class="peer hidden" name="account_type" type="radio" value="ADULT"/>
+                                <div class="px-4 py-3 bg-white rounded-xl border-2 border-transparent peer-checked:border-primary peer-checked:bg-blue-50/50 text-center">
+                                    <span class="block text-sm font-bold text-slate-600 peer-checked:text-primary">Adult</span>
+                                </div>
+                            </label>
+                            <label class="cursor-pointer">
+                                <input class="peer hidden" name="account_type" type="radio" value="CHILD"/>
+                                <div class="px-4 py-3 bg-white rounded-xl border-2 border-transparent peer-checked:border-primary peer-checked:bg-blue-50/50 text-center">
+                                    <span class="block text-sm font-bold text-slate-600 peer-checked:text-primary">Child</span>
+                                </div>
+                            </label>
+                        </div>
+                    </div>
+
+                    <div id="parent-field" class="space-y-2" style="display: none;">
+                        <label class="block text-[0.75rem] font-bold text-slate-500 uppercase tracking-widest ml-1">Parent Account</label>
+                        <select name="parent" class="w-full px-5 py-4 bg-white rounded-xl border-none shadow-sm focus:ring-2 focus:ring-primary/20">
+                            <option value="">Choose parent...</option>
+                            {% for acc in accounts %}
+                                {% if acc.account_type != 'CHILD' %}
+                                    <option value="{{ acc.id }}">{{ acc.name_account }}</option>
+                                {% endif %}
+                            {% endfor %}
+                        </select>
+                    </div>
+
+                    <button class="w-full py-4 bg-primary text-white rounded-xl font-bold shadow-lg shadow-blue-500/20 active:scale-[0.98] transition-all" type="submit">
+                        Create Account
+                    </button>
+                </form>
+            </div>
+        </aside>
+    </div>
+</main>
+
+<script>
+    const radios = document.querySelectorAll('input[name="account_type"]');
+    const parentField = document.getElementById('parent-field');
+
+    function toggleParent() {
+        const val = document.querySelector('input[name="account_type"]:checked').value;
+        parentField.style.display = val === 'CHILD' ? 'block' : 'none';
+    }
+
+    radios.forEach(r => r.addEventListener('change', toggleParent));
+</script>
+<div id="delete-modal" class="fixed inset-0 z-[100] hidden overflow-y-auto" role="dialog" aria-modal="true">
+    <div onclick="closeDeleteModal()" class="fixed inset-0 bg-slate-900/40 backdrop-blur-sm transition-opacity"></div>
+
+    <div class="flex items-center justify-center min-h-screen p-4 text-center">
+        <div class="relative bg-white rounded-2xl max-w-sm w-full p-8 shadow-2xl transform transition-all">
+            <div class="w-16 h-16 bg-red-50 rounded-full flex items-center justify-center mb-6 mx-auto">
+                <span class="material-symbols-outlined text-red-600 text-3xl">delete_forever</span>
+            </div>
+
+            <h3 class="text-xl font-bold text-slate-900 mb-2">Delete Account?</h3>
+            <p class="text-slate-500 text-sm mb-8">
+                Are you sure you want to delete <span id="modal-account-name" class="font-bold text-slate-900 text-base"></span>?
+                This cannot be undone.
+            </p>
+
+            <div class="flex gap-3">
+                <button type="button" onclick="closeDeleteModal()"
+                        class="flex-1 py-3 px-4 bg-slate-100 hover:bg-slate-200 text-slate-600 font-bold rounded-xl transition-colors">
+                    Cancel
+                </button>
+
+                <form id="delete-form" method="post" class="flex-1">
+                    {% csrf_token %}
+                    <button type="submit"
+                            class="w-full py-3 px-4 bg-red-600 hover:bg-red-700 text-white font-bold rounded-xl shadow-lg transition-all">
+                        Delete
+                    </button>
+                </form>
+            </div>
+        </div>
     </div>
 </div>
-</div>
-<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+
+<script>
+    // Funkcja otwierająca
+    function openDeleteModal(accountId, accountName) {
+        console.log("Próba otwarcia modala dla ID:", accountId);
+
+        const modal = document.getElementById('delete-modal');
+        const form = document.getElementById('delete-form');
+        const nameSpan = document.getElementById('modal-account-name');
+
+        if (modal && form && nameSpan) {
+            form.action = `/budget/account/delete/${accountId}/`;
+            nameSpan.innerText = accountName;
+            modal.classList.remove('hidden');
+            document.body.style.overflow = 'hidden';
+        } else {
+            console.error("Błąd: Nie znaleziono elementów modala w HTML!");
+        }
+    }
+
+    // Funkcja zamykająca
+    function closeDeleteModal() {
+        const modal = document.getElementById('delete-modal');
+        if (modal) {
+            modal.classList.add('hidden');
+            document.body.style.overflow = 'auto';
+        }
+    }
+
+    // Obsługa przełącznika Adult/Child
+    document.addEventListener('DOMContentLoaded', function() {
+        const typeRadios = document.querySelectorAll('input[name="account_type"]');
+        const parentField = document.getElementById('parent-field');
+
+        function toggleParent() {
+            const checked = document.querySelector('input[name="account_type"]:checked');
+            if (parentField && checked) {
+                parentField.style.display = (checked.value === 'CHILD') ? 'block' : 'none';
+            }
+        }
+
+        typeRadios.forEach(r => r.addEventListener('change', toggleParent));
+        toggleParent();
+    });
+
+
+    document.addEventListener('keydown', (e) => {
+        if (e.key === 'Escape') closeDeleteModal();
+    });
+</script>
+<script>function toggleUserMenu() {
+    const dropdown = document.getElementById('user-dropdown');
+    dropdown.classList.toggle('hidden');
+}
+
+// Zamykanie menu po kliknięciu poza nie
+window.addEventListener('click', function(e) {
+    const dropdown = document.getElementById('user-dropdown');
+    const container = document.getElementById('user-menu-container');
+    if (!container.contains(e.target)) {
+        dropdown.classList.add('hidden');
+    }
+});</script>
 </body>
 </html>

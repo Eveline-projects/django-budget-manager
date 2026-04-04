@@ -19,32 +19,46 @@ class BankAccountForm(forms.ModelForm):
     initial_balance = forms.DecimalField(
         label="Starting balance",
         initial=0,
-        min_value=0,
         required=False,
         help_text='Enter the current balance of this account.',
         widget=forms.NumberInput(attrs={'class': 'form-control', 'placeholder': '0.00'})
     )
-    # category = forms.ModelChoiceField(
-    #     queryset=Category.objects.all(),
-    #     label="First deposit category",
-    #     required=False
-    # )
 
     class Meta:
         model = BankAccount
-        fields = ['name_account', 'account_type', 'initial_balance']
+        fields = ['name_account', 'account_type', 'initial_balance', 'parent']
         help_texts = {
             'name_account': 'For example, My savings, Main account.',
+            'parent': 'Select the parent wallet if this is to be a sub-account.'
         }
 
     def __init__(self, *args, **kwargs):
         user = kwargs.pop('user', None)
         super().__init__(*args, **kwargs)
         self.user = user
+
         for field in self.fields.values():
             field.widget.attrs.update({'class': 'form-control'})
-        # if user:
-        #     self.fields['category'].queryset = Category.objects.filter(user=self.user)
+        if user:
+            qs = BankAccount.objects.filter(user=user, account_type='ADULT')
+            if self.instance and self.instance.pk:
+                qs = qs.exclude(pk=self.instance.pk)
+
+            self.fields['parent'].queryset = qs
+            self.fields['parent'].empty_label = "None (Main Account)"
+
+    def clean(self):
+        cleaned_data = super().clean()
+        account_type = cleaned_data.get('account_type')
+        parent = cleaned_data.get('parent')
+
+        if account_type == 'ADULT' and parent:
+            self.add_error('parent', "An Adult account cannot be a sub-account of another wallet.")
+
+        if parent and self.instance.pk and parent.pk == self.instance.pk:
+            self.add_error('parent', "An account cannot be its own parent.")
+
+        return cleaned_data
 
 
 class BankAccountCreateForm(BankAccountForm):
@@ -54,35 +68,73 @@ class BankAccountCreateForm(BankAccountForm):
         required=False,
         label="Starting balance",
     )
-    # category = forms.ModelChoiceField(
-    #     queryset=Category.objects.none(),
-    #     required=False,
-    #     label="First deposit category",
-    # )
 
     class Meta(BankAccountForm.Meta):
         fields = BankAccountForm.Meta.fields + ['initial_balance']
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
-        # if self.user:
-        #     self.fields['category'].queryset = Category.objects.filter(user=self.user)
-        # else:
-        #     self.fields['category'].queryset = Category.objects.all()
+
+    def clean_name_account(self):
+        name = self.cleaned_data.get('name_account').strip()
+        exists = BankAccount.objects.filter(
+            user=self.user,
+            name_account__iexact=name
+        ).exclude(pk=self.instance.pk).exists()
+        if exists:
+            raise forms.ValidationError(
+                f"You already have an account named '{name}'. Please choose a unique name."
+            )
+
+        return name
+
 
 class BankAccountUpdateForm(forms.ModelForm):
     class Meta:
         model = BankAccount
-        fields = ['name_account', 'account_type', 'initial_balance']
+        fields = ['name_account', 'account_type', 'parent', 'initial_balance']
         labels = {
             'initial_balance': 'Opening balance / Adjustment',
         }
 
     def __init__(self, *args, **kwargs):
-        kwargs.pop('user', None)
+        self.user = kwargs.pop('user', None)
         super().__init__(*args, **kwargs)
+
         for field in self.fields.values():
             field.widget.attrs.update({'class': 'form-control'})
+
+        if self.user:
+            qs = BankAccount.objects.filter(user=self.user, account_type='ADULT')
+            if self.instance and self.instance.pk:
+                qs = qs.exclude(pk=self.instance.pk)
+
+            self.fields['parent'].queryset = qs
+            self.fields['parent'].empty_label = "None (Main Account)"
+
+    def clean_name_account(self):
+
+        name = self.cleaned_data.get('name_account').strip()
+        exists = BankAccount.objects.filter(
+            user=self.user,
+            name_account__iexact=name
+        ).exclude(pk=self.instance.pk).exists()
+
+        if exists:
+            raise forms.ValidationError(
+                f"You already have an account named '{name}'. Please choose a different name."
+            )
+        return name
+
+        def clean(self):
+
+            cleaned_data = super().clean()
+            parent = cleaned_data.get('parent')
+
+            if parent and self.instance.pk and parent.pk == self.instance.pk:
+                self.add_error('parent', "An account cannot be its own parent!")
+
+            return cleaned_data
 
 
 class TransactionForm(forms.ModelForm):
@@ -142,6 +194,7 @@ class SavingAccountForm(forms.ModelForm):
         if balance < 0:
             raise forms.ValidationError("The balance cannot be negative.")
         return balance
+
 
 class TargetForm(forms.ModelForm):
     class Meta:

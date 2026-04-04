@@ -1,8 +1,9 @@
 from django.shortcuts import redirect
+from django.db import transaction
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.contrib.auth import login, logout
 from django.contrib.auth.forms import AuthenticationForm
-from django.urls import  reverse_lazy
+from django.urls import reverse_lazy
 from django.db.models import Sum, Q
 from django.views.generic import (
     CreateView,
@@ -37,6 +38,15 @@ class IndexView(TemplateView):
         if request.user.is_authenticated:
             return redirect('budget:expense')
         return super().get(request, *args, **kwargs)
+
+class IndexView(TemplateView):
+    template_name = 'index.html'
+
+    def get(self, request, *args, **kwargs):
+        if request.user.is_authenticated:
+            return redirect('budget:transaction')
+        return super().get(request, *args, **kwargs)
+
 
 class RegisterView(CreateView):
     form_class = RegisterForm
@@ -86,25 +96,20 @@ class TransactionListView(LoginRequiredMixin, ListView):
         context = super().get_context_data(**kwargs)
         user = self.request.user
 
-
         user_transactions = Transaction.objects.filter(user=user)
         user_accounts = BankAccount.objects.filter(user=user)
 
         total_out = user_transactions.filter(type='OUT').aggregate(Sum('amount'))['amount__sum'] or 0
         context['total_transactions'] = total_out
 
-
         context['total_balance'] = sum(acc.total_balance for acc in user_accounts)
-
 
         context['categories'] = Category.objects.filter(user=user)
         context['transaction_count'] = user_accounts.count()
         context['savings_count'] = SavingsAccount.objects.filter(user=user).count()
 
-
         context['total_savings'] = SavingsAccount.objects.filter(user=user).count()
         context['target'] = Target.objects.filter(user=user).count()
-
 
         stats_query = user_transactions.filter(type='OUT') \
             .values('category__name') \
@@ -123,8 +128,10 @@ class TransactionListView(LoginRequiredMixin, ListView):
 class HomeTransactionListView(TransactionListView):
     template_name = 'budget/transaction.html'
     paginate_by = None
+
     def get_queryset(self):
         return Transaction.objects.filter(user=self.request.user).order_by('-date')[:5]
+
 
 class BankAccountListView(LoginRequiredMixin, ListView):
     model = BankAccount
@@ -147,29 +154,34 @@ class BankAccountCreateView(LoginRequiredMixin, CreateView):
     success_url = reverse_lazy('budget:account')
 
     def form_valid(self, form):
-        form.instance.user = self.request.user
         amount = form.cleaned_data.get('initial_balance') or 0
-        form.instance.initial_balance = 0
-        account = form.save()
+        category = form.cleaned_data.get('category')
 
+        try:
+            with transaction.atomic():
+                form.instance.user = self.request.user
+                form.instance.initial_balance = 0
+                account = form.save()
+                if amount > 0:
+                    category = form.cleaned_data.get('category')
+                    if not category:
+                        category, _ = Category.objects.get_or_create(
+                            name="Other",
+                            user=self.request.user
+                        )
 
-        if amount > 0:
-            category = form.cleaned_data.get('category')
-            if not category:
-                category, _ = Category.objects.get_or_create(
-                    name="Other",
-                    user=self.request.user
-                )
-
-            Transaction.objects.create(
-                user=self.request.user,
-                amount=amount,
-                type='IN',
-                category=category,
-                account=account,
-                description="Starting balance"
-            )
-        return redirect(self.success_url)
+                    Transaction.objects.create(
+                        user=self.request.user,
+                        amount=amount,
+                        type='IN',
+                        category=category,
+                        account=account,
+                        description="Starting balance"
+                    )
+            return redirect(self.success_url)
+        except Exception as e:
+            form.add_error(None, f"Critical error during account creation: {e}")
+            return self.form_invalid(form)
 
     def get_form_kwargs(self):
         kwargs = super().get_form_kwargs()
@@ -190,20 +202,46 @@ class BankAccountUpdateView(LoginRequiredMixin, UpdateView):
 
     def get_initial(self):
         initial = super().get_initial()
-        account = self.get_object()
-        initial['initial_balance'] = account.total_balance
+        initial['initial_balance'] = self.get_object().total_balance
         return initial
 
     def form_valid(self, form):
-        target_balance = form.cleaned_data['initial_balance']
         account = self.get_object()
-        agg = account.transactions.aggregate(
-            incomes=Sum('amount', filter=Q(type='IN')),
-            outcomes=Sum('amount', filter=Q(type='OUT')),
-        )
-        transactions_sum = (agg['incomes'] or 0) - (agg['outcomes'] or 0)
-        form.instance.initial_balance = target_balance - transactions_sum
-        return super().form_valid(form)
+        new_target_balance = form.cleaned_data.get('initial_balance') or 0
+
+        try:
+            with transaction.atomic():
+                starting_transaction = Transaction.objects.filter(
+                    account=account,
+                    description='Starting balance'
+                ).first()
+                other_transactions = account.transactions.exclude(
+                    id=starting_transaction.id if starting_transaction else None
+                )
+                agg = other_transactions.aggregate(
+                    incomes=Sum('amount', filter=Q(type='IN')),
+                    outcomes=Sum('amount', filter=Q(type='OUT')),
+                )
+                other_sum = (agg['incomes'] or 0) - (agg['outcomes'] or 0)
+                if starting_transaction:
+                    starting_transaction.amount = new_target_balance - other_sum
+                    starting_transaction.save()
+                else:
+                    Transaction.objects.create(
+                        user=self.request.user,
+                        amount=new_target_balance - other_sum,
+                        type='IN',
+                        account=account,
+                        description='Starting balance',
+                        category=Category.objects.get_or_create(name="Other", user=self.request.user)[0]
+                    )
+
+                form.instance.initial_balance = 0
+                return super().form_valid(form)
+
+        except Exception as e:
+            form.add_error(None, f"Błąd podczas aktualizacji salda: {e}")
+            return self.form_invalid(form)
 
     def get_form_kwargs(self):
         kwargs = super().get_form_kwargs()
@@ -217,9 +255,6 @@ class BankAccountDeleteView(LoginRequiredMixin, DeleteView):
 
     def get_queryset(self):
         return BankAccount.objects.filter(user=self.request.user)
-
-    def get(self, request, *args, **kwargs):
-        return self.post(request, *args, **kwargs)
 
 
 class LoginView(FormView):
@@ -323,6 +358,7 @@ class TargetCreateView(LoginRequiredMixin, CreateView):
         context['target'] = Target.objects.filter(user=self.request.user).order_by('-id')
         return context
 
+
 class TargetListView(LoginRequiredMixin, ListView):
     model = Target
     template_name = 'budget/target_list.html'
@@ -331,9 +367,9 @@ class TargetListView(LoginRequiredMixin, ListView):
     def get_queryset(self):
         return Target.objects.filter(user=self.request.user).order_by('-id')
 
+
 class DetailView(TransactionListView):
     template_name = 'budget/detail.html'
-
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
@@ -345,4 +381,3 @@ class DetailView(TransactionListView):
         context['labels'] = json.dumps([item['category__name'] for item in stats_query])
         context['values'] = json.dumps([float(item['total']) for item in stats_query])
         return context
-
