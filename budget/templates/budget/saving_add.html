@@ -1,19 +1,103 @@
+{% load static %}
 <!DOCTYPE html>
-<html lang="en">
+<html class="light" lang="en">
 <head>
-    <meta charset="UTF-8">
-    <title>Savings</title>
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.0/font/bootstrap-icons.css">
-    <a href="{% url 'budget:saving_list' %}" class="btn btn-outline-info me-2">Back </a>
+    <meta charset="utf-8"/>
+    <meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+    <title>F4 - Add Savings</title>
+    <link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&amp;display=swap" rel="stylesheet"/>
+    <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+    <script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    "colors": {
+                        "primary": "#067bf9",
+                        "surface": "#f5f7f8",
+                        "on-surface": "#1d1d1f",
+                        "on-surface-variant": "#86868b",
+                    },
+                    "borderRadius": { "3xl": "1.5rem" },
+                    "fontFamily": { "body": ["Manrope"] }
+                },
+            },
+        }
+    </script>
+    <style>
+        .ios-shadow { box-shadow: 0 8px 40px rgba(0, 0, 0, 0.04); }
+        input::-webkit-outer-spin-button, input::-webkit-inner-spin-button { -webkit-appearance: none; margin: 0; }
+        input[type=number] { -moz-appearance: textfield; }
+        select { background-image: none !important; }
+    </style>
 </head>
-<body>
+<body class="bg-surface text-on-surface font-body min-h-screen flex flex-col">
 
+<header class="bg-white/80 backdrop-blur-md sticky top-0 z-50 px-6 py-4 border-b border-black/[0.03]">
+    <div class="max-w-[430px] mx-auto flex items-center justify-between">
+        <a href="{% url 'budget:saving_list' %}" class="p-2 -ml-2 rounded-full hover:bg-black/5 transition-colors">
+            <span class="text-xl font-light text-on-surface block px-2">✕</span>
+        </a>
+        <h1 class="text-[17px] font-bold tracking-tight">Add Savings</h1>
+        <div class="w-[38px]"></div>
+    </div>
+</header>
 
-<h2>Add savings</h2>
-<form method="post">
-  {% csrf_token %}
-  {{ form.as_p }}
-  <button type="submit" class="btn btn-primary">Save</button>
-</form>
+<main class="flex-grow pt-8 pb-12 px-6 flex justify-center">
+    <div class="w-full max-w-[430px] flex flex-col gap-6">
+        <div class="bg-white rounded-3xl ios-shadow p-8">
+            <form method="post" class="flex flex-col gap-8">
+                {% csrf_token %}
+
+                <div class="flex flex-col items-center gap-2">
+                    <span class="text-[11px] text-on-surface-variant font-bold uppercase tracking-[0.12em]">Opening Balance</span>
+                    <div class="flex items-center justify-center w-full">
+                        <span class="text-[2rem] font-bold text-primary mr-2">PLN</span>
+                        <input name="balance" class="text-[3rem] font-bold text-on-surface bg-transparent border-none p-0 w-full max-w-[180px] text-center focus:ring-0 placeholder:text-on-surface-variant/20 leading-none"
+                               placeholder="0.00" step="0.01" type="number" required/>
+                    </div>
+                </div>
+
+                <div class="flex flex-col gap-5">
+
+                    <div class="flex flex-col gap-1.5">
+                        <label class="text-[11px] text-on-surface-variant font-bold uppercase tracking-[0.12em] px-1">Account Name</label>
+                        <input name="name" class="w-full bg-[#f2f2f7] border-none rounded-2xl py-4 px-5 focus:ring-1 focus:ring-primary/20 focus:bg-white transition-all text-on-surface font-semibold text-[15px] placeholder:text-on-surface-variant/50"
+                               placeholder="e.g. My Savings" type="text" required/>
+                    </div>
+
+                    <div class="flex flex-col gap-1.5">
+                        <label class="text-[11px] text-on-surface-variant font-bold uppercase tracking-[0.12em] px-1">Account Type</label>
+                        <div class="relative group">
+                            <select name="type" class="w-full bg-[#f2f2f7] border-none rounded-2xl py-4 px-5 pr-12 appearance-none focus:ring-1 focus:ring-primary/20 focus:bg-white transition-all text-on-surface font-semibold text-[15px] cursor-pointer">
+                                <option value="DEPOSITS">DEPOSITS</option>
+                                <option value="FUNDS">FUNDS</option>
+                                <option value="RETIREMENT">RETIREMENT</option>
+                                <option value="OTHER">OTHER</option>
+                            </select>
+                            <div class="absolute right-5 top-1/2 -translate-y-1/2 pointer-events-none text-on-surface-variant">
+                                <svg width="12" height="8" viewBox="0 0 12 8" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                    <path d="M1 1L6 6L11 1" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                                </svg>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="flex flex-col gap-1.5">
+                        <label class="text-[11px] text-on-surface-variant font-bold uppercase tracking-[0.12em] px-1">Interest Rate (%)</label>
+                        <input name="interest_rate" class="w-full bg-[#f2f2f7] border-none rounded-2xl py-4 px-5 focus:ring-1 focus:ring-primary/20 focus:bg-white transition-all text-on-surface font-semibold text-[15px] placeholder:text-on-surface-variant/50"
+                               placeholder="0.00" step="0.01" type="number" required/>
+                    </div>
+
+                </div>
+
+                <button type="submit" class="w-full bg-[#067bf9] text-white py-5 rounded-2xl font-bold text-[16px] tracking-tight shadow-lg shadow-primary/25 active:scale-[0.98] transition-all mt-2">
+                    Save Savings
+                </button>
+            </form>
+        </div>
+    </div>
+</main>
+
 </body>
 </html>

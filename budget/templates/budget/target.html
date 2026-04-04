@@ -1,19 +1,112 @@
+{% load static %}
 <!DOCTYPE html>
-<html lang="en">
+<html class="light" lang="en">
 <head>
-    <meta charset="UTF-8">
-    <title>Objective</title>
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.0/font/bootstrap-icons.css">
-    <a href="{% url 'budget:transaction' %}" class="btn btn-outline-info me-2">Back</a>
+    <meta charset="utf-8"/>
+    <meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+    <title>F4 - Add Goal</title>
+    <link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&amp;display=swap" rel="stylesheet"/>
+    <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+    <script src="https://cdn.tailwindcss.com?plugins=forms"></script>
+    <script id="tailwind-config">
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        "primary": "#067bf9",
+                        "surface": "#f5f7f8",
+                        "on-surface": "#1d1d1f",
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        .material-symbols-outlined { font-variation-settings: 'FILL' 0, 'wght' 300, 'GRAD' 0, 'opsz' 24; }
+
+        /* Stylizacja kontenerów Django */
+        .django-form-wrapper p {
+            display: flex;
+            flex-direction: column;
+            gap: 6px;
+            margin-bottom: 20px;
+        }
+
+        .django-form-wrapper label {
+            font-size: 11px;
+            font-weight: 800;
+            text-transform: uppercase;
+            letter-spacing: 0.12em;
+            color: #86868b;
+            padding-left: 4px;
+        }
+
+        /* Stylizacja okienek wejściowych */
+        .django-form-wrapper input,
+        .django-form-wrapper select,
+        .django-form-wrapper textarea {
+            width: 100%;
+            background-color: #f2f2f7;
+            border: none !important;
+            border-radius: 16px;
+            padding: 16px 20px;
+            font-size: 15px;
+            font-weight: 600;
+            color: #1d1d1f;
+            transition: all 0.2s;
+            appearance: none; /* Ukrywa domyślną strzałkę systemu */
+        }
+
+        /* Dodanie strzałki dla pól select */
+        .django-form-wrapper select {
+            background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8' viewBox='0 0 12 8' fill='none'%3E%3Cpath d='M1 1L6 6L11 1' stroke='%2386868b' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E") !important;
+            background-repeat: no-repeat !important;
+            background-position: right 20px center !important;
+            background-size: 12px 8px !important;
+            padding-right: 45px !important;
+        }
+
+        .django-form-wrapper input:focus,
+        .django-form-wrapper select:focus {
+            background-color: #ffffff;
+            box-shadow: 0 0 0 2px rgba(6, 123, 249, 0.1) !important;
+            outline: none !important;
+        }
+
+        .ios-shadow { box-shadow: 0 8px 40px rgba(0, 0, 0, 0.04); }
+    </style>
 </head>
-<body>
+<body class="bg-surface text-on-surface font-['Manrope'] min-h-screen">
 
+<header class="bg-white/80 backdrop-blur-md sticky top-0 z-50 px-6 py-4 border-b border-black/[0.03]">
+    <div class="max-w-[430px] mx-auto flex items-center justify-between">
+        <a href="{% url 'budget:target_list' %}" class="p-2 -ml-2 rounded-full hover:bg-black/5 transition-colors text-on-surface flex items-center justify-center">
+            <span class="material-symbols-outlined">close</span>
+        </a>
+        <h1 class="text-[17px] font-bold tracking-tight">Add Goal</h1>
+        <div class="w-[40px]"></div>
+    </div>
+</header>
 
-<h2>Add a goal</h2>
-<form method="post">
-  {% csrf_token %}
-  {{ form.as_p }}
-  <button type="submit" class="btn btn-primary">Save</button>
-</form>
+<main class="pt-8 pb-12 px-6 flex justify-center">
+    <div class="w-full max-w-[430px]">
+        <div class="bg-white rounded-[24px] ios-shadow p-8 border border-black/[0.02]">
+
+            <form method="post">
+                {% csrf_token %}
+
+                <div class="django-form-wrapper">
+                    {{ form.as_p }}
+                </div>
+
+                <button type="submit" class="w-full bg-primary text-white py-5 rounded-2xl font-bold text-[16px] tracking-tight shadow-lg shadow-primary/25 active:scale-[0.95] transition-all mt-4">
+                    Save Goal
+                </button>
+            </form>
+
+        </div>
+    </div>
+</main>
+
 </body>
 </html>

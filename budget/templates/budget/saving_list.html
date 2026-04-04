@@ -1,66 +1,154 @@
+{% load static %}
 <!DOCTYPE html>
-<html lang="pl">
+<html class="light" lang="en">
 <head>
-    <meta charset="UTF-8">
-    <title>Savings</title>
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <meta charset="utf-8"/>
+    <meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+    <title>Savings List - F4</title>
+    <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&amp;display=swap" rel="stylesheet"/>
+    <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+    <script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    colors: {
+                        "primary": "#0059b9",
+                        "primary-container": "#0071e7",
+                        "background": "#f8fafb",
+                        "surface": "#f8fafb",
+                        "on-surface": "#191c1d",
+                        "on-surface-variant": "#414754",
+                        "outline-variant": "#c1c6d7",
+                        "secondary-container": "#d5e3fc",
+                        "surface-container-low": "#f2f4f5",
+                        "surface-container-lowest": "#ffffff",
+                    },
+                    fontFamily: {
+                        "headline": ["Manrope", "sans-serif"],
+                        "body": ["Manrope", "sans-serif"],
+                    },
+                },
+            },
+        }
+    </script>
+    <style>
+        html { scrollbar-gutter: stable; }
+        .material-symbols-outlined { font-variation-settings: 'FILL' 0, 'wght' 300, 'GRAD' 0, 'opsz' 24; }
+        body { font-family: 'Manrope', sans-serif; }
+
+        .fab-custom {
+            transition: all 0.5s cubic-bezier(0.4, 0, 0.2, 1);
+            width: 64px;
+            height: 64px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            overflow: hidden;
+            white-space: nowrap;
+        }
+        .fab-custom:hover {
+            width: 210px;
+            border-radius: 32px;
+        }
+        .fab-text {
+            max-width: 0;
+            opacity: 0;
+            transition: all 0.4s ease;
+            font-weight: 800;
+            text-transform: uppercase;
+            letter-spacing: 0.1em;
+            font-size: 0.75rem;
+        }
+        .fab-custom:hover .fab-text {
+            max-width: 150px;
+            opacity: 1;
+            margin-left: 12px;
+        }
+    </style>
 </head>
-<body class="bg-light">
-<header class="bg-primary text-white py-3 mb-3">
-    <div class="container d-flex align-items-center justify-content-between">
-        <div class="d-flex align-items-center">
-            <a href="/">
+<body class="bg-background text-on-background min-h-screen pt-20">
+
+<header class="bg-surface/80 backdrop-blur-md fixed top-0 w-full z-50 shadow-sm border-b border-outline-variant/20">
+    <div class="flex justify-between items-center px-6 py-4 w-full max-w-7xl mx-auto">
+        <div class="flex items-center">
+            <a href="/" class="group transition-transform hover:scale-105">
                 <img src="https://as2.ftcdn.net/jpg/01/22/16/27/1000_F_122162798_q6ZxeeXBlJRjZJbnbyzjQbZ0ZRz4GW7w.jpg"
-                     alt="Logo" style="width:50px; height:50px; margin-right:15px;">
+                     alt="F4 Logo"
+                     class="w-12 h-12 rounded-xl shadow-sm object-cover">
             </a>
-            <h1 class="h4 m-0">F4</h1>
         </div>
-        <a href="/budget/"
-           class="btn btn-outline-light {% if request.path == '/budget/' %}active disabled{% endif %}">
-           Home
-        </a>
-        <a href="/budget/target/list"
-           class="btn btn-outline-light {% if '/target_list' in request.path %}active disabled{% endif %}">
-           Goals
-        </a>
-        <a href="/budget/account/"
-           class="btn btn-outline-light {% if '/account/' in request.path %}active disabled{% endif %}">
-           Accounts
-        </a>
-        <a href="/budget/saving/"
-           class="btn btn-outline-light {% if '/saving_list/' in request.path %}active disabled{% endif %}">
-           Savings
-        </a>
-        <form method="post" action="{% url 'budget:logout' %}" href="{% url 'budget:login' %}">
-            {% csrf_token %}
-            <button type="submit">Wyloguj się</button>
-        </form>
+        <nav class="hidden md:flex items-center gap-8">
+            <a class="{% if request.path == '/budget/' %}text-blue-700 font-bold border-b-2 border-blue-700{% else %}text-slate-500 font-medium hover:text-blue-600{% endif %}" href="/budget/">Home</a>
+            <a class="{% if '/target' in request.path %}text-blue-700 font-bold border-b-2 border-blue-700{% else %}text-slate-500 font-medium hover:text-blue-600{% endif %}" href="/budget/target/list">Goals</a>
+            <a class="{% if '/account' in request.path %}text-blue-700 font-bold border-b-2 border-blue-700{% else %}text-slate-500 font-medium hover:text-blue-600{% endif %}" href="/budget/account/">Accounts</a>
+            <a class="{% if '/saving' in request.path %}text-blue-700 font-bold border-b-2 border-blue-700{% else %}text-slate-500 font-medium hover:text-blue-600{% endif %}" href="/budget/saving/">Savings</a>
+        </nav>
+        <div class="flex items-center gap-4">
+            <form method="post" action="{% url 'budget:logout' %}" class="inline">
+                {% csrf_token %}
+                <button type="submit" class="p-2 rounded-full hover:bg-red-50 text-slate-500 hover:text-red-600 transition-colors">
+                    <span class="material-symbols-outlined">logout</span>
+                </button>
+            </form>
+        </div>
     </div>
 </header>
-<div class="container mt-5">
-    <div class="d-flex justify-content-between align-items-center mb-4">
-        <h1>Your savings list</h1>
-        <a href="{% url 'budget:saving_add' %}" class="btn btn-outline-secondary">Add a new saving</a>
-    </div>
+
+<main class="max-w-7xl mx-auto px-6 py-8">
+    <header class="mb-10">
+        <span class="text-primary font-bold tracking-widest uppercase text-xs">Financial Assets</span>
+        <h1 class="text-4xl font-extrabold tracking-tight mt-1">Your savings list</h1>
+    </header>
 
     {% if savings %}
-        <div class="list-group">
-            {% for saving in savings %}
-            <div class="list-group-item list-group-item-action mb-2">
-                <h5>{{ saving.saving_name }}</h5>
-                <p><strong>Type:</strong> {{ saving.saving_type }}</p>
-                <p><strong>Amount:</strong> {{ saving.saving_balance }} PLN</p>
-                <p><strong>Interest rate:</strong> {{ saving.interest_rate }}%</p>
-                <a href="{% url 'budget:saving_detail' saving.pk %}" class="btn btn-primary btn-sm mt-2">Details</a>
+    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+        {% for saving in savings %}
+        <div class="bg-surface-container-lowest rounded-[2rem] p-8 border border-outline-variant/20 shadow-sm flex flex-col justify-between group hover:shadow-md transition-all">
+            <div class="space-y-6">
+                <div class="flex justify-between items-start">
+                    <div class="w-12 h-12 rounded-2xl bg-primary/10 flex items-center justify-center text-primary">
+                        <span class="material-symbols-outlined" style="font-size: 28px;">savings</span>
+                    </div>
+                    <div class="flex items-center space-x-1 bg-secondary-container px-3 py-1 rounded-full text-on-secondary-container">
+                        <span class="material-symbols-outlined text-[14px]" style="font-variation-settings: 'FILL' 1;">trending_up</span>
+                        <span class="text-[10px] font-bold uppercase tracking-widest">{{ saving.interest_rate }}% APY</span>
+                    </div>
+                </div>
+                <div>
+                    <p class="text-[10px] font-bold uppercase tracking-widest text-on-surface-variant mb-1">{{ saving.saving_type }}</p>
+                    <h3 class="text-xl font-bold text-on-surface">{{ saving.saving_name }}</h3>
+                </div>
+                <div class="pt-2">
+                    <div class="text-4xl font-extrabold tracking-tighter text-primary">{{ saving.saving_balance }}</div>
+                    <p class="text-[10px] font-bold text-primary/60 uppercase tracking-widest mt-1">Polish Zloty (PLN)</p>
+                </div>
             </div>
-            {% endfor %}
+            <div class="mt-8">
+                <a href="{% url 'budget:saving_detail' saving.pk %}" class="w-full py-4 bg-primary text-white font-bold rounded-2xl flex items-center justify-center space-x-2 transition-all hover:opacity-90 active:scale-[0.98]">
+                    <span>View Details</span>
+                    <span class="material-symbols-outlined !text-sm">arrow_forward_ios</span>
+                </a>
+            </div>
         </div>
+        {% endfor %}
+    </div>
     {% else %}
-        <p class="text-center">You don't have any savings yet.</p>
+    <div class="text-center py-20 bg-surface-container-low rounded-[2rem] border border-dashed border-outline-variant/30">
+        <span class="material-symbols-outlined text-outline-variant text-6xl mb-4">folder_open</span>
+        <p class="text-on-surface-variant font-bold">You don't have any savings yet.</p>
+    </div>
     {% endif %}
+</main>
 
+<div class="fixed bottom-10 right-10 z-[100]">
+    <a href="{% url 'budget:saving_add' %}"
+       class="fab-custom bg-primary text-white shadow-2xl border-4 border-white rounded-full">
+        <span class="material-symbols-outlined !text-4xl">add</span>
+        <span class="fab-text">Add saving</span>
+    </a>
 </div>
 
-<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
 </body>
 </html>
