@@ -3,7 +3,9 @@ from django.urls import reverse
 from django.utils import timezone
 from django.conf import settings
 from django.db.models import Sum, Q
+from decimal import Decimal
 from django.core.validators import MinValueValidator
+from django.core.exceptions import ValidationError
 
 
 class Category(models.Model):
@@ -95,12 +97,28 @@ class Transaction(models.Model):
     )
     category = models.ForeignKey(
         Category,
-        on_delete=models.CASCADE
+        on_delete=models.SET_NULL,
+        null=True,
+        blank=True
     )
     user = models.ForeignKey(
         settings.AUTH_USER_MODEL,
         on_delete=models.CASCADE
     )
+    target = models.ForeignKey(
+        'Target',
+        on_delete=models.SET_NULL,
+        null=True,
+        blank=True,
+        related_name='transactions'
+    )
+
+    def clean(self):
+        super().clean()
+        if self.type == 'OUT' and not self.category:
+            raise ValidationError({
+                'category': 'Category is mandatory for outcomes (expenses).'
+            })
 
     def save(self, *args, **kwargs):
         super().save(*args, **kwargs)
@@ -109,7 +127,8 @@ class Transaction(models.Model):
         super().delete(*args, **kwargs)
 
     def __str__(self):
-        return f"{self.get_type_display()}: {self.amount} PLN ({self.category.name if self.category else 'No Category'})"
+        category_name = self.category.name if self.category else 'No Category'
+        return f"{self.get_type_display()}: {self.amount} PLN ({category_name})"
 
 
 class SavingsAccount(models.Model):
@@ -151,7 +170,20 @@ class Target(models.Model):
     ]
     user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE)
     target_type = models.CharField(max_length=50, choices=TYPE_CREATE, default='')
-    target_balance = models.CharField(max_length=50)
+    target_name = models.CharField(max_length=100, blank=True, null=True)
+    target_balance = models.DecimalField(max_digits=12, decimal_places=2, default=0)
+    current_amount = models.DecimalField(max_digits=12, decimal_places=2, default=0)
+
+    @property
+    def progress_percentage(self):
+        from django.db.models import Sum
+        # Sumujemy tylko te transakcje, które są przypisane bezpośrednio do tego celu
+        total_collected = self.transactions.filter(type='IN').aggregate(Sum('amount'))['amount__sum'] or 0
+
+        target_val = self.target_balance or 0
+        if target_val > 0:
+            return min(int((total_collected / target_val) * 100), 100)
+        return 0
 
     def save(self, *args, **kwargs):
         super().save(*args, **kwargs)
@@ -160,4 +192,4 @@ class Target(models.Model):
         super().delete(*args, **kwargs)
 
     def __str__(self):
-        return f"{self.user}: {self.target_type}"
+        return f"{self.user}: {self.target_type} ({self.progress_percentage}%)"

@@ -140,7 +140,7 @@ class BankAccountUpdateForm(forms.ModelForm):
 class TransactionForm(forms.ModelForm):
     class Meta:
         model = Transaction
-        fields = ['amount', 'type', 'date', 'category', 'account', 'description']
+        fields = ['amount', 'type', 'date', 'category', 'account', 'description', 'target']
 
     def __init__(self, *args, **kwargs):
         user = kwargs.pop('user', None)
@@ -148,6 +148,9 @@ class TransactionForm(forms.ModelForm):
         if user:
             self.fields['category'].queryset = Category.objects.filter(user=user)
             self.fields['account'].queryset = BankAccount.objects.filter(user=user)
+            self.fields['target'].queryset = Target.objects.filter(user=user)
+
+            self.fields['target'].required = False
 
 
 class CategoryForm(forms.ModelForm):

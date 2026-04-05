@@ -1,321 +1,313 @@
 {% load static %}
 <!DOCTYPE html>
-<html lang="pl">
+<html class="light" lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Your Finances - Home Page</title>
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.0/font/bootstrap-icons.css">
+    <meta charset="utf-8"/>
+    <meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+    <title>F4 - Professional Dashboard</title>
+    <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&amp;display=swap" rel="stylesheet"/>
+    <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+    <script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    colors: {
+                        "primary": "#0059b9",
+                        "primary-container": "#0071e7",
+                        "on-primary-container": "#fefcff",
+                        "background": "#f8fafb",
+                        "surface": "#f8fafb",
+                        "on-surface": "#191c1d",
+                        "on-surface-variant": "#414754",
+                        "outline-variant": "#c1c6d7",
+                        "error": "#ba1a1a",
+                        "secondary-container": "#d5e3fc",
+                        "on-secondary-container": "#57657a",
+                        "surface-container-low": "#f2f4f5",
+                        "surface-container-lowest": "#ffffff",
+                        "surface-container-high": "#e6e8e9",
+                    },
+                    fontFamily: {
+                        "headline": ["Manrope", "sans-serif"],
+                        "body": ["Manrope", "sans-serif"],
+                    },
+                    borderRadius: {"3xl": "1.5rem"},
+                },
+            },
+        }
+    </script>
     <style>
-        table {
-            border-collapse: collapse;
-            width: 100%;
-        }
+        html { scrollbar-gutter: stable; }
+        .material-symbols-outlined { font-variation-settings: 'FILL' 0, 'wght' 300, 'GRAD' 0, 'opsz' 24; }
+        body { font-family: 'Manrope', sans-serif; }
 
-        th, td {
-            border: 1px solid #ddd;
-            padding: 8px;
-        }
-
-        th {
-            background-color: #f2f2f2;
-        }
-
-        .expbtn {
-            display: inline-block;
-            padding: 10px 16px;
-            background-color: #4CAF50;
-            color: white;
-            text-decoration: none;
-            border-radius: 4px;
-            font-weight: bold;
-        }
-
-        .expbtn:hover {
-            background-color: #45a049;
-        }
-
-        body {
-            background-color: #f8f9fa;
-        }
-
-        .card {
-            border: none;
-            border-radius: 15px;
-            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
-        }
-
-        .stat-card {
-            transition: transform 0.2s;
-        }
-
-        .stat-card:hover {
-            transform: translateY(-5px);
-        }
-
-        .icon-box {
-            width: 50px;
-            height: 50px;
-            border-radius: 12px;
+        .fab-custom {
+            transition: all 0.5s cubic-bezier(0.4, 0, 0.2, 1);
+            width: 64px;
+            height: 64px;
             display: flex;
             align-items: center;
             justify-content: center;
-            margin-bottom: 15px;
+            overflow: hidden;
+            white-space: nowrap;
+        }
+        .fab-custom:hover {
+            width: 210px;
+            border-radius: 32px;
+        }
+        .fab-text {
+            max-width: 0;
+            opacity: 0;
+            transition: all 0.4s ease;
+            font-weight: 800;
+            text-transform: uppercase;
+            letter-spacing: 0.1em;
+            font-size: 0.75rem;
+        }
+        .fab-custom:hover .fab-text {
+            max-width: 150px;
+            opacity: 1;
+            margin-left: 12px;
         }
     </style>
 </head>
-<body class="bg-light">
-<header class="bg-primary text-white py-3 mb-3">
-    <div class="container d-flex align-items-center justify-content-between">
-        <div class="d-flex align-items-center">
-            <a href="/">
+<body class="bg-background text-on-background min-h-screen pb-24 md:pb-0 pt-20">
+
+<header class="bg-surface/80 backdrop-blur-md fixed top-0 w-full z-50 shadow-sm border-b border-outline-variant/20">
+    <div class="flex justify-between items-center px-6 py-4 w-full max-w-7xl mx-auto">
+        <div class="flex items-center">
+            <a href="/" class="group transition-transform hover:scale-105">
                 <img src="https://as2.ftcdn.net/jpg/01/22/16/27/1000_F_122162798_q6ZxeeXBlJRjZJbnbyzjQbZ0ZRz4GW7w.jpg"
-                     alt="Logo" style="width:50px; height:50px; margin-right:15px;">
+                     alt="F4 Logo"
+                     class="w-12 h-12 rounded-xl shadow-sm object-cover">
             </a>
-            <h1 class="h4 m-0">F4</h1>
         </div>
-        <a href="/budget/"
-           class="btn btn-outline-light {% if request.path == '/budget/' %}active disabled{% endif %}">
-            Home
-        </a>
-        <a href="/budget/target/list"
-           class="btn btn-outline-light {% if '/target_list/' in request.path %}active disabled{% endif %}">
-            Goals
-        </a>
-        <a href="/budget/account/"
-           class="btn btn-outline-light {% if '/account/' in request.path %}active disabled{% endif %}">
-            Accounts
-        </a>
-        <a href="/budget/saving/"
-           class="btn btn-outline-light {% if '/saving_list/' in request.path %}active disabled{% endif %}">
-            Savings
-        </a>
-        <form method="post" action="{% url 'budget:logout' %}" href="{% url 'budget:login' %}">
-            {% csrf_token %}
-            <button type="submit">Wyloguj się</button>
-        </form>
+        <nav class="hidden md:flex items-center gap-8">
+            <a class="{% if request.path == '/budget/' %}text-blue-700 font-bold border-b-2 border-blue-700{% else %}text-slate-500 font-medium hover:text-blue-600{% endif %}" href="/budget/">Home</a>
+            <a class="{% if '/target' in request.path %}text-blue-700 font-bold border-b-2 border-blue-700{% else %}text-slate-500 font-medium hover:text-blue-600{% endif %}" href="/budget/target/list">Goals</a>
+            <a class="{% if '/account' in request.path %}text-blue-700 font-bold border-b-2 border-blue-700{% else %}text-slate-500 font-medium hover:text-blue-600{% endif %}" href="/budget/account/">Accounts</a>
+            <a class="{% if '/saving' in request.path %}text-blue-700 font-bold border-b-2 border-blue-700{% else %}text-slate-500 font-medium hover:text-blue-600{% endif %}" href="/budget/saving/">Savings</a>
+        </nav>
+        <div class="flex items-center gap-4">
+            <form method="post" action="{% url 'budget:logout' %}" class="inline">
+                {% csrf_token %}
+                <button type="submit" class="p-2 rounded-full hover:bg-red-50 text-slate-500 hover:text-red-600 transition-colors">
+                    <span class="material-symbols-outlined">logout</span>
+                </button>
+            </form>
+        </div>
     </div>
 </header>
-<div class="container mt-4">
-    <body class="container">
-    <h2 class="mb-4">Welcome to your budget!</h2>
 
-    <div class="row mb-4">
-        <div class="col-md-4">
-            <div class="card stat-card bg-primary text-white p-3 mb-3">
-                <div class="d-flex justify-content-between align-items-center">
-                    <div>
-                        <h6 class="text-uppercase small">Total transactions</h6>
-                        <h3>{{ total_transactions }} PLN</h3>
-                    </div>
-                    <i class="bi bi-cash-stack fs-1 opacity-50"></i>
+<main class="max-w-7xl mx-auto px-6 py-8">
+    <section class="mb-10">
+        <span class="text-primary font-bold tracking-widest uppercase text-xs">Overview Dashboard</span>
+        <h1 class="text-4xl font-extrabold tracking-tight mt-1">Welcome back!</h1>
+    </section>
+
+    <section class="grid grid-cols-1 md:grid-cols-4 lg:grid-cols-6 gap-6 mb-12">
+        <div class="md:col-span-2 lg:col-span-2 bg-primary-container rounded-3xl p-8 text-on-primary-container shadow-xl flex flex-col justify-between min-h-[180px]">
+            <div>
+                <span class="text-sm font-semibold opacity-80 uppercase tracking-wider">Total Transactions</span>
+                <div class="text-4xl font-extrabold mt-2 tracking-tight">{{ total_transactions }} PLN</div>
+            </div>
+            <div class="flex items-center gap-2 text-sm bg-white/10 w-fit px-3 py-1 rounded-full">
+                <span class="material-symbols-outlined text-xs">payments</span>
+                <span>{% with transactions|length as count %}{{ count }}{% endwith %} Recent Operations</span>
+            </div>
+        </div>
+
+        <div class="md:col-span-2 lg:col-span-2 bg-surface-container-lowest rounded-3xl p-8 shadow-sm flex flex-col justify-between min-h-[180px] border border-outline-variant/20">
+            <div>
+                <span class="text-sm font-bold text-on-surface-variant uppercase tracking-wider">Remaining Balance</span>
+                <div class="text-4xl font-extrabold text-on-surface mt-2">{{ total_balance }} PLN</div>
+            </div>
+            <div class="flex items-center justify-between">
+                <span class="text-xs font-bold text-primary">Live Balance</span>
+                <span class="material-symbols-outlined text-primary">account_balance</span>
+            </div>
+        </div>
+
+        <div class="lg:col-span-1 space-y-4">
+            <a href="{% url 'budget:account' %}" class="block h-1/2 bg-surface-container-low rounded-3xl p-6 border border-outline-variant/10 hover:shadow-md transition-shadow text-center">
+                <span class="material-symbols-outlined text-primary bg-primary/10 w-10 h-10 flex items-center justify-center rounded-2xl mx-auto mb-2">account_balance_wallet</span>
+                <div class="text-lg font-bold">{{ transaction_count }}</div>
+                <div class="text-[10px] font-bold text-on-surface-variant uppercase tracking-wider">Accounts</div>
+            </a>
+            <a href="{% url 'budget:saving_list' %}" class="block h-1/2 bg-surface-container-low rounded-3xl p-6 border border-outline-variant/10 hover:shadow-md transition-shadow text-center">
+                <span class="material-symbols-outlined text-primary bg-primary/10 w-10 h-10 flex items-center justify-center rounded-2xl mx-auto mb-2">savings</span>
+                <div class="text-lg font-bold">{{ total_savings }}</div>
+                <div class="text-[10px] font-bold text-on-surface-variant uppercase tracking-wider">Savings</div>
+            </a>
+        </div>
+
+        <div class="lg:col-span-1 space-y-4">
+            <a href="{% url 'budget:target_list' %}" class="block h-1/2 bg-surface-container-low rounded-3xl p-6 border border-outline-variant/10 hover:shadow-md transition-shadow text-center">
+                <span class="material-symbols-outlined text-primary bg-primary/10 w-10 h-10 flex items-center justify-center rounded-2xl mx-auto mb-2">emoji_events</span>
+                <div class="text-lg font-bold">{{ target }}</div>
+                <div class="text-[10px] font-bold text-on-surface-variant uppercase tracking-wider">Active Goals</div>
+            </a>
+            <a href="{% url 'budget:detail' %}" class="block h-1/2 bg-surface-container-low rounded-3xl p-6 border border-outline-variant/10 hover:shadow-md transition-shadow text-center">
+                <span class="material-symbols-outlined text-primary bg-primary/10 w-10 h-10 flex items-center justify-center rounded-2xl mx-auto mb-2">analytics</span>
+                <div class="text-lg font-bold">Info</div>
+                <div class="text-[10px] font-bold text-on-surface-variant uppercase tracking-wider">Details</div>
+            </a>
+        </div>
+    </section>
+
+    <div class="grid grid-cols-1 lg:grid-cols-3 gap-10">
+        <div class="lg:col-span-2 space-y-6">
+            <div class="flex justify-between items-end">
+                <h2 class="text-2xl font-bold tracking-tight">Recent Transactions</h2>
+                <a href="/budget/transactions/" class="text-primary font-bold text-xs uppercase tracking-widest hover:underline">See All</a>
+            </div>
+
+            <div class="bg-surface-container-low rounded-3xl overflow-hidden border border-outline-variant/10">
+                <div class="overflow-x-auto">
+                    <table class="w-full text-left border-collapse">
+                        <thead>
+                            <tr class="text-on-surface-variant text-[10px] font-extrabold uppercase tracking-[0.15em]">
+                                <th class="px-8 py-6">Date</th>
+                                <th class="px-6 py-6">Category</th>
+                                <th class="px-6 py-6">Description</th>
+                                <th class="px-8 py-6 text-right">Amount</th>
+                            </tr>
+                        </thead>
+                        <tbody class="text-sm font-medium">
+                            {% for transaction in transactions %}
+                            <tr class="bg-surface-container-lowest hover:bg-surface-container-high/50 transition-colors border-b border-outline-variant/5">
+                                <td class="px-8 py-5 text-on-surface-variant">{{ transaction.date|date:"Y-m-d H:i" }}</td>
+                                <td class="px-6 py-5">
+                                    <span class="bg-secondary-container text-on-secondary-container px-3 py-1 rounded-full text-xs font-bold">
+                                        {{ transaction.category.name }}
+                                    </span>
+                                </td>
+                                <td class="px-6 py-5 text-on-surface font-semibold">{{ transaction.description|default:"No description" }}</td>
+                                <td class="px-8 py-5 text-right font-extrabold {% if transaction.type == 'OUT' %}text-error{% else %}text-green-600{% endif %}">
+                                    {% if transaction.type == 'OUT' %}-{% else %}+{% endif %}{{ transaction.amount }} PLN
+                                </td>
+                            </tr>
+                            {% empty %}
+                            <tr>
+                                <td colspan="4" class="px-8 py-10 text-center text-slate-500 italic">You don't have any transactions yet.</td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+            <div class="mt-10">
+                <h2 class="text-2xl font-bold tracking-tight mb-6">Expense Statistics</h2>
+                <div class="bg-surface-container-lowest rounded-3xl p-8 border border-outline-variant/20 shadow-sm min-h-[300px]">
+                    <canvas id="transactionsChart"></canvas>
                 </div>
             </div>
         </div>
-        <div class="col-md-4">
-            <div class="card stat-card bg-success text-white p-3 mb-3">
-                <div class="d-flex justify-content-between align-items-center">
-                    <div>
-                        <h6 class="text-uppercase small">Remaining</h6>
-                        <h3>{{ total_balance }} PLN</h3>
-                    </div>
-                    <i class="bi bi-piggy-bank fs-1 opacity-50"></i>
+
+        <div class="space-y-10">
+            <section>
+                <div class="flex justify-between items-center mb-6">
+                    <h2 class="text-xl font-bold tracking-tight">Categories</h2>
+                    <a href="{% url 'budget:category_add' %}" class="text-primary font-bold text-xs uppercase tracking-widest hover:underline">Add Category</a>
                 </div>
-            </div>
-        </div>
-        <div class="col-md-4">
-            <div class="card stat-card bg-warning text-dark mb-3" style="cursor: pointer;">
-                <a href="{% url 'budget:account' %}" class="text-decoration-none text-dark d-block p-3">
-                    <div class="d-flex justify-content-between align-items-center">
-                        <div>
-                            <h6 class="text-uppercase small mb-2">Accounts</h6>
-                            <div class="d-flex align-items-center">
-                                <i class="bi bi-bank fs-5 me-2"></i>
-                                <span class="fw-bold">Manage: {{ transaction_count }}</span>
-                            </div>
+                <div class="bg-surface-container-low rounded-3xl p-4 border border-outline-variant/10">
+                    <div class="divide-y divide-outline-variant/10">
+                        {% for category in categories %}
+                        <div class="flex items-center gap-4 py-3">
+                            <span class="material-symbols-outlined text-primary bg-primary/10 p-2 rounded-xl">label_important</span>
+                            <span class="font-bold text-sm text-on-surface">{{ category.name }}</span>
                         </div>
-                        <i class="bi bi-arrow-left-right fs-1 opacity-50"></i>
+                        {% empty %}
+                        <div class="py-3 text-sm text-on-surface-variant italic text-center">No categories</div>
+                        {% endfor %}
                     </div>
-                </a>
-            </div>
-        </div>
-        <div class="col-md-4">
-            <div class="card stat-card bg-info text-dark mb-3" style="cursor: pointer;">
-                <a href="{% url 'budget:saving_list' %}" class="text-decoration-none text-dark d-block p-3">
-                    <div class="d-flex justify-content-between align-items-center">
-                        <div>
-                            <h6 class="text-uppercase small">Savings</h6>
-                            <div class="mt-2 d-flex align-items-center gap-1">
-                                <i class="bi bi-currency-dollar fs-4"></i>
-                                <span class="small fw-bold">Amount of savings: {{ total_savings }}</span>
-                            </div>
-                        </div>
-                        <i class="bi bi-wallet fs-1 opacity-50"></i>
-                    </div>
-                </a>
-            </div>
-        </div>
+                </div>
+            </section>
 
-        <div class="col-md-4">
-            <div class="card stat-card bg-danger text-dark mb-3" style="cursor: pointer;">
-                <a href="{% url 'budget:target_list' %}" class="text-decoration-none text-dark d-block p-3">
-                    <div class="d-flex justify-content-between align-items-center">
-                        <div>
-                            <h6 class="text-uppercase small">Goals</h6>
-                            <div class="mt-2 d-flex align-items-center gap-1">
-                                <i class="bi bi-bullseye fs-4"></i>
-                                <span class="small fw-bold">Number of goals: {{ target }}</span>
-                            </div>
-                        </div>
-                        <i class="bi bi-bookmark-check-fill fs-1 opacity-50"></i>
-                    </div>
-                </a>
-            </div>
-        </div>
-        <div class="col-md-4">
+            <div class="bg-primary-container/5 rounded-3xl p-8 border border-primary/10 relative overflow-hidden group">
+                <div class="absolute -right-4 -top-4 w-20 h-20 bg-primary/5 rounded-full blur-2xl"></div>
 
-            <div class="card stat-card bg-secondary text-dark mb-3" style="cursor: pointer;">
-                <a href="{% url 'budget:detail' %}" class="text-decoration-none text-dark d-block p-3">
-                    <div class="d-flex justify-content-between align-items-center">
-                        <div>
-                            <h6 class="text-uppercase small">Details</h6>
-                            <div class="mt-2 d-flex align-items-center gap-1">
-                                <i class="bi bi-list fs-4"></i>
-                            </div>
+                <h3 class="font-bold text-lg mb-2 text-primary flex items-center gap-2">
+                    <span class="material-symbols-outlined text-sm">auto_awesome</span>
+                    Reach your goals
+                </h3>
+                <p class="text-xs text-on-surface-variant leading-relaxed mb-6">
+                    Your spending patterns are being monitored. Adjust your budget daily to maximize your savings potential.
+                </p>
+
+                <div class="flex items-center justify-between bg-white/50 backdrop-blur-sm p-4 rounded-2xl border border-white shadow-sm">
+                    <div class="flex items-center gap-3">
+                        <span class="relative flex h-3 w-3">
+                            <span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-green-400 opacity-75"></span>
+                            <span class="relative inline-flex rounded-full h-3 w-3 bg-green-500"></span>
+                        </span>
+                        <div class="flex flex-col">
+                            <span class="text-[10px] font-black uppercase tracking-[0.1em] text-primary">Budget Analysis</span>
+                            <span class="text-[11px] font-bold text-green-700">Live & Synced</span>
                         </div>
-                        <i class="bi bi-info-lg fs-1 opacity-50"></i>
                     </div>
-                </a>
+                    <span class="material-symbols-outlined text-green-600 text-sm">check_circle</span>
+                </div>
             </div>
         </div>
     </div>
-    <div class="row">
+</main>
 
-        <!-- KATEGORIE -->
-{#        <div class="col-lg-3 mb-4">#}
-{#            <div class="card p-4 h-100">#}
-{#                <h5 class="card-title mb-4">Categories</h5>#}
-{#                <a href="{% url 'budget:category_add' %}"#}
-{#                   class="expbtn position-relative"#}
-{#                   style="top: 6px;">#}
-{##}
-{#                    Add category#}
-{#                </a>#}
-{##}
-{#                <div class="list-group list-group-flush mt-3">#}
-{#                    {% for category in categories %}#}
-{#                        <div class="list-group-item mb-1">#}
-                            {#                    {{ category.name }}#}
-{##}
-{#                        </div>#}
-{#                        {% empty %}#}
-{#                        <div class="list-group-item text-muted">#}
-{#                            No category#}
-{#                        </div>#}
-{#                    {% endfor %}#}
-{#                </div>#}
-{##}
-{##}
-{#            </div>#}
-{#        </div>#}
-
-        <!-- OSTATNIE WYDATKI -->
-        <div class="col-lg-15 mb-4">
-            <div class="card p-4 h-100">
-
-                <div class="d-flex justify-content-between align-items-center mb-4">
-                    <h5 class="card-title mb-0">Recent transactions</h5>
-                    <a href="/budget/transactions/" class="btn btn-sm btn-primary">See all</a>
-                </div>
-
-                <a href="{% url 'budget:transaction_add' %}" class="expbtn mb-3">
-                    Add transaction
-                </a>
-
-                <div class="table-responsive">
-                    {% if transactions %}
-                        <table class="table table-hover align-middle">
-                            <thead class="table-light">
-                            <tr>
-                                <th>
-                                    Data
-                                </th>
-                                <th>
-                                    Kwota
-                                </th>
-                                <th>
-                                    Kategoria
-                                </th>
-                                <th>Opis</th>
-                            </tr>
-                            </thead>
-                            <tbody>
-                            {% for transaction in transactions %}
-                                <tr>
-                                    <td>{{ transaction.date|date:"Y-m-d H:i" }}</td>
-                                    <td class="fw-bold {% if transaction.type == 'OUT' %}text-danger{% else %}text-success{% endif %}">
-                                        {% if transaction.type == 'OUT' %}-{% else %}+{% endif %}{{ transaction.amount }} PLN
-                                    </td>
-                                    <td>{{ transaction.category.name }}</td>
-                                    <td>{{ transaction.description|default:"No description" }}</td>
-                                </tr>
-                            {% endfor %}
-                            </tbody>
-                        </table>
-                    {% else %}
-                        <p class="text-muted">You don't have any transactions yet.</p>
-                    {% endif %}
-                </div>
-
-            </div>
-        </div>
-
-        {% block content %}
-            <div class="container mt-5">
-                <h2 class="text-center mb-4">Your transaction Statistics</h2>
-                <div class="row justify-content-center">
-                    <div class="col-md-8">
-                        <div class="card shadow p-4">
-                            <canvas id="transactionsChart"></canvas>
-                        </div>
-                    </div>
-                </div>
-            </div>
-            </div>
-            <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-            <script>
-                const ctx = document.getElementById('transactionsChart').getContext('2d');
-
-
-                const labels = {{ labels | safe }};
-                const values = {{ values | safe }};
-
-                new Chart(ctx, {
-                    type: 'bar',
-                    data: {
-                        labels: labels,
-                        datasets: [{
-                            label: 'Total transactions (PLN)',
-                            data: values,
-                            backgroundColor: [
-                                'rgba(54, 162, 235, 0.6)',
-                                'rgba(255, 99, 132, 0.6)',
-                                'rgba(75, 192, 192, 0.6)',
-                                'rgba(255, 206, 86, 0.6)',
-                                'rgba(153, 102, 255, 0.6)'
-                            ],
-                            borderWidth: 1
-                        }]
-                    },
-                    options: {
-                        responsive: true,
-                        scales: {
-                            y: {beginAtZero: true}
-                        }
-                    }
-                });
-            </script>
-        {% endblock %}
+<div class="fixed bottom-10 right-10 z-[100]">
+    <a href="{% url 'budget:transaction_add' %}"
+       class="fab-custom bg-primary text-white shadow-2xl border-4 border-white rounded-full">
+        <span class="material-symbols-outlined !text-4xl">add</span>
+        <span class="fab-text">Add transaction</span>
+    </a>
 </div>
+
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script>
+    const ctx = document.getElementById('transactionsChart').getContext('2d');
+    const labels = {{ labels | safe }};
+    const values = {{ values | safe }};
+
+    new Chart(ctx, {
+        type: 'bar',
+        data: {
+            labels: labels,
+            datasets: [{
+                label: 'Total transactions (PLN)',
+                data: values,
+                backgroundColor: [
+                    '#0059b9', '#00875a', '#6e5dc6', '#00a3bf', '#475569'
+                ],
+                borderColor: [
+                    '#0059b9', '#00875a', '#6e5dc6', '#00a3bf', '#475569'
+                ],
+                borderWidth: 1,
+                borderRadius: 8,
+                borderSkipped: false,
+            }]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            plugins: {
+                legend: { display: false }
+            },
+            scales: {
+                y: {
+                    beginAtZero: true,
+                    grid: { display: false },
+                    ticks: { font: { family: 'Manrope', weight: '600' } }
+                },
+                x: {
+                    grid: { display: false },
+                    ticks: { font: { family: 'Manrope', weight: '600' } }
+                }
+            }
+        }
+    });
+</script>
+
 </body>
+</html>

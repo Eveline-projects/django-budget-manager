@@ -1,5 +1,8 @@
 from django.shortcuts import redirect
+from django.db.models import Avg
 from django.db import transaction
+from django.utils import timezone
+from datetime import timedelta
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.contrib.auth import login, logout
 from django.contrib.auth.forms import AuthenticationForm
@@ -32,12 +35,6 @@ from .forms import (
 )
 import json
 
-class IndexView(TemplateView):
-    template_name = 'index.html'
-    def get(self, request, *args, **kwargs):
-        if request.user.is_authenticated:
-            return redirect('budget:expense')
-        return super().get(request, *args, **kwargs)
 
 class IndexView(TemplateView):
     template_name = 'index.html'
@@ -82,15 +79,32 @@ class TransactionListView(LoginRequiredMixin, ListView):
     paginate_by = 10
 
     def get_queryset(self):
+        # Pobieramy bazowy queryset dla danego użytkownika
+        queryset = Transaction.objects.filter(user=self.request.user)
+
+        # 1. Filtrowanie po czasie (np. przycisk "Last 30 days")
+        days = self.request.GET.get('days')
+        if days and days.isdigit():
+            start_date = timezone.now() - timedelta(days=int(days))
+            queryset = queryset.filter(date__gte=start_date)
+
+        # 2. Filtrowanie po konkretnym koncie (dla przycisku "History" z widoku kont)
+        account_id = self.request.GET.get('account')
+        if account_id:
+            queryset = queryset.filter(account_id=account_id)
+
+        # 3. Obsługa sortowania
         sort_by = self.request.GET.get('sort', '-date')
-        columns = [
+        allowed_columns = [
             'amount', '-amount',
             'date', '-date',
             'category__name', '-category__name'
         ]
-        if sort_by not in columns:
+
+        if sort_by not in allowed_columns:
             sort_by = '-date'
-        return Transaction.objects.filter(user=self.request.user).order_by(sort_by)
+
+        return queryset.order_by(sort_by)
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
@@ -279,6 +293,11 @@ class TransactionCreateView(LoginRequiredMixin, CreateView):
         kwargs['user'] = self.request.user
         return kwargs
 
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context['targets'] = Target.objects.filter(user=self.request.user)
+        return context
+
     def form_valid(self, form):
         form.instance.user = self.request.user
         return super().form_valid(form)
@@ -345,7 +364,7 @@ class SavingListView(LoginRequiredMixin, ListView):
 
 class TargetCreateView(LoginRequiredMixin, CreateView):
     model = Target
-    fields = ['target_type', 'target_balance']
+    fields = [ 'target_type', 'target_balance']
     template_name = 'budget/target.html'
     success_url = reverse_lazy('budget:target_list')
 
@@ -373,11 +392,18 @@ class DetailView(TransactionListView):
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-        stats_query = Transaction.objects.filter(user=self.request.user, type='OUT') \
-            .values('category__name') \
-            .annotate(total=Sum('amount')) \
-            .order_by('-total')
+        user_trans = Transaction.objects.filter(user=self.request.user, type='OUT')
 
-        context['labels'] = json.dumps([item['category__name'] for item in stats_query])
-        context['values'] = json.dumps([float(item['total']) for item in stats_query])
+        # 1. Największe wydatki (Top 3)
+        context['top_expenses'] = user_trans.order_by('-amount')[:3]
+
+        # 2. Średnia wartość transakcji
+        avg = user_trans.aggregate(Avg('amount'))['amount__avg'] or 0
+        context['avg_expense'] = round(avg, 2)
+
+        # 3. Dane do wykresu kołowego (zmieniamy format dla różnorodności)
+        stats_query = user_trans.values('category__name').annotate(total=Sum('amount'))
+        context['pie_labels'] = json.dumps([item['category__name'] for item in stats_query])
+        context['pie_values'] = json.dumps([float(item['total']) for item in stats_query])
+
         return context
