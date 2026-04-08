@@ -23,6 +23,8 @@ urlpatterns = [
     path('target/', TargetCreateView.as_view(), name='target'),
     path('target/list/', TargetListView.as_view(), name='target_list'),
     path('detail/', views.DetailView.as_view(), name='detail'),
+    path('registration-pending/', views.RegistrationPendingView.as_view(), name='registration_pending'),
+    path('activate/<uidb64>/<token>/', views.ActivateAccountView.as_view(), name='activate'),
 
 
 ]

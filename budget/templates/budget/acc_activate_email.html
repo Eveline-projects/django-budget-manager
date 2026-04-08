@@ -1,0 +1,6 @@
+Cześć {{ user.username }}!
+Dziękujemy za założenie konta.
+
+Aby aktywować konto i zacząć planować budżet, kliknij w poniższy link:
+
+http://{{ domain }}{% url 'budget:activate' uidb64=uid token=token %}
