@@ -1,6 +1,6 @@
 from django.urls import path
 from . import views
-from .views import SavingCreateView, SavingDetailView, SavingListView, TargetCreateView, TargetListView
+from .views import SavingCreateView, SavingDetailView, SavingListView, TargetCreateView, TargetListView, GeneratePDFView
 
 app_name = 'budget'
 
@@ -25,6 +25,8 @@ urlpatterns = [
     path('detail/', views.DetailView.as_view(), name='detail'),
     path('registration-pending/', views.RegistrationPendingView.as_view(), name='registration_pending'),
     path('activate/<uidb64>/<token>/', views.ActivateAccountView.as_view(), name='activate'),
-
-
+    path("download-pdf/", GeneratePDFView.as_view(), name="download_pdf"),
 ]
+
+
+

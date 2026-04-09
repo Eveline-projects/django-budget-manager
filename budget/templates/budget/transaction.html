@@ -161,6 +161,10 @@
         <div class="lg:col-span-2 space-y-6">
             <div class="flex justify-between items-end">
                 <h2 class="text-2xl font-bold tracking-tight">Recent Transactions</h2>
+                <a href="{% url 'budget:download_pdf' %}"
+   class="text-primary font-bold text-xs uppercase tracking-widest hover:underline">
+   Download PDF
+</a>
                 <a href="/budget/transactions/" class="text-primary font-bold text-xs uppercase tracking-widest hover:underline">See All</a>
             </div>
 

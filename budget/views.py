@@ -40,6 +40,13 @@ from .forms import (
 from django.contrib.auth import get_user_model
 import json
 from .tokens import acc_activation_token
+from django.views import View
+from django.views import View
+from django.http import HttpResponse
+from reportlab.platypus import SimpleDocTemplate, Table, TableStyle
+from reportlab.lib import colors
+from io import BytesIO
+from .models import Transaction
 
 User = get_user_model()
 
@@ -443,3 +450,35 @@ class DetailView(TransactionListView):
         context['pie_values'] = json.dumps([float(item['total']) for item in stats_query])
 
         return context
+
+
+#pdf
+
+class GeneratePDFView(View):
+    def get(self, request):
+        buffer = BytesIO()
+        doc = SimpleDocTemplate(buffer)
+        # dane z bazy
+        transactions = Transaction.objects.all()
+        data = [["Data","Kategoria", "Opis", "Kwota"]]
+        for t in transactions:
+            data.append([
+                str(t.date.strftime("%Y-%m-%d %H:%M")),
+                str(t.category),
+                t.description,
+                str(t.amount)
+            ])
+        table = Table(data)
+        table.setStyle(TableStyle([
+            ("BACKGROUND", (0, 0), (-1, 0), colors.skyblue),
+            ("GRID", (0, 0), (-1, -1), 1, colors.black),
+        ]))
+        doc.build([table])
+        buffer.seek(0)
+        return HttpResponse(
+            buffer,
+            content_type="application/pdf",
+            headers={
+                "Content-Disposition": "attachment; filename=transactions.pdf"
+            }
+        )
