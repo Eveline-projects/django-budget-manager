@@ -45,6 +45,13 @@ INSTALLED_APPS = [
     'crispy_bootstrap5',
 ]
 
+EMAIL_HOST = 'sandbox.smtp.mailtrap.io'
+EMAIL_HOST_USER = os.getenv('EMAIL_HOST_USER')
+EMAIL_HOST_PASSWORD = os.getenv('EMAIL_HOST_PASSWORD')
+EMAIL_PORT = '2525'
+
+DEFAULT_FROM_EMAIL = 'Home Budget <noreply@homebudget.pl>'
+
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
