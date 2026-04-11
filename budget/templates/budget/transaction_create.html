@@ -86,11 +86,14 @@
                     <div class="relative">
                         <span class="material-symbols-outlined absolute left-4 top-1/2 -translate-y-1/2 text-primary">emoji_events</span>
                         <select name="target" class="w-full pl-12 pr-10 py-3.5 bg-blue-50 dark:bg-slate-800 border-none rounded-xl text-base font-medium appearance-none focus:ring-0">
-                            <option value="">No specific goal</option>
-                            {% for target in targets %}
-                            <option value="{{ target.id }}">{{ target.target_name }}</option>
-                            {% endfor %}
-                        </select>
+    <option value="">No specific goal</option>
+
+    {% for t in targets %}
+        <option value="{{ t.id }}">
+            {% if t.target_name %}{{ t.target_name }}{% else %}{{ t.get_target_type_display }}{% endif %}
+        </option>
+    {% endfor %}
+</select>
                     </div>
                 </div>
 

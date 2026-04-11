@@ -41,13 +41,10 @@ from .forms import (
 from django.contrib.auth import get_user_model
 import json
 from .tokens import acc_activation_token
-from django.views import View
-from django.views import View
 from django.http import HttpResponse
 from reportlab.platypus import SimpleDocTemplate, Table, TableStyle
 from reportlab.lib import colors
 from io import BytesIO
-from .models import Transaction
 
 User = get_user_model()
 
@@ -351,8 +348,13 @@ class TransactionCreateView(LoginRequiredMixin, CreateView):
         return context
 
     def form_valid(self, form):
+        target_id = self.request.POST.get('target')
+        if target_id:
+            try:
+                form.instance.target_id = target_id
+            except Exception as e:
+                print(f"Błąd przypisania celu: {e}")
         form.instance.user = self.request.user
-        form.instance.type = 'OUT'
         return super().form_valid(form)
 
 
