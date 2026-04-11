@@ -261,7 +261,14 @@ class BankAccountUpdateView(LoginRequiredMixin, UpdateView):
 
     def get_initial(self):
         initial = super().get_initial()
-        initial['initial_balance'] = self.get_object().total_balance
+        account = self.get_object()
+
+        starting_transaction = Transaction.objects.filter(
+            account=account,
+            description='Starting balance'
+        ).first()
+
+        initial['initial_balance'] = starting_transaction.amount if starting_transaction else 0
         return initial
 
     def form_valid(self, form):
