@@ -53,7 +53,7 @@
                     <span class="text-[11px] text-on-surface-variant font-bold uppercase tracking-[0.12em]">Opening Balance</span>
                     <div class="flex items-center justify-center w-full">
                         <span class="text-[2rem] font-bold text-primary mr-2">PLN</span>
-                        <input name="balance" class="text-[3rem] font-bold text-on-surface bg-transparent border-none p-0 w-full max-w-[180px] text-center focus:ring-0 placeholder:text-on-surface-variant/20 leading-none"
+                        <input name="saving_balance" class="text-[3rem] font-bold text-on-surface bg-transparent border-none p-0 w-full max-w-[180px] text-center focus:ring-0 placeholder:text-on-surface-variant/20 leading-none"
                                placeholder="0.00" step="0.01" type="number" required/>
                     </div>
                 </div>
@@ -62,14 +62,14 @@
 
                     <div class="flex flex-col gap-1.5">
                         <label class="text-[11px] text-on-surface-variant font-bold uppercase tracking-[0.12em] px-1">Account Name</label>
-                        <input name="name" class="w-full bg-[#f2f2f7] border-none rounded-2xl py-4 px-5 focus:ring-1 focus:ring-primary/20 focus:bg-white transition-all text-on-surface font-semibold text-[15px] placeholder:text-on-surface-variant/50"
+                        <input name="saving_name" class="w-full bg-[#f2f2f7] border-none rounded-2xl py-4 px-5 focus:ring-1 focus:ring-primary/20 focus:bg-white transition-all text-on-surface font-semibold text-[15px] placeholder:text-on-surface-variant/50"
                                placeholder="e.g. My Savings" type="text" required/>
                     </div>
 
                     <div class="flex flex-col gap-1.5">
                         <label class="text-[11px] text-on-surface-variant font-bold uppercase tracking-[0.12em] px-1">Account Type</label>
                         <div class="relative group">
-                            <select name="type" class="w-full bg-[#f2f2f7] border-none rounded-2xl py-4 px-5 pr-12 appearance-none focus:ring-1 focus:ring-primary/20 focus:bg-white transition-all text-on-surface font-semibold text-[15px] cursor-pointer">
+                            <select name="saving_type" class="w-full bg-[#f2f2f7] border-none rounded-2xl py-4 px-5 pr-12 appearance-none focus:ring-1 focus:ring-primary/20 focus:bg-white transition-all text-on-surface font-semibold text-[15px] cursor-pointer">
                                 <option value="DEPOSITS">DEPOSITS</option>
                                 <option value="FUNDS">FUNDS</option>
                                 <option value="RETIREMENT">RETIREMENT</option>
