@@ -126,15 +126,15 @@ class BankAccountUpdateForm(forms.ModelForm):
             )
         return name
 
-        def clean(self):
+    def clean(self):
 
-            cleaned_data = super().clean()
-            parent = cleaned_data.get('parent')
+        cleaned_data = super().clean()
+        parent = cleaned_data.get('parent')
 
-            if parent and self.instance.pk and parent.pk == self.instance.pk:
-                self.add_error('parent', "An account cannot be its own parent!")
+        if parent and self.instance.pk and parent.pk == self.instance.pk:
+            self.add_error('parent', "An account cannot be its own parent!")
 
-            return cleaned_data
+        return cleaned_data
 
 
 class TransactionForm(forms.ModelForm):
@@ -145,6 +145,10 @@ class TransactionForm(forms.ModelForm):
     def __init__(self, *args, **kwargs):
         user = kwargs.pop('user', None)
         super().__init__(*args, **kwargs)
+
+        for field in self.fields.values():
+            field.widget.attrs.update({'class': 'form-control'})
+
         if user:
             self.fields['category'].queryset = Category.objects.filter(user=user)
             self.fields['account'].queryset = BankAccount.objects.filter(user=user)
@@ -202,4 +206,9 @@ class SavingAccountForm(forms.ModelForm):
 class TargetForm(forms.ModelForm):
     class Meta:
         model = Target
-        fields = ['target_type', 'target_balance']
+        fields = ['target_type', 'target_name', 'target_balance']
+
+        def __init__(self, *args, **kwargs):
+            super().__init__(*args, **kwargs)
+            for field in self.fields.values():
+                field.widget.attrs.update({'class': 'form-control'})

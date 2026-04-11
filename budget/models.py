@@ -60,9 +60,11 @@ class BankAccount(models.Model):
             incomes=Sum('amount', filter=Q(type='IN')),
             outcomes=Sum('amount', filter=Q(type='OUT')),
         )
-        my_current_balance = (self.initial_balance + (agg['incomes'] or 0)) - (agg['outcomes'] or 0)
-        children_balance = sum(child.total_balance for child in self.children.all())
-        return my_current_balance + children_balance
+
+        incomes = agg['incomes'] or Decimal('0.00')
+        outcomes = agg['outcomes'] or Decimal('0.00')
+
+        return incomes - outcomes
 
     def __str__(self):
         return f"{self.name_account} - Balance: {self.total_balance}"
