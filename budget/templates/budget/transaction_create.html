@@ -5,9 +5,9 @@
     <meta charset="utf-8"/>
     <meta content="width=device-width, initial-scale=1.0" name="viewport"/>
     <title>Add Transaction - F4 Wallets</title>
-    <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
-    <link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700&amp;display=swap" rel="stylesheet"/>
-    <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+    <script src="https://cdn.tailwindcss.com?plugins=forms"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700&display=swap" rel="stylesheet"/>
+    <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap" rel="stylesheet"/>
     <script id="tailwind-config">
         tailwind.config = {
             darkMode: "class",
@@ -19,7 +19,6 @@
                         "background-dark": "#0f1923",
                     },
                     fontFamily: {"display": ["Manrope"]},
-                    borderRadius: {"DEFAULT": "0.25rem", "lg": "0.5rem", "xl": "0.75rem", "full": "9999px"},
                 },
             },
         }
@@ -33,116 +32,117 @@
             background-repeat: no-repeat;
             background-size: 1.5em 1.5em;
         }
-        body { min-height: 100dvh; }
+        html, body { height: 100%; overflow: hidden; margin: 0; }
+
+        /* KLUCZOWA POPRAWKA: outline-offset -2px sprawia, że ramka wchodzi do środka i nie jest ucinana */
+        input:focus, select:focus, textarea:focus {
+            outline: 2px solid #067bf9 !important;
+            outline-offset: -2px !important;
+            box-shadow: none !important;
+        }
     </style>
 </head>
 <body class="bg-background-light dark:bg-background-dark font-display antialiased text-slate-900 dark:text-slate-100">
 
-<form method="POST" id="transaction-form" class="max-w-[430px] mx-auto min-h-screen flex flex-col relative bg-background-light dark:bg-background-dark" onsubmit="syncDateTime()">
+<form method="POST" id="transaction-form" class="max-w-[430px] mx-auto h-full flex flex-col" onsubmit="syncDateTime()">
     {% csrf_token %}
     <input type="hidden" name="date" id="final_date">
 
-    <header class="sticky top-0 z-10 bg-background-light/80 dark:bg-background-dark/80 backdrop-blur-md px-4 py-4 flex items-center justify-between">
+    <header class="px-4 py-4 flex items-center justify-between flex-shrink-0">
         <a href="{% url 'budget:transaction' %}" class="flex items-center justify-center size-10 rounded-full hover:bg-slate-200 dark:hover:bg-slate-800 transition-colors">
-            <span class="material-symbols-outlined text-slate-600 dark:text-slate-400">close</span>
+            <span class="material-symbols-outlined text-slate-600">close</span>
         </a>
         <h1 class="text-lg font-bold tracking-tight">Add Transaction</h1>
         <div class="size-10"></div>
     </header>
 
-    <main class="flex-1 px-4 py-2 space-y-6">
-        <div class="flex p-1 bg-slate-200 dark:bg-slate-800 rounded-xl">
+    <main class="flex-1 px-4 pb-4 flex flex-col min-h-0">
+
+        <div class="flex p-1 bg-slate-200 dark:bg-slate-800 rounded-xl mb-4 flex-shrink-0">
             <label class="flex-1 cursor-pointer">
                 <input type="radio" name="type" value="OUT" class="sr-only peer" checked>
-                <div class="py-2 text-sm font-semibold rounded-lg text-center text-slate-500 dark:text-slate-400 peer-checked:bg-white dark:peer-checked:bg-slate-700 peer-checked:text-slate-900 dark:peer-checked:text-white transition-all shadow-sm">
-                    Outcome
-                </div>
+                <div class="py-2 text-sm font-semibold rounded-lg text-center text-slate-500 peer-checked:bg-white peer-checked:text-slate-900 transition-all shadow-sm">Outcome</div>
             </label>
             <label class="flex-1 cursor-pointer">
                 <input type="radio" name="type" value="IN" class="sr-only peer">
-                <div class="py-2 text-sm font-semibold rounded-lg text-center text-slate-500 dark:text-slate-400 peer-checked:bg-white dark:peer-checked:bg-slate-700 peer-checked:text-slate-900 dark:peer-checked:text-white transition-all shadow-sm">
-                    Income
-                </div>
+                <div class="py-2 text-sm font-semibold rounded-lg text-center text-slate-500 peer-checked:bg-white peer-checked:text-slate-900 transition-all shadow-sm">Income</div>
             </label>
         </div>
 
-        <div class="bg-white dark:bg-slate-900 rounded-2xl p-5 ios-shadow space-y-5 border border-slate-100 dark:border-slate-800">
-            <div class="space-y-2">
-                <label class="text-xs font-bold uppercase tracking-wider text-slate-400 dark:text-slate-500 ml-1">Amount</label>
-                <div class="relative flex items-center">
-                    <span class="absolute left-4 text-2xl font-bold text-slate-400">PLN</span>
-                    <input name="amount" type="number" step="0.01" class="w-full pl-16 pr-4 py-4 bg-slate-50 dark:bg-slate-800 border-none rounded-xl text-3xl font-bold focus:ring-2 focus:ring-primary/20 placeholder:text-slate-300 dark:placeholder:text-slate-600" placeholder="0.00" required/>
-                </div>
-            </div>
+        <div class="bg-white dark:bg-slate-900 rounded-2xl p-5 ios-shadow border border-slate-100 dark:border-slate-800 flex-1 flex flex-col justify-between min-h-0">
 
-            <div id="target-section" class="space-y-2 transition-all">
-                <label class="text-xs font-bold uppercase tracking-wider text-primary ml-1">Assign to Goal</label>
-                <div class="relative">
-                    <span class="material-symbols-outlined absolute left-4 top-1/2 -translate-y-1/2 text-primary">emoji_events</span>
-                    <select name="target" class="w-full pl-12 pr-10 py-3.5 bg-blue-50 dark:bg-slate-800 border-none rounded-xl text-base font-medium focus:ring-2 focus:ring-primary/20 appearance-none">
-                        <option value="">No specific goal</option>
-                        {% for target in targets %}
-                        <option value="{{ target.id }}">{{ target.target_name }} ({{ target.target_type }})</option>
-                        {% endfor %}
-                    </select>
-                </div>
-            </div>
-
-            <div class="space-y-2">
-                <label id="category-label" class="text-xs font-bold uppercase tracking-wider text-slate-400 dark:text-slate-500 ml-1">Category</label>
-                <div class="relative">
-                    <span class="material-symbols-outlined absolute left-4 top-1/2 -translate-y-1/2 text-primary">category</span>
-                    <select id="category_select" name="category" class="w-full pl-12 pr-10 py-3.5 bg-slate-50 dark:bg-slate-800 border-none rounded-xl text-base font-medium focus:ring-2 focus:ring-primary/20 appearance-none">
-                        <option value="">Select Category</option>
-                        {% for cat in form.fields.category.queryset %}
-                        <option value="{{ cat.id }}">{{ cat.name }}</option>
-                        {% endfor %}
-                    </select>
-                </div>
-            </div>
-
-            <div class="grid grid-cols-2 gap-4">
-                <div class="space-y-2">
-                    <label class="text-xs font-bold uppercase tracking-wider text-slate-400 dark:text-slate-500 ml-1">Date</label>
-                    <div class="relative">
-                        <span class="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-slate-400 text-xl">calendar_today</span>
-                        <input id="input_date" type="date" value="{% now 'Y-m-d' %}" class="w-full pl-10 pr-3 py-3 bg-slate-50 dark:bg-slate-800 border-none rounded-xl text-sm font-medium focus:ring-2 focus:ring-primary/20"/>
+            <div class="space-y-4 overflow-y-auto px-1 custom-scrollbar flex-1 flex flex-col">
+                <div class="space-y-2 flex-shrink-0">
+                    <label class="text-xs font-bold uppercase tracking-wider text-slate-400 ml-1">Amount</label>
+                    <div class="relative flex items-center">
+                        <span class="absolute left-4 text-2xl font-bold text-slate-400">PLN</span>
+                        <input name="amount" type="number" step="0.01" class="w-full pl-16 pr-4 py-4 bg-slate-50 dark:bg-slate-800 border-none rounded-xl text-3xl font-bold focus:ring-0" placeholder="0.00" required/>
                     </div>
                 </div>
-                <div class="space-y-2">
-                    <label class="text-xs font-bold uppercase tracking-wider text-slate-400 dark:text-slate-500 ml-1">Time</label>
+
+                <div id="target-section" class="space-y-2 flex-shrink-0">
+                    <label class="text-xs font-bold uppercase tracking-wider text-primary ml-1">Assign to Goal</label>
                     <div class="relative">
-                        <span class="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-slate-400 text-xl">schedule</span>
-                        <input id="input_time" type="time" value="{% now 'H:i' %}" class="w-full pl-10 pr-3 py-3 bg-slate-50 dark:bg-slate-800 border-none rounded-xl text-sm font-medium focus:ring-2 focus:ring-primary/20"/>
+                        <span class="material-symbols-outlined absolute left-4 top-1/2 -translate-y-1/2 text-primary">emoji_events</span>
+                        <select name="target" class="w-full pl-12 pr-10 py-3.5 bg-blue-50 dark:bg-slate-800 border-none rounded-xl text-base font-medium appearance-none focus:ring-0">
+                            <option value="">No specific goal</option>
+                            {% for target in targets %}
+                            <option value="{{ target.id }}">{{ target.target_name }}</option>
+                            {% endfor %}
+                        </select>
                     </div>
                 </div>
-            </div>
 
-            <div class="space-y-2">
-                <label class="text-xs font-bold uppercase tracking-wider text-slate-400 dark:text-slate-500 ml-1">Account</label>
-                <div class="relative">
-                    <span class="material-symbols-outlined absolute left-4 top-1/2 -translate-y-1/2 text-slate-400">account_balance_wallet</span>
-                    <select name="account" class="w-full pl-12 pr-10 py-3.5 bg-slate-50 dark:bg-slate-800 border-none rounded-xl text-base font-medium focus:ring-2 focus:ring-primary/20 appearance-none" required>
-                        <option value="">Select Account</option>
-                        {% for acc in form.fields.account.queryset %}
-                        <option value="{{ acc.id }}">{{ acc.name_account }}</option>
-                        {% endfor %}
-                    </select>
+                <div class="space-y-2 flex-shrink-0">
+                    <label id="category-label" class="text-xs font-bold uppercase tracking-wider text-slate-400 ml-1">Category</label>
+                    <div class="relative">
+                        <span class="material-symbols-outlined absolute left-4 top-1/2 -translate-y-1/2 text-primary">category</span>
+                        <select id="category_select" name="category" class="w-full pl-12 pr-10 py-3.5 bg-slate-50 dark:bg-slate-800 border-none rounded-xl text-base font-medium appearance-none focus:ring-0">
+                            <option value="">Select Category</option>
+                            {% for cat in form.fields.category.queryset %}
+                            <option value="{{ cat.id }}">{{ cat.name }}</option>
+                            {% endfor %}
+                        </select>
+                    </div>
+                </div>
+
+                <div class="grid grid-cols-2 gap-4 flex-shrink-0">
+                    <div class="space-y-2">
+                        <label class="text-xs font-bold uppercase tracking-wider text-slate-400 ml-1">Date</label>
+                        <input id="input_date" type="date" value="{% now 'Y-m-d' %}" class="w-full px-3 py-3 bg-slate-50 dark:bg-slate-800 border-none rounded-xl text-sm font-medium focus:ring-0"/>
+                    </div>
+                    <div class="space-y-2">
+                        <label class="text-xs font-bold uppercase tracking-wider text-slate-400 ml-1">Time</label>
+                        <input id="input_time" type="time" value="{% now 'H:i' %}" class="w-full px-3 py-3 bg-slate-50 dark:bg-slate-800 border-none rounded-xl text-sm font-medium focus:ring-0"/>
+                    </div>
+                </div>
+
+                <div class="space-y-2 flex-shrink-0">
+                    <label class="text-xs font-bold uppercase tracking-wider text-slate-400 ml-1">Account</label>
+                    <div class="relative">
+                        <span class="material-symbols-outlined absolute left-4 top-1/2 -translate-y-1/2 text-slate-400">account_balance_wallet</span>
+                        <select name="account" class="w-full pl-12 pr-10 py-3.5 bg-slate-50 border-none rounded-xl text-base font-medium appearance-none focus:ring-0" required>
+                            <option value="">Select Account</option>
+                            {% for acc in form.fields.account.queryset %}
+                            <option value="{{ acc.id }}">{{ acc.name_account }}</option>
+                            {% endfor %}
+                        </select>
+                    </div>
+                </div>
+
+                <div class="space-y-2 flex-1 flex flex-col">
+                    <label class="text-xs font-bold uppercase tracking-wider text-slate-400 ml-1">Description</label>
+                    <textarea name="description" class="w-full flex-1 p-4 bg-slate-50 border-none rounded-xl text-base font-medium resize-none focus:ring-0" placeholder="Optional notes..."></textarea>
                 </div>
             </div>
 
-            <div class="space-y-2">
-                <label class="text-xs font-bold uppercase tracking-wider text-slate-400 dark:text-slate-500 ml-1">Description</label>
-                <textarea name="description" class="w-full p-4 bg-slate-50 dark:bg-slate-800 border-none rounded-xl text-base font-medium focus:ring-2 focus:ring-primary/20 placeholder:text-slate-400 resize-none" rows="3"></textarea>
+            <div class="pt-4 flex-shrink-0 px-1">
+                <button type="submit" class="w-full py-4 bg-primary text-white font-bold rounded-2xl shadow-lg shadow-primary/25 active:scale-[0.98] transition-transform">
+                    Create Transaction
+                </button>
             </div>
         </div>
     </main>
-
-    <footer class="p-4 mt-auto">
-        <button type="submit" class="w-full py-4 bg-primary text-white font-bold rounded-2xl shadow-lg shadow-primary/25 active:scale-[0.98] transition-transform">
-            Create Transaction
-        </button>
-    </footer>
 </form>
 
 <script>
@@ -154,33 +154,18 @@
 
     document.addEventListener('DOMContentLoaded', function() {
         const typeRadios = document.querySelectorAll('input[name="type"]');
-        const categorySelect = document.getElementById('category_select');
-        const categoryLabel = document.getElementById('category-label');
         const targetSection = document.getElementById('target-section');
 
-        function updateFormUI() {
+        function updateUI() {
             const selectedType = document.querySelector('input[name="type"]:checked').value;
-
-            // 1. Kategoria: Wymagana tylko dla Outcome
             if (selectedType === 'OUT') {
-                categorySelect.required = true;
-                categoryLabel.innerHTML = 'Category <span class="text-red-500">*</span>';
-                categorySelect.options[0].text = "Select Category (Required)";
-
-                // Ukryj sekcję celi dla wydatków
-                targetSection.classList.add('hidden');
+                targetSection.style.display = 'none';
             } else {
-                categorySelect.required = false;
-                categoryLabel.innerHTML = 'Category (Optional)';
-                categorySelect.options[0].text = "Select Category (Optional)";
-
-                // Pokaż sekcję celi dla przychodów
-                targetSection.classList.remove('hidden');
+                targetSection.style.display = 'block';
             }
         }
-
-        typeRadios.forEach(radio => radio.addEventListener('change', updateFormUI));
-        updateFormUI();
+        typeRadios.forEach(r => r.addEventListener('change', updateUI));
+        updateUI();
     });
 </script>
 </body>

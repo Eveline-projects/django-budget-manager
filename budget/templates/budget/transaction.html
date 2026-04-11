@@ -111,7 +111,7 @@
         <div class="md:col-span-2 lg:col-span-2 bg-primary-container rounded-3xl p-8 text-on-primary-container shadow-xl flex flex-col justify-between min-h-[180px]">
             <div>
                 <span class="text-sm font-semibold opacity-80 uppercase tracking-wider">Total Transactions</span>
-                <div class="text-4xl font-extrabold mt-2 tracking-tight">{{ total_transactions }} PLN</div>
+                <div class="text-4xl font-extrabold mt-2 tracking-tight">{{ total_transactions|floatformat:2 }} PLN</div>
             </div>
             <div class="flex items-center gap-2 text-sm bg-white/10 w-fit px-3 py-1 rounded-full">
                 <span class="material-symbols-outlined text-xs">payments</span>
@@ -122,7 +122,7 @@
         <div class="md:col-span-2 lg:col-span-2 bg-surface-container-lowest rounded-3xl p-8 shadow-sm flex flex-col justify-between min-h-[180px] border border-outline-variant/20">
             <div>
                 <span class="text-sm font-bold text-on-surface-variant uppercase tracking-wider">Remaining Balance</span>
-                <div class="text-4xl font-extrabold text-on-surface mt-2">{{ total_balance }} PLN</div>
+                <div class="text-4xl font-extrabold text-on-surface mt-2">{{ total_balance|floatformat:2 }} PLN</div>
             </div>
             <div class="flex items-center justify-between">
                 <span class="text-xs font-bold text-primary">Live Balance</span>
@@ -190,7 +190,7 @@
                                 </td>
                                 <td class="px-6 py-5 text-on-surface font-semibold">{{ transaction.description|default:"No description" }}</td>
                                 <td class="px-8 py-5 text-right font-extrabold {% if transaction.type == 'OUT' %}text-error{% else %}text-green-600{% endif %}">
-                                    {% if transaction.type == 'OUT' %}-{% else %}+{% endif %}{{ transaction.amount }} PLN
+                                    {% if transaction.type == 'OUT' %}-{% else %}+{% endif %}{{ transaction.amount|floatformat:2 }} PLN
                                 </td>
                             </tr>
                             {% empty %}

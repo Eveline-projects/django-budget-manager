@@ -79,9 +79,7 @@
                                 <option value="{{ value }}" {% if form.account_type.value == value %}selected{% endif %}>{{ label }}</option>
                             {% endfor %}
                         </select>
-                        <div class="absolute inset-y-0 right-4 flex items-center pointer-events-none">
-                            <span class="material-symbols-outlined text-on-surface-variant">expand_more</span>
-                        </div>
+
                     </div>
                 </div>
 
@@ -100,9 +98,6 @@
                                 <option value="{{ value }}" {% if form.parent.value|stringformat:"s" == value|stringformat:"s" %}selected{% endif %}>{{ label }}</option>
                             {% endfor %}
                         </select>
-                        <div class="absolute inset-y-0 right-4 flex items-center pointer-events-none">
-                            <span class="material-symbols-outlined text-on-surface-variant">expand_more</span>
-                        </div>
                     </div>
                 </div>
 

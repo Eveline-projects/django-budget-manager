@@ -1,5 +1,5 @@
 from django.shortcuts import redirect, render
-from django.db.models import Avg
+from decimal import Decimal
 from django.db import transaction
 from django.utils import timezone
 from datetime import timedelta
@@ -7,7 +7,7 @@ from django.contrib.auth.mixins import LoginRequiredMixin
 from django.contrib.auth import login, logout
 from django.contrib.auth.forms import AuthenticationForm
 from django.urls import reverse_lazy
-from django.db.models import Sum, Q
+from django.db.models import Sum, Q, Avg
 from django.contrib.sites.shortcuts import get_current_site
 from django.core.mail import send_mail
 from django.template.loader import render_to_string
@@ -156,10 +156,11 @@ class TransactionListView(LoginRequiredMixin, ListView):
         user_transactions = Transaction.objects.filter(user=user)
         user_accounts = BankAccount.objects.filter(user=user)
 
-        total_out = user_transactions.filter(type='OUT').aggregate(Sum('amount'))['amount__sum'] or 0
+        total_out = user_transactions.filter(type='OUT').aggregate(Sum('amount'))['amount__sum'] or Decimal('0.00')
         context['total_transactions'] = total_out
 
-        context['total_balance'] = sum(acc.total_balance for acc in user_accounts)
+        remaining_balance = sum((acc.total_balance for acc in user_accounts), Decimal('0.00'))
+        context['total_balance'] = remaining_balance
 
         context['categories'] = Category.objects.filter(user=user)
         context['transaction_count'] = user_accounts.count()
@@ -343,6 +344,7 @@ class TransactionCreateView(LoginRequiredMixin, CreateView):
 
     def form_valid(self, form):
         form.instance.user = self.request.user
+        form.instance.type = 'OUT'
         return super().form_valid(form)
 
 
@@ -404,10 +406,17 @@ class SavingListView(LoginRequiredMixin, ListView):
     def get_queryset(self):
         return SavingsAccount.objects.filter(user=self.request.user).order_by('-id')
 
+class SavingDeleteView(LoginRequiredMixin, DeleteView):
+    model = SavingsAccount
+    success_url = reverse_lazy('budget:saving_list')  
+
+    def get_queryset(self):
+        return self.model.objects.filter(user=self.request.user)
+
 
 class TargetCreateView(LoginRequiredMixin, CreateView):
     model = Target
-    fields = [ 'target_type', 'target_balance']
+    fields = ['target_type', 'target_balance']
     template_name = 'budget/target.html'
     success_url = reverse_lazy('budget:target_list')
 
@@ -430,27 +439,52 @@ class TargetListView(LoginRequiredMixin, ListView):
         return Target.objects.filter(user=self.request.user).order_by('-id')
 
 
-class DetailView(TransactionListView):
+class DetailView(LoginRequiredMixin, TemplateView):
     template_name = 'budget/detail.html'
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-        user_trans = Transaction.objects.filter(user=self.request.user, type='OUT')
+        user = self.request.user
 
-        # 1. Największe wydatki (Top 3)
-        context['top_expenses'] = user_trans.order_by('-amount')[:3]
 
-        # 2. Średnia wartość transakcji
-        avg = user_trans.aggregate(Avg('amount'))['amount__avg'] or 0
-        context['avg_expense'] = round(avg, 2)
+        all_expenses = Transaction.objects.filter(user=user, type__icontains='OUT')
+        print(f"Wszystkie: {Transaction.objects.filter(user=user).count()}")
+        print(f"Tylko OUT: {Transaction.objects.filter(user=user, type__iexact='OUT').count()}")
+        stats = all_expenses.aggregate(avg_val=Avg('amount'))
+        avg = stats['avg_val'] or 0
+        context['avg_expense'] = f"{float(avg):.2f}"
 
-        # 3. Dane do wykresu kołowego (zmieniamy format dla różnorodności)
-        stats_query = user_trans.values('category__name').annotate(total=Sum('amount'))
-        context['pie_labels'] = json.dumps([item['category__name'] for item in stats_query])
-        context['pie_values'] = json.dumps([float(item['total']) for item in stats_query])
+        # Top 3 expenses
+        context['top_expenses'] = all_expenses.order_by('-amount')[:3]
+
+        # Category counter
+        context['categories'] = Category.objects.filter(user=user)
+
+        # Chart - grouped by category
+        stats_query = all_expenses.values('category__name').annotate(
+            total=Sum('amount')
+        ).order_by('-total')
+
+        # Preparing lists for JSON
+        labels = []
+        values = []
+        for item in stats_query:
+            if item['category__name']:
+                labels.append(item['category__name'])
+                values.append(float(item['total']))
+
+        context['pie_labels'] = json.dumps(labels)
+        context['pie_values'] = json.dumps(values)
 
         return context
 
+class TargetDeleteView(LoginRequiredMixin, DeleteView):
+    model = Target
+    success_url = reverse_lazy('budget:target_list')
+
+    def get_queryset(self):
+
+        return Target.objects.filter(user=self.request.user)
 
 #pdf
 

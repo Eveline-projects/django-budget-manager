@@ -71,15 +71,17 @@
 </header>
 
 <main class="max-w-7xl mx-auto px-6 py-8">
-    <header class="mb-12">
-        <h1 class="text-4xl font-extrabold tracking-tight text-on-surface mb-2">Wallet Management</h1>
-        <p class="text-on-surface-variant font-medium">Manage your linked accounts and financial structures.</p>
-        {% if form.errors %}
-        <div class="mt-6 p-4 bg-red-50 border-l-4 border-red-500 text-red-700 text-sm rounded-r-xl">
-            {% for field, errors in form.errors.items %}{% for error in errors %}<div>{{ error }}</div>{% endfor %}{% endfor %}
-        </div>
-        {% endif %}
-    </header>
+   <header class="mb-12">
+    <span class="text-primary font-bold tracking-widest uppercase text-xs">Financial Structures</span>
+    <h1 class="text-4xl font-extrabold tracking-tight text-on-surface mt-1 mb-2">Wallet Management</h1>
+    <p class="text-on-surface-variant font-medium"> Manage your linked accounts and financial structures.</p>
+
+    {% if form.errors %}
+    <div class="mt-6 p-4 bg-red-50 border-l-4 border-red-500 text-red-700 text-sm rounded-r-xl">
+        {% for field, errors in form.errors.items %}{% for error in errors %}<div>{{ error }}</div>{% endfor %}{% endfor %}
+    </div>
+    {% endif %}
+</header>
 
     <div class="grid grid-cols-1 lg:grid-cols-12 gap-10 items-start">
         <div class="lg:col-span-8 space-y-6">
@@ -108,7 +110,7 @@
                     </div>
                     <div class="mb-8">
                         <span class="block text-[10px] font-black text-on-surface-variant uppercase tracking-widest mb-1">Available Balance</span>
-                        <div class="text-3xl font-black text-primary tracking-tighter">{{ acc.total_balance }} PLN</div>
+                        <div class="text-3xl font-black text-primary tracking-tighter">{{ acc.total_balance|floatformat:2 }} PLN</div>
                     </div>
                     <div class="flex items-center justify-between pt-6 border-t border-outline-variant/10">
                         <div class="flex gap-1">

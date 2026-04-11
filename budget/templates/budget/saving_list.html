@@ -6,8 +6,8 @@
     <meta content="width=device-width, initial-scale=1.0" name="viewport"/>
     <title>Savings List - F4</title>
     <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
-    <link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&amp;display=swap" rel="stylesheet"/>
-    <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+    <link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&display=swap" rel="stylesheet"/>
+    <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap" rel="stylesheet"/>
     <script id="tailwind-config">
         tailwind.config = {
             darkMode: "class",
@@ -40,32 +40,16 @@
 
         .fab-custom {
             transition: all 0.5s cubic-bezier(0.4, 0, 0.2, 1);
-            width: 64px;
-            height: 64px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            overflow: hidden;
-            white-space: nowrap;
+            width: 64px; height: 64px;
+            display: flex; align-items: center; justify-content: center;
+            overflow: hidden; white-space: nowrap;
         }
-        .fab-custom:hover {
-            width: 210px;
-            border-radius: 32px;
-        }
+        .fab-custom:hover { width: 210px; border-radius: 32px; }
         .fab-text {
-            max-width: 0;
-            opacity: 0;
-            transition: all 0.4s ease;
-            font-weight: 800;
-            text-transform: uppercase;
-            letter-spacing: 0.1em;
-            font-size: 0.75rem;
+            max-width: 0; opacity: 0; transition: all 0.4s ease;
+            font-weight: 800; text-transform: uppercase; letter-spacing: 0.1em; font-size: 0.75rem;
         }
-        .fab-custom:hover .fab-text {
-            max-width: 150px;
-            opacity: 1;
-            margin-left: 12px;
-        }
+        .fab-custom:hover .fab-text { max-width: 150px; opacity: 1; margin-left: 12px; }
     </style>
 </head>
 <body class="bg-background text-on-background min-h-screen pt-20">
@@ -75,8 +59,7 @@
         <div class="flex items-center">
             <a href="/" class="group transition-transform hover:scale-105">
                 <img src="https://as2.ftcdn.net/jpg/01/22/16/27/1000_F_122162798_q6ZxeeXBlJRjZJbnbyzjQbZ0ZRz4GW7w.jpg"
-                     alt="F4 Logo"
-                     class="w-12 h-12 rounded-xl shadow-sm object-cover">
+                     alt="F4 Logo" class="w-12 h-12 rounded-xl shadow-sm object-cover">
             </a>
         </div>
         <nav class="hidden md:flex items-center gap-8">
@@ -111,20 +94,31 @@
                     <div class="w-12 h-12 rounded-2xl bg-primary/10 flex items-center justify-center text-primary">
                         <span class="material-symbols-outlined" style="font-size: 28px;">savings</span>
                     </div>
-                    <div class="flex items-center space-x-1 bg-secondary-container px-3 py-1 rounded-full text-on-secondary-container">
-                        <span class="material-symbols-outlined text-[14px]" style="font-variation-settings: 'FILL' 1;">trending_up</span>
-                        <span class="text-[10px] font-bold uppercase tracking-widest">{{ saving.interest_rate }}% APY</span>
+
+                    <div class="flex items-center gap-2">
+                        <div class="flex items-center space-x-1 bg-secondary-container px-3 py-1 rounded-full text-on-secondary-container">
+                            <span class="material-symbols-outlined text-[14px]" style="font-variation-settings: 'FILL' 1;">trending_up</span>
+                            <span class="text-[10px] font-bold uppercase tracking-widest">{{ saving.interest_rate }}% APY</span>
+                        </div>
+                        <button type="button"
+                                onclick="openDeleteSavingModal('{{ saving.pk }}', '{{ saving.saving_name }}')"
+                                class="p-1.5 text-slate-400 hover:text-red-600 transition-colors">
+                            <span class="material-symbols-outlined !text-[20px]">delete</span>
+                        </button>
                     </div>
                 </div>
+
                 <div>
                     <p class="text-[10px] font-bold uppercase tracking-widest text-on-surface-variant mb-1">{{ saving.saving_type }}</p>
                     <h3 class="text-xl font-bold text-on-surface">{{ saving.saving_name }}</h3>
                 </div>
+
                 <div class="pt-2">
                     <div class="text-4xl font-extrabold tracking-tighter text-primary">{{ saving.saving_balance }}</div>
-                    <p class="text-[10px] font-bold text-primary/60 uppercase tracking-widest mt-1">Polish Zloty (PLN)</p>
+                    <p class="text-[10px] font-bold text-primary/60 uppercase tracking-widest mt-1">PLN</p>
                 </div>
             </div>
+
             <div class="mt-8">
                 <a href="{% url 'budget:saving_detail' saving.pk %}" class="w-full py-4 bg-primary text-white font-bold rounded-2xl flex items-center justify-center space-x-2 transition-all hover:opacity-90 active:scale-[0.98]">
                     <span>View Details</span>
@@ -149,6 +143,41 @@
         <span class="fab-text">Add saving</span>
     </a>
 </div>
+
+<div id="delete-saving-modal" class="fixed inset-0 z-[110] hidden overflow-y-auto">
+    <div onclick="closeDeleteSavingModal()" class="fixed inset-0 bg-slate-900/40 backdrop-blur-sm transition-opacity"></div>
+    <div class="flex items-center justify-center min-h-screen p-4 text-center">
+        <div class="relative bg-white rounded-[2rem] max-w-sm w-full p-8 shadow-2xl">
+            <div class="w-20 h-20 bg-red-50 rounded-full flex items-center justify-center mb-6 mx-auto">
+                <span class="material-symbols-outlined text-red-600 !text-4xl">delete_forever</span>
+            </div>
+            <h3 class="text-2xl font-black text-on-surface mb-2">Delete Account?</h3>
+            <p class="text-on-surface-variant text-sm mb-8">Are you sure you want to delete <span id="modal-saving-name" class="font-bold text-on-surface"></span>? All data will be lost.</p>
+            <div class="flex gap-3">
+                <button type="button" onclick="closeDeleteSavingModal()" class="flex-1 py-4 bg-surface-container-low text-on-surface font-bold rounded-xl hover:bg-surface-container transition-colors">Cancel</button>
+                <form id="delete-saving-form" method="post" class="flex-1">
+                    {% csrf_token %}
+                    <button type="submit" class="w-full py-4 bg-red-600 text-white font-bold rounded-xl shadow-lg hover:bg-red-700 transition-all">Delete</button>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    function openDeleteSavingModal(savingId, savingName) {
+        // Upewnij się, że ten URL pasuje do Twojego urls.py (np. budget:saving_delete)
+        document.getElementById('delete-saving-form').action = `/budget/saving/delete/${savingId}/`;
+        document.getElementById('modal-saving-name').innerText = savingName;
+        document.getElementById('delete-saving-modal').classList.remove('hidden');
+        document.body.style.overflow = 'hidden';
+    }
+
+    function closeDeleteSavingModal() {
+        document.getElementById('delete-saving-modal').classList.add('hidden');
+        document.body.style.overflow = 'auto';
+    }
+</script>
 
 </body>
 </html>
