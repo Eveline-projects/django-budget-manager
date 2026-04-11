@@ -13,6 +13,7 @@ from django.core.mail import send_mail
 from django.template.loader import render_to_string
 from django.utils.encoding import force_bytes, force_str
 from django.utils.http import urlsafe_base64_encode, urlsafe_base64_decode
+from django.conf import settings
 from django.views.generic import (
     CreateView,
     ListView,
@@ -96,7 +97,7 @@ class RegisterView(CreateView):
             'uid': urlsafe_base64_encode(force_bytes(user.pk)),
             'token': acc_activation_token.make_token(user),
         })
-        send_mail(subject, message, 'no-reply@f4-budget.pl', [user.email], fail_silently=False)
+        send_mail(subject, message, settings.DEFAULT_FROM_EMAIL, [user.email], fail_silently=False)
         return redirect(self.success_url)
 
 
