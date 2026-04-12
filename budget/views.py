@@ -46,6 +46,7 @@ from reportlab.platypus import SimpleDocTemplate, Table, TableStyle
 from reportlab.lib import colors
 from io import BytesIO
 
+
 User = get_user_model()
 
 class IndexView(TemplateView):
@@ -157,8 +158,11 @@ class TransactionListView(LoginRequiredMixin, ListView):
         total_out = user_transactions.filter(type='OUT').aggregate(Sum('amount'))['amount__sum'] or Decimal('0.00')
         context['total_transactions'] = total_out
 
-        remaining_balance = sum((acc.total_balance for acc in user_accounts), Decimal('0.00'))
-        context['total_balance'] = remaining_balance
+        all_trans = Transaction.objects.filter(user=user)
+        total_in = all_trans.filter(type='IN').aggregate(Sum('amount'))['amount__sum'] or Decimal('0.00')
+        total_out_all = all_trans.filter(type='OUT').aggregate(Sum('amount'))['amount__sum'] or Decimal('0.00')
+
+        context['total_balance'] = total_in - total_out
 
         context['categories'] = Category.objects.filter(user=user)
         context['transaction_count'] = user_accounts.count()
@@ -256,60 +260,62 @@ class BankAccountUpdateView(LoginRequiredMixin, UpdateView):
     template_name = 'budget/account_update.html'
     success_url = reverse_lazy('budget:account')
 
-    def get_initial(self):
-        initial = super().get_initial()
-        account = self.get_object()
-
-        starting_transaction = Transaction.objects.filter(
-            account=account,
-            description='Starting balance'
-        ).first()
-
-        initial['initial_balance'] = starting_transaction.amount if starting_transaction else 0
-        return initial
-
-    def form_valid(self, form):
-        account = self.get_object()
-        new_target_balance = form.cleaned_data.get('initial_balance') or 0
-
-        try:
-            with transaction.atomic():
-                starting_transaction = Transaction.objects.filter(
-                    account=account,
-                    description='Starting balance'
-                ).first()
-                other_transactions = account.transactions.exclude(
-                    id=starting_transaction.id if starting_transaction else None
-                )
-                agg = other_transactions.aggregate(
-                    incomes=Sum('amount', filter=Q(type='IN')),
-                    outcomes=Sum('amount', filter=Q(type='OUT')),
-                )
-                other_sum = (agg['incomes'] or 0) - (agg['outcomes'] or 0)
-                if starting_transaction:
-                    starting_transaction.amount = new_target_balance - other_sum
-                    starting_transaction.save()
-                else:
-                    Transaction.objects.create(
-                        user=self.request.user,
-                        amount=new_target_balance - other_sum,
-                        type='IN',
-                        account=account,
-                        description='Starting balance',
-                        category=Category.objects.get_or_create(name="Other", user=self.request.user)[0]
-                    )
-
-                form.instance.initial_balance = 0
-                return super().form_valid(form)
-
-        except Exception as e:
-            form.add_error(None, f"Błąd podczas aktualizacji salda: {e}")
-            return self.form_invalid(form)
-
+    # ZACHOWANE: Przekazywanie usera do formularza (ważne dla dropdownów kategorii/rodziców)
     def get_form_kwargs(self):
         kwargs = super().get_form_kwargs()
         kwargs['user'] = self.request.user
         return kwargs
+
+    # ZACHOWANE: Inicjalizacja formularza kwotą z bazy
+    def get_initial(self):
+        initial = super().get_initial()
+        account = self.get_object()
+        # Zmienione: Pobieramy "czystą" kwotę startową, żeby nie edytować sumy z dziećmi
+        start_trans = Transaction.objects.filter(account=account, description='Starting balance').first()
+        initial['initial_balance'] = start_trans.amount if start_trans else 0
+        return initial
+
+    def form_valid(self, form):
+        account = self.get_object()
+        new_base_amount = form.cleaned_data.get('initial_balance') or 0
+
+        # ZACHOWANE: transaction.atomic() dla bezpieczeństwa danych
+        try:
+            with transaction.atomic():
+                start_trans = Transaction.objects.filter(
+                    account=account,
+                    description='Starting balance'
+                ).first()
+
+                if start_trans:
+                    # Logika: Edytujemy tylko punkt wyjścia.
+                    # To zapobiega puchnięciu salda przy relacjach Rodzic-Dziecko.
+                    start_trans.amount = new_base_amount
+                    start_trans.save()
+                else:
+                    # ZACHOWANE: Tworzenie transakcji, jeśli konto jej nie miało
+                    # ZACHOWANE: Automatyczne pobieranie/tworzenie kategorii "Other"
+                    category, _ = Category.objects.get_or_create(name="Other", user=self.request.user)
+                    Transaction.objects.create(
+                        user=self.request.user,
+                        amount=new_base_amount,
+                        type='IN',
+                        account=account,
+                        description='Starting balance',
+                        category=category
+                    )
+
+                # ZACHOWANE: Ustawienie pola modelu na 0 (skoro saldo jest w transakcjach)
+                form.instance.initial_balance = 0
+
+                # ZACHOWANE: Wywołanie super().form_valid(form), które zapisuje
+                # resztę pól (nazwę konta, typ, rodzica)
+                return super().form_valid(form)
+
+        except Exception as e:
+            # ZACHOWANE: Obsługa błędów i wyświetlanie ich w formularzu
+            form.add_error(None, f"Błąd podczas aktualizacji salda: {e}")
+            return self.form_invalid(form)
 
 
 class BankAccountDeleteView(LoginRequiredMixin, DeleteView):
@@ -355,6 +361,7 @@ class TransactionCreateView(LoginRequiredMixin, CreateView):
             except Exception as e:
                 print(f"Błąd przypisania celu: {e}")
         form.instance.user = self.request.user
+
         return super().form_valid(form)
 
 
