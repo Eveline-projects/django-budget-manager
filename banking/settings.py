@@ -12,23 +12,30 @@ https://docs.djangoproject.com/en/6.0/ref/settings/
 import os
 from pathlib import Path
 import environ
+import django.core.exceptions
+
 
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
 
 env = environ.Env()
-environ.Env.read_env(os.path.join(BASE_DIR, '.env'))
+env.read_env(os.path.join(BASE_DIR, '.env'))
 # Quick-start development settings - unsuitable for production
 # See https://docs.djangoproject.com/en/6.0/howto/deployment/checklist/
 
 # SECURITY WARNING: keep the secret key used in production secret!
-SECRET_KEY = env('SECRET_KEY')
+try:
+    SECRET_KEY = env('SECRET_KEY')
+except Exception:
+    raise django.core.exceptions.ImproperlyConfigured(
+        "SECRET_KEY is missing. Create a .env file and add SECRET_KEY=your_secret_key to it."
+    )
 
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = env.bool('DEBUG', default=False)
 
-ALLOWED_HOSTS = ['jpydzr9-fantastyczna-czworka.onrender.com', '127.0.0.1', 'localhost','jpydzr9-fantastyczna-czworka-5.onrender.com', '0.0.0.0']
+ALLOWED_HOSTS = env.list('ALLOWED_HOSTS', default=['jpydzr9-fantastyczna-czworka.onrender.com', '127.0.0.1', 'localhost','jpydzr9-fantastyczna-czworka-5.onrender.com', '0.0.0.0'])
 
 
 # Application definition
