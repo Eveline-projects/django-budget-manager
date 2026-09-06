@@ -20,12 +20,14 @@ The app includes features for managing bank accounts, adding income and expenses
 - Python
 - Django
 - Django ORM
+- Pytest (for testing)
 
 ### Frontend
 
 - HTML5
-- CSS
+- CSS3
 - Bootstrap
+- Django Templates
 
 ### Database
 
@@ -39,11 +41,12 @@ The app includes features for managing bank accounts, adding income and expenses
 ## My Responsibilities
 
 As part of the team, I was responsible for:
-
-- Implementing the logic for adding expenses and displaying the balance on the dashboard
-- Building the account management module (create, edit, delete bank accounts)
-- Integrating user authentication and authorization using Django’s built-in system
-- Collaborating with teammates on feature planning, code reviews, and UI improvements
+* **Core Logic & Data Layer:** Designing transaction models and implementing CRUD operations for expenses.
+* **Calculations:** Implementing balance calculation and statistics on the dashboard using Django ORM aggregations (`Sum`, `Count`).
+* **Account Management:** Building the module for managing bank accounts (create, edit, delete).
+* **Authentication:** Integrating user authentication and authorization using Django’s built-in system.
+* **Testing:** Writing and maintaining unit tests using **Pytest**.
+* **Collaboration:** Working with teammates on feature planning, code reviews, and UI improvements.
 
 ## How to Run the Project
 
@@ -75,9 +78,24 @@ As part of the team, I was responsible for:
    python manage.py runserver
    ```
 
-5. Open the app in your browser:
+5. Run tests (optional):
+
+   ```bash
+   pytest
+   ```
+
+6. Run the development server:
+
+   ```bash
+   python manage.py runserver
+   ```
+
+7. Open the app in your browser:
 
    - Web app: http://127.0.0.1:8000/
+
+   Note on Frontend: The frontend uses Django Templates and Bootstrap integrated directly into the application, so no separate frontend server or Node.js build step is required.
+
 
 ## Project Status
 
